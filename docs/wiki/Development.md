@@ -48,4 +48,10 @@ Run `npm test` for the legacy Electron suite or `xvfb-run --auto-servernum npm t
 
 Playwright serves the production renderer, substitutes the Tauri IPC bridge, and fails on unexpected off-server requests. Native CI builds the macOS and Linux packages and checks launch, workspace navigation, Node sidecar startup, and session isolation with a temporary profile. Use synthetic fixtures in tests and sanitized evidence in pull requests.
 
+## Merge into the default branch
+
+Open a pull request and run CI against the latest default branch before merging. GitHub requires the five jobs in [the main branch ruleset](../../.github/rulesets/main-ci.json) from GitHub Actions. Repository admins can bypass the checks on a pull request for an authorized emergency fix.
+
+If a required job needs a new name, coordinate the CI and repository ruleset changes so a check can run under both names during the transition. Verify the active rules in [repository settings](https://github.com/rowkavdev/AltCrate/rulesets).
+
 [CI runs](https://github.com/rowkavdev/AltCrate/actions/workflows/ci.yml) · [Back to the handbook](Home.md)
