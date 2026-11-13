@@ -1,0 +1,40 @@
+name: Release Linux Tauri
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-linux:
+    uses: ./.github/workflows/build-linux-tauri.yml
+
+  release-linux:
+    name: Publish the verified Linux package
+    needs: verify-linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: casepilot-linux-amd64
+      - name: Publish or update the Linux asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          shopt -s nullglob
+          packages=(*.deb)
+          test "${#packages[@]}" -eq 1
+          sha256sum "${packages[0]}" > SHA256SUMS-linux-amd64.txt
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${packages[0]}" SHA256SUMS-linux-amd64.txt --clobber
+          else
+            gh release create "$RELEASE_TAG" "${packages[0]}" SHA256SUMS-linux-amd64.txt \
+              --verify-tag --generate-notes
+          fi
