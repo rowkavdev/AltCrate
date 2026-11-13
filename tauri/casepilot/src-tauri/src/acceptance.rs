@@ -1,4 +1,11 @@
 use super::*;
+
+pub fn uses_upgrade_profile() -> bool {
+    cfg!(target_os = "linux")
+        && std::env::var("CASEPILOT_VERIFY_LINUX_UPGRADE").as_deref() == Ok("1")
+        && std::env::var_os("XDG_DATA_HOME").is_some_and(|path| PathBuf::from(path).is_absolute())
+}
+
 async fn evaluate(window: &WebviewWindow, script: String) -> Result<Value, String> {
     let (tx, rx) = oneshot::channel();
     let tx = Arc::new(Mutex::new(Some(tx)));
@@ -41,11 +48,21 @@ pub fn start(app: &tauri::AppHandle) {
         let state = app.state::<Arc<Engine>>().inner().clone();
         let destination = PathBuf::from(destination);
         let _ = std::fs::create_dir_all(&destination);
-        let mut report = json!({"runtime":"Tauri + native WebKit + bundled Node","fixture":"temporary empty account store","liveGameRequests":0,"pages":[],"errors":[],"nativeScreenshots":[]});
+        let upgrade = uses_upgrade_profile();
+        let fixture = if upgrade { "isolated Linux upgrade profile" } else { "temporary empty account store" };
+        let mut report = json!({"runtime":"Tauri + native WebKit + bundled Node","fixture":fixture,"liveGameRequests":0,"pages":[],"errors":[],"nativeScreenshots":[]});
         let result:Result<(),String>=async{
             let accounts=state.call("accounts:list".into(),vec![]).await?;
             if accounts!=json!([]){return Err("Fixture store was not empty".into());}
-            state.call("preferences:update".into(),vec![json!({"enableSiteOpening":true})]).await?;
+            if upgrade {
+                let saved = state.call("preferences:read".into(), vec![]).await?;
+                if saved != json!({"enableSiteOpening":true}) {
+                    return Err("AltCrate did not load the preferences saved by CasePilot".into());
+                }
+                report["linuxUpgradeDataRetained"] = json!(true);
+            } else {
+                state.call("preferences:update".into(),vec![json!({"enableSiteOpening":true})]).await?;
+            }
             let window=app.get_webview_window("main").ok_or("Missing main window")?;
             window.set_title("AltCrate · Isolated verification").map_err(|e|e.to_string())?;
             let _=window.set_focus();
