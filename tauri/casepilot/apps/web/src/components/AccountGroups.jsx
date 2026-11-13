@@ -264,7 +264,7 @@ export default function AccountGroups({
       </details>
       {error && (
         <p role="alert" className="inline-error">
-          {error}
+          {t(error)}
         </p>
       )}
     </section>

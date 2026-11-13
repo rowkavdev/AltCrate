@@ -47,14 +47,14 @@ struct Engine {
 }
 impl Engine {
     async fn send(&self, value: Value) -> Result<(), String> {
-        let mut bytes = serde_json::to_vec(&value).map_err(|_| "Pedido inválido.")?;
+        let mut bytes = serde_json::to_vec(&value).map_err(|_| "Invalid request.")?;
         bytes.push(b'\n');
         self.input
             .lock()
             .await
             .write_all(&bytes)
             .await
-            .map_err(|_| "O serviço de operações terminou.".into())
+            .map_err(|_| "The operations engine stopped.".into())
     }
     async fn call(&self, channel: String, args: Vec<Value>) -> Result<Value, String> {
         for _ in 0..300 {
@@ -67,10 +67,10 @@ impl Engine {
             tokio::time::sleep(Duration::from_millis(100)).await;
         }
         if !self.ready.load(Ordering::SeqCst) {
-            return Err("O serviço de operações não iniciou.".into());
+            return Err("The operations engine did not start.".into());
         }
         if !self.channels.lock().unwrap().contains(&channel) {
-            return Err("Operação desconhecida.".into());
+            return Err("Unknown operation.".into());
         }
         let id = format!("tauri-{}", self.sequence.fetch_add(1, Ordering::SeqCst));
         let (tx, rx) = oneshot::channel();
@@ -88,14 +88,14 @@ impl Engine {
         match result {
             Ok(Ok(value)) => value,
             _ => {
-                Err("A resposta não chegou. Verifica o estado antes de repetir a operação.".into())
+                Err("The operation did not return a response. Check its state before trying again.".into())
             }
         }
     }
     fn fail(&self) {
         self.ready.store(false, Ordering::SeqCst);
         let error =
-            "O serviço de operações terminou. Reinicia a app para recuperar o estado guardado."
+            "The operations engine stopped. Restart AltCrate to recover the saved state."
                 .to_string();
         *self.failed.lock().unwrap() = Some(error.clone());
         for (_, reply) in self.pending.lock().unwrap().drain() {
@@ -105,13 +105,13 @@ impl Engine {
 }
 fn local_workspace(window: &WebviewWindow) -> Result<(), String> {
     if window.label() != "main" {
-        return Err("Pedido fora do espaço de trabalho.".into());
+        return Err("This request must come from the workspace.".into());
     }
-    let url = window.url().map_err(|_| "Origem inválida.")?;
+    let url = window.url().map_err(|_| "Invalid request origin.")?;
     if workspace_url(&url) {
         Ok(())
     } else {
-        Err("Origem inválida.".into())
+        Err("Invalid request origin.".into())
     }
 }
 fn workspace_url(url: &tauri::Url) -> bool {
@@ -133,17 +133,17 @@ fn login_navigation(url: &tauri::Url) -> bool {
             && url.password().is_none())
 }
 #[cfg(target_os = "linux")]
-const CREDENTIAL_STORE_GUIDANCE: &str = "Verifica se o Secret Service (por exemplo, GNOME Keyring ou KeePassXC) está ativo e desbloqueado. Volta a abrir o AltCrate na mesma sessão gráfica.";
+const CREDENTIAL_STORE_GUIDANCE: &str = "Check that your Secret Service provider (such as GNOME Keyring or KeePassXC) is running and unlocked. Reopen AltCrate from the same desktop session.";
 
 #[cfg(target_os = "macos")]
-const CREDENTIAL_STORE_GUIDANCE: &str = "Autoriza o acesso do AltCrate ao Porta-chaves do macOS e volta a abrir a aplicação.";
+const CREDENTIAL_STORE_GUIDANCE: &str = "Allow AltCrate to access macOS Keychain, then reopen the app.";
 
 fn credential_store_error() -> String {
-    format!("Não foi possível aceder ao armazenamento seguro de sessões. {CREDENTIAL_STORE_GUIDANCE}")
+    format!("Could not access secure session storage. {CREDENTIAL_STORE_GUIDANCE}")
 }
 
 fn credential_store_timeout() -> String {
-    format!("O arranque ainda aguarda acesso ao armazenamento seguro de sessões. {CREDENTIAL_STORE_GUIDANCE}")
+    format!("AltCrate is still waiting for access to secure session storage. {CREDENTIAL_STORE_GUIDANCE}")
 }
 
 #[tauri::command]
@@ -170,14 +170,14 @@ async fn engine_invoke(
     state.call(channel, args).await
 }
 fn game_url(value: &str) -> Result<tauri::Url, String> {
-    let url = tauri::Url::parse(value).map_err(|_| "Endereço inválido.")?;
+    let url = tauri::Url::parse(value).map_err(|_| "Invalid address.")?;
     if url.scheme() != "https"
         || url.host_str() != Some("case-clicker.com")
         || url.port_or_known_default() != Some(443)
         || !url.username().is_empty()
         || url.password().is_some()
     {
-        return Err("A ligação não pertence ao site do jogo.".into());
+        return Err("This link is outside the game website.".into());
     }
     Ok(url)
 }
@@ -185,7 +185,7 @@ fn text<'a>(value: &'a Value, key: &str) -> Result<&'a str, String> {
     value
         .get(key)
         .and_then(Value::as_str)
-        .ok_or_else(|| "Pedido nativo inválido.".into())
+        .ok_or_else(|| "Invalid native request.".into())
 }
 fn login_for(app: &tauri::AppHandle, state: &Engine, partition: &str) -> Option<WebviewWindow> {
     let label = state.logins.lock().unwrap().iter().find_map(|(id, p)| {
@@ -203,11 +203,11 @@ fn apply_cookies(window: &WebviewWindow, values: &Value) -> Result<(), String> {
     };
     for cookie in window
         .cookies_for_url(game_url("https://case-clicker.com/")?)
-        .map_err(|_| "Não foi possível preparar a sessão.")?
+        .map_err(|_| "Could not prepare the session.")?
     {
         window
             .delete_cookie(cookie)
-            .map_err(|_| "Não foi possível atualizar a sessão.")?;
+            .map_err(|_| "Could not refresh the session.")?;
     }
     for value in cookies {
         let name = text(value, "name")?;
@@ -224,7 +224,7 @@ fn apply_cookies(window: &WebviewWindow, values: &Value) -> Result<(), String> {
                 .http_only(value["httpOnly"].as_bool().unwrap_or(false));
         if let Some(expiry) = value["expirationDate"].as_i64() {
             let expiry = time::OffsetDateTime::from_unix_timestamp(expiry)
-                .map_err(|_| "Prazo de sessão inválido.")?;
+                .map_err(|_| "Invalid session expiry.")?;
             if expiry <= time::OffsetDateTime::now_utc() {
                 continue;
             }
@@ -232,7 +232,7 @@ fn apply_cookies(window: &WebviewWindow, values: &Value) -> Result<(), String> {
         }
         window
             .set_cookie(cookie.build())
-            .map_err(|_| "Não foi possível preparar a sessão de login.")?;
+            .map_err(|_| "Could not prepare the sign-in session.")?;
     }
     Ok(())
 }
@@ -240,11 +240,11 @@ fn create_login(app: &tauri::AppHandle, state: Arc<Engine>, args: &Value) -> Res
     let id = text(&args, "id")?.to_string();
     let partition = text(&args, "partition")?.to_string();
     if !id.starts_with("login-") || id.len() > 80 || partition.len() > 200 {
-        return Err("Sessão de login inválida.".into());
+        return Err("Invalid sign-in session.".into());
     }
     let background = args["background"].as_bool().unwrap_or(false);
     let mut builder=WebviewWindowBuilder::new(app,&id,WebviewUrl::External("about:blank".parse().unwrap()))
-                .title(args["title"].as_str().unwrap_or("Entrar"))
+                .title(args["title"].as_str().unwrap_or("Sign in"))
                 .visible(!background).focused(!background)
                 .inner_size(args["width"].as_f64().unwrap_or(1050.0),args["height"].as_f64().unwrap_or(800.0))
                 .on_navigation(login_navigation)
@@ -268,22 +268,22 @@ fn create_login(app: &tauri::AppHandle, state: Arc<Engine>, args: &Value) -> Res
     // Use WebKit's real identity. A fixed Safari version does not describe
     // the embedded browser and becomes stale when the system WebKit changes.
     if let Some(proxy) = args["proxy"].as_str() {
-        let url = tauri::Url::parse(proxy).map_err(|_| "Proxy inválido.")?;
+        let url = tauri::Url::parse(proxy).map_err(|_| "Invalid proxy.")?;
         if !["http", "socks5"].contains(&url.scheme())
             || !url.username().is_empty()
             || url.password().is_some()
         {
-            return Err("Proxy inválido.".into());
+            return Err("Invalid proxy.".into());
         }
         builder = builder.proxy_url(url);
     }
     let window = builder
         .build()
-        .map_err(|_| "Não foi possível abrir o login.")?;
+        .map_err(|_| "Could not open the sign-in window.")?;
     state.logins.lock().unwrap().insert(id.clone(), partition);
     if window
         .cookies_for_url(game_url("https://case-clicker.com/")?)
-        .map_err(|_| "Sessão indisponível.")?
+        .map_err(|_| "Session unavailable.")?
         .is_empty()
     {
         apply_cookies(&window, &args["cookies"])?;
@@ -345,7 +345,7 @@ async fn native(
                 }
             })
             .await
-            .map_err(|_| "Não foi possível abrir o seletor.")?;
+            .map_err(|_| "Could not open the file picker.")?;
             let path = selected
                 .and_then(|p| p.into_path().ok())
                 .map(|p| p.to_string_lossy().into_owned());
@@ -365,7 +365,7 @@ async fn native(
                 .arg(url.as_str())
                 .status()
                 .await
-                .map_err(|_| "Não foi possível abrir a ligação.")?;
+                .map_err(|_| "Could not open the link.")?;
             Ok(json!(status.success()))
         }
         "login.create" => {
@@ -375,15 +375,15 @@ async fn native(
                 .filter(|window| state.retained.lock().unwrap().contains_key(window.label()))
                 .map(|window| window.cookies_for_url(origin))
                 .transpose()
-                .map_err(|_| "Não foi possível preservar a sessão de login.")?;
+                .map_err(|_| "Could not retain the sign-in session.")?;
             native_login::close_retained(&app, &state, &partition);
             create_login(&app, state.clone(), &args)?;
             if let Some(cookies) = retained_cookies {
-                let window = app.get_webview_window(text(&args, "id")?).ok_or("Sessão indisponível.")?;
+                let window = app.get_webview_window(text(&args, "id")?).ok_or("Session unavailable.")?;
                 for cookie in cookies {
                     if window.set_cookie(cookie).is_err() {
                         let _ = window.close();
-                        return Err("Não foi possível restaurar a sessão de login.".into());
+                        return Err("Could not restore the sign-in session.".into());
                     }
                 }
             }
@@ -401,7 +401,7 @@ async fn native(
                 .ok_or("A janela de login foi fechada.")?;
             window
                 .hide()
-                .map_err(|_| "Não foi possível guardar a sessão.")?;
+                .map_err(|_| "Could not save the session.")?;
             if let Some(main) = app.get_webview_window("main") {
                 let _ = main.set_focus();
             }
@@ -417,7 +417,7 @@ async fn native(
             if let Some(window) = login_for(&app, &state, partition) {
                 let cookies = window
                     .cookies_for_url(game_url("https://case-clicker.com/")?)
-                    .map_err(|_| "Não foi possível ler a sessão de login.")?;
+                    .map_err(|_| "Could not read the sign-in session.")?;
                 Ok(Value::Array(cookies.into_iter().map(|c|json!({"name":c.name(),"value":c.value(),"domain":c.domain().unwrap_or("case-clicker.com"),"path":c.path().unwrap_or("/"),"secure":c.secure().unwrap_or(true),"httpOnly":c.http_only().unwrap_or(false),"expirationDate":c.expires_datetime().map(|t|t.unix_timestamp())})).collect()))
             } else {
                 Ok(Value::Null)
@@ -433,7 +433,7 @@ async fn native(
             if let Some(window) = login_for(&app, &state, text(&args, "partition")?) {
                 window
                     .clear_all_browsing_data()
-                    .map_err(|_| "Não foi possível limpar a sessão.")?;
+                    .map_err(|_| "Could not clear the session.")?;
             }
             Ok(Value::Null)
         }
@@ -448,7 +448,7 @@ async fn native(
             state.loads.lock().unwrap().insert(id.clone(), tx);
             if window.navigate(url).is_err() {
                 state.loads.lock().unwrap().remove(&id);
-                return Err("Não foi possível abrir o site.".into());
+                return Err("Could not open the website.".into());
             }
             let value = tokio::time::timeout(Duration::from_secs(45), rx).await;
             state.loads.lock().unwrap().remove(&id);
@@ -457,14 +457,14 @@ async fn native(
                     result?;
                     native_login::identity(&window, &state).await
                 }
-                _ => Err("A página de login não terminou de carregar. Tenta novamente.".into()),
+                _ => Err("The sign-in page is still loading. Try again.".into()),
             }
         }
         "login.close" => {
             if let Some(window) = app.get_webview_window(text(&args, "id")?) {
                 window
                     .close()
-                    .map_err(|_| "Não foi possível fechar o login.")?;
+                    .map_err(|_| "Could not close the sign-in window.")?;
             }
             Ok(Value::Null)
         }
@@ -475,7 +475,7 @@ async fn native(
             if game_url(
                 window
                     .url()
-                    .map_err(|_| "O login ainda está a carregar.")?
+                    .map_err(|_| "The sign-in page is still loading.")?
                     .as_str(),
             )
             .is_err()
@@ -488,7 +488,7 @@ async fn native(
                 Err(error) => Err(error),
             }
         }
-        _ => Err("Integração nativa desconhecida.".into()),
+        _ => Err("Unknown native integration.".into()),
     }
 }
 fn vault_key(fixture: bool) -> Result<String, Box<dyn std::error::Error>> {
@@ -509,7 +509,7 @@ fn vault_key(fixture: bool) -> Result<String, Box<dyn std::error::Error>> {
     match entry.get_password() {
         Ok(key) => {
             if STANDARD.decode(&key)?.len() != 32 {
-                return Err("Chave local inválida.".into());
+                return Err("Invalid local encryption key.".into());
             }
             Ok(key)
         }
@@ -682,14 +682,14 @@ fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>
                 }
                 "fatal" => {
                     reader_state.fail();
-                    let _=handle.emit_to("main","casepilot:event",json!({"type":"notice","message":"Não foi possível iniciar o serviço de operações. Reinicia a app."}));
+                    let _=handle.emit_to("main","casepilot:event",json!({"type":"notice","message":"Could not start the operations engine. Restart AltCrate."}));
                 }
                 _ => {}
             }
         }
         reader_state.fail();
         let _ = reader_state.child.lock().await.kill().await;
-        let _=handle.emit_to("main","casepilot:event",json!({"type":"notice","message":"O serviço de operações terminou. Reinicia a app para recuperar o estado guardado."}));
+        let _=handle.emit_to("main","casepilot:event",json!({"type":"notice","message":"The operations engine stopped. Restart AltCrate to recover the saved state."}));
     });
     tauri::async_runtime::spawn(async move {
         let _=state.send(json!({"type":"initialize","configuration":{"dataDirectory":data,"appDataDirectory":data.parent(),"vaultKey":key,"browserExecutable":browser_executable}})).await;
@@ -767,7 +767,7 @@ fn main() {
             }
         })
         .build(context)
-        .expect("Não foi possível iniciar o AltCrate.")
+        .expect("Could not start AltCrate.")
         .run(|app, event| {
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::Reopen { .. } = &event {
@@ -791,13 +791,13 @@ mod origin_tests {
             #[cfg(target_os = "linux")]
             {
                 assert!(message.contains("Secret Service"));
-                assert!(message.contains("desbloqueado"));
-                assert!(message.contains("sessão gráfica"));
+                assert!(message.contains("unlocked"));
+                assert!(message.contains("desktop session"));
                 assert!(!message.contains("macOS"));
             }
             #[cfg(target_os = "macos")]
             {
-                assert!(message.contains("Porta-chaves do macOS"));
+                assert!(message.contains("macOS Keychain"));
                 assert!(!message.contains("Secret Service"));
             }
         }

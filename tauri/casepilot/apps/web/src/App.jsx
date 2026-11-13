@@ -1,7 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import AppShell from "./AppShell.jsx";
 import { useFarmServer } from "./useFarmServer.js";
-import { useLanguage } from "./useLanguage.js";
 import { useAppPreferences } from "./useAppPreferences.js";
 import { useWorkspaceModel } from "./useWorkspaceModel.js";
 import {
@@ -62,7 +61,6 @@ const initialUi = {
   },
 };
 export default function App() {
-  useLanguage();
   const model = useWorkspaceModel(
     typeof window !== "undefined" ? window.caseClicker : null,
   );

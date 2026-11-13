@@ -289,7 +289,7 @@ export default function ProgressionBatchPanel({
                 <option value="">{t("Escolher preset…")}</option>
                 {presets.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {t(p.name)}
+                    {p.name}
                   </option>
                 ))}
               </select>
@@ -463,7 +463,7 @@ export default function ProgressionBatchPanel({
                     </td>
                     <td>
                       {t(labels[row.state] || row.state)}
-                      {row.message && <small>{row.message}</small>}
+                      {row.message && <small>{t(row.message)}</small>}
                     </td>
                   </tr>
                 ))}
@@ -541,7 +541,7 @@ export default function ProgressionBatchPanel({
         )}
         {error && (
           <p role="alert" className="inline-error">
-            {error}
+            {t(error)}
           </p>
         )}
       </section>

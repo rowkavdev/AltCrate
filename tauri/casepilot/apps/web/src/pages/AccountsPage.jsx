@@ -260,7 +260,7 @@ export default function AccountsPage({ model, ui, onUiChange }) {
               ? ` · ${t("A entrar em")} ${login.label}`
               : ""}
             {login.phase === "paused"
-              ? ` · ${t("Em pausa")}: ${login.message || ""}`
+              ? ` · ${t("Em pausa")}: ${t(login.message || "")}`
               : ""}
           </span>
         </div>
@@ -426,7 +426,7 @@ export default function AccountsPage({ model, ui, onUiChange }) {
         )}
         {error && (
           <p role="alert" className="account-inline-error account-page-error">
-            {error}
+            {t(error)}
           </p>
         )}
         {model.loading ? (

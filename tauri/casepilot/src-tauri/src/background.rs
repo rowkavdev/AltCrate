@@ -16,14 +16,14 @@ pub fn setup(app: &tauri::AppHandle) -> tauri::Result<()> {
     let open = MenuItem::with_id(
         app,
         "background-open",
-        "Abrir AltCrate",
+        "Open AltCrate",
         true,
         None::<&str>,
     )?;
     let hint = MenuItem::with_id(
         app,
         "background-hint",
-        "O trabalho continua com a janela fechada",
+        "Operations continue when the window is closed",
         false,
         None::<&str>,
     )?;
@@ -31,13 +31,13 @@ pub fn setup(app: &tauri::AppHandle) -> tauri::Result<()> {
     let quit = MenuItem::with_id(
         app,
         "background-quit",
-        "Sair do AltCrate",
+        "Quit AltCrate",
         true,
         None::<&str>,
     )?;
     let menu = Menu::with_items(app, &[&open, &hint, &separator, &quit])?;
     let mut tray = TrayIconBuilder::with_id("casepilot-background")
-        .tooltip("AltCrate · Operações em segundo plano")
+        .tooltip("AltCrate · Background operations")
         .menu(&menu)
         .show_menu_on_left_click(true)
         .on_menu_event(|app, event| match event.id.as_ref() {

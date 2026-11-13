@@ -41,9 +41,9 @@ export function ItemAccessories({ item, large = false }) {
       aria-label={t("Autocolantes e charm")}
     >
       {accessories.map((a, index) => (
-        <figure key={index} title={t(a.name)}>
+        <figure key={index} title={a.name}>
           <ItemPhoto item={a} />
-          <figcaption>{t(a.name || "Acessório")}</figcaption>
+          <figcaption>{a.name || t("Acessório")}</figcaption>
         </figure>
       ))}
     </div>
@@ -226,7 +226,7 @@ export function InventoryDetails({ item, onClose }) {
           <div>
             <span className="kicker">{t("DETALHES DO ITEM")}</span>
             <h2 id="inventory-detail-title">
-              {t(item.name || "Item sem nome")}
+              {item.name || t("Item sem nome")}
             </h2>
           </div>
           <Button

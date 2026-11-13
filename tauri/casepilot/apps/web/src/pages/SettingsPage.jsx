@@ -3,8 +3,7 @@ import "./progression.css";
 import React from "react";
 import CapabilityPanel from "../components/CapabilityPanel.jsx";
 import BoostsPanel from "./BoostsPanel.jsx";
-import { Languages, Settings2 } from "lucide-react";
-import { useLanguage } from "../useLanguage.js";
+import { Settings2 } from "lucide-react";
 import { t } from "../language.js";
 import FarmServerSettings from "../components/FarmServerSettings.jsx";
 import { DisclosurePanel } from "../components/WorkspaceSection.jsx";
@@ -13,7 +12,6 @@ export default function SettingsPage({
   capabilities = [],
   serverController,
 }) {
-  const { language, setLanguage } = useLanguage();
   const {
     preferences = { enableSiteOpening: false },
     loading,
@@ -31,35 +29,6 @@ export default function SettingsPage({
           <div className="section-heading">
             <h2>{t("Aplicação")}</h2>
             <Settings2 size={18} />
-          </div>
-          <div className="setting-row">
-            <div>
-              <h3>
-                <Languages size={16} />
-                {t("Idioma da aplicação")}
-              </h3>
-              <p id="language-description">
-                {t(
-                  "Escolhe o idioma da interface. A alteração é imediata e fica guardada neste dispositivo.",
-                )}
-              </p>
-            </div>
-            <label className="language-setting" htmlFor="app-language">
-              {t("Idioma")}
-              <select
-                id="app-language"
-                value={language}
-                aria-describedby="language-description"
-                onChange={(event) => setLanguage(event.target.value)}
-              >
-                <option value="pt" lang="pt-PT">
-                  Português
-                </option>
-                <option value="en" lang="en">
-                  English
-                </option>
-              </select>
-            </label>
           </div>
           <div className="setting-row"><DirectionSetting /></div>
           <div className="setting-row optional-feature-settings">

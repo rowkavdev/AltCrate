@@ -26,7 +26,7 @@ export const test = base.extend<{ commands: Command[] }>({
     await page.addInitScript(() => {
       const accounts = [
         { id: "alpha", label: "Alpha" },
-        { id: "beta", label: "Beta" },
+        { id: "beta", label: "Contas" },
       ]
       const fixture = window as typeof window & {
         recordCommand: (command: Command) => Promise<void>
@@ -92,6 +92,10 @@ export const test = base.extend<{ commands: Command[] }>({
               return staticResponses[channel as keyof typeof staticResponses]
             }
             switch (channel) {
+              case "accounts:login":
+                throw "Não foi possível abrir o login. Tenta novamente."
+              case "workspace:command":
+                throw "Nome inválido (1–60 caracteres)"
               case "preferences:read":
                 return { enableSiteOpening: localStorage.getItem("fixture:opening") === "true" }
               case "preferences:update": {

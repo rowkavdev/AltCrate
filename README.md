@@ -56,7 +56,7 @@ AltCrate uses an unofficial game interface. Live sign-in and game operations dep
 - Inspect skill maps, review costs, and manage local skill presets. Enable the optional opening-preferences page to review eligible game-side preference changes.
 - Open a multi-account games workspace for Blackjack, Coinflip, Jackpot, Case Battle, Crash, Upgrade, Dice, Plinko, and Guess the Rank. Blackjack includes table state, decision analysis, and round history.
 - Inspect request metrics, compare account observations, and export persistent operation history. Activity shows current-session results and confirmations.
-- Switch between Portuguese and English, light and dark appearance, and left-to-right or right-to-left layout.
+- Choose light or dark appearance and left-to-right or right-to-left layout.
 
 See supported flows and verification limits in the [feature guide](docs/wiki/Feature-Guide.md).
 

@@ -47,7 +47,7 @@ pub fn start(app: &tauri::AppHandle) {
             if accounts!=json!([]){return Err("Fixture store was not empty".into());}
             state.call("preferences:update".into(),vec![json!({"enableSiteOpening":true})]).await?;
             let window=app.get_webview_window("main").ok_or("Missing main window")?;
-            window.set_title("AltCrate · Tauri · verificação isolada").map_err(|e|e.to_string())?;
+            window.set_title("AltCrate · Isolated verification").map_err(|e|e.to_string())?;
             let _=window.set_focus();
             // A cold WKWebView may load the renderer after the engine is already ready.
             // Wait for the bridge itself; a fixed delay can miss the only invocation.
@@ -58,6 +58,14 @@ pub fn start(app: &tauri::AppHandle) {
                     tokio::time::sleep(Duration::from_millis(100)).await;
                 }
             }).await.map_err(|_|"The renderer bridge did not initialize".to_string())??;
+            if evaluate(&window,"document.documentElement.lang".into()).await?!=json!("en-GB"){
+                return Err("The desktop workspace did not start in English".into());
+            }
+            let invalid_command=state.call("fixture:unsupported-command".into(),vec![]).await;
+            if invalid_command!=Err("Unknown operation.".into()){
+                return Err(format!("The desktop engine did not report an English error: {invalid_command:?}"));
+            }
+            report["englishWorkspace"]=json!(true);
             evaluate(&window,"window.__casepilotBridgeResult=null;Promise.resolve().then(()=>window.caseClicker.listAccounts()).then(value=>window.__casepilotBridgeResult=value).catch(error=>window.__casepilotBridgeResult=String(error));true".into()).await?;
             let bridge_result=tokio::time::timeout(Duration::from_secs(10),async {
                 loop {
@@ -72,17 +80,17 @@ pub fn start(app: &tauri::AppHandle) {
             tokio::time::sleep(Duration::from_millis(500)).await;
             evaluate(&window,"(()=>{const input=document.querySelector('.optional-feature-choice input');if(input&&!input.checked&&!input.disabled)input.click();return !!input;})()".into()).await?;
             tokio::time::sleep(Duration::from_millis(500)).await;
-            let pages=["overview","accounts","automation","opening","converter","inventory","games","rewards","skills","autoopen","diagnostics","settings","activity"];
-            for (index,page) in pages.iter().enumerate(){
+            let pages=[("overview","Overview"),("accounts","Accounts"),("automation","Automation"),("opening","Open cases"),("converter","Token converter"),("inventory","Inventory"),("games","Games"),("rewards","Rewards"),("skills","Skill maps"),("autoopen","Opening preferences"),("diagnostics","Diagnostics"),("settings","Settings"),("activity","Activity")];
+            for (index,(page,heading)) in pages.iter().enumerate(){
                 evaluate(&window,format!("document.querySelector('.sidebar a[href=\"#{page}\"]')?.click();true")).await?;
                 tokio::time::sleep(Duration::from_millis(350)).await;
                 let mut snapshot=evaluate(&window,"({page:location.hash,heading:document.querySelector('h1')?.textContent,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,active:document.querySelector('.sidebar a.active')?.getAttribute('href'),groups:[...document.querySelectorAll('.nav-label')].map(node=>node.textContent),errors:[...document.querySelectorAll('.inline-error')].map(node=>node.textContent)})".into()).await?;
                 for _ in 0..20{
-                    if snapshot["active"]==json!(format!("#{page}")) && !snapshot["heading"].as_str().unwrap_or("").is_empty(){break;}
+                    if snapshot["active"]==json!(format!("#{page}")) && snapshot["heading"]==json!(heading){break;}
                     tokio::time::sleep(Duration::from_millis(100)).await;
                     snapshot=evaluate(&window,"({page:location.hash,heading:document.querySelector('h1')?.textContent,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,active:document.querySelector('.sidebar a.active')?.getAttribute('href'),groups:[...document.querySelectorAll('.nav-label')].map(node=>node.textContent),errors:[...document.querySelectorAll('.inline-error')].map(node=>node.textContent)})".into()).await?;
                 }
-                if snapshot["heading"].as_str().unwrap_or("").is_empty(){return Err(format!("Missing heading on {page}: {snapshot}"));}
+                if snapshot["heading"]!=json!(heading){return Err(format!("Expected English heading {heading} on {page}: {snapshot}"));}
                 if snapshot["active"]!=json!(format!("#{page}")){return Err(format!("Navigation mismatch on {page}: {snapshot}"));}
                 if snapshot["scrollWidth"].as_f64().unwrap_or(0.0)>snapshot["width"].as_f64().unwrap_or(0.0)+1.0{return Err(format!("Horizontal overflow on {page}"));}
                 report["pages"].as_array_mut().unwrap().push(snapshot);
@@ -123,7 +131,7 @@ pub fn start(app: &tauri::AppHandle) {
             let marker=uuid::Uuid::new_v4().to_string();
             let partition_a=format!("fixture-login-a-{marker}");let partition_b=format!("fixture-login-b-{marker}");
             for (id,partition,cookies) in [("login-accept-a",&partition_a,json!([{"name":"casepilot_fixture","value":"isolated","domain":"case-clicker.com","path":"/","secure":true,"httpOnly":true}])),("login-accept-b",&partition_b,json!([]))]{
-                native(app.clone(),state.clone(),"login.create",json!({"id":id,"partition":partition,"title":"AltCrate · verificação local de sessão","width":500,"height":350,"cookies":cookies,"userAgent":"AltCrate-fixture-must-not-be-used"})).await?;
+                native(app.clone(),state.clone(),"login.create",json!({"id":id,"partition":partition,"title":"AltCrate · Local session verification","width":500,"height":350,"cookies":cookies,"userAgent":"AltCrate-fixture-must-not-be-used"})).await?;
                 let login=app.get_webview_window(id).ok_or("Missing login identity window")?;
                 login.navigate("about:blank".parse().unwrap()).map_err(|e|e.to_string())?;
                 let identity=native_login::identity(&login,&state).await?;
@@ -142,7 +150,7 @@ pub fn start(app: &tauri::AppHandle) {
             let retained=native(app.clone(),state.clone(),"login.cookies",json!({"partition":partition_a})).await?;
             if !retained.as_array().unwrap().iter().any(|c|c["name"]=="casepilot_fixture"){return Err("Retained browser lost its session".into());}
             report["nativeSessionRetained"]=json!(true);
-            native(app.clone(),state.clone(),"login.create",json!({"id":"login-accept-reopened","partition":partition_a,"title":"AltCrate · sessão reaberta","width":500,"height":350,"cookies":[]})).await?;
+            native(app.clone(),state.clone(),"login.create",json!({"id":"login-accept-reopened","partition":partition_a,"title":"AltCrate · Reopened session","width":500,"height":350,"cookies":[]})).await?;
             let reopened=native(app.clone(),state.clone(),"login.cookies",json!({"partition":partition_a})).await?;
             if !reopened.as_array().unwrap().iter().any(|c|c["name"]=="casepilot_fixture"){return Err("Reopening the login erased existing native cookies".into());}
             report["nativeBrowserIdentity"]=json!(true);report["nativeCookiesPreservedOnReopen"]=json!(true);

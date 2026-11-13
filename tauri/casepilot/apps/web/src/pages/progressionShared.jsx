@@ -424,7 +424,7 @@ export function PreviewDialog({
         </header>
         <p>
           {t("Conta: ")}
-          <strong>{t(accountLabel)}</strong>
+          <strong>{accountLabel}</strong>
         </p>
         <dl className="progression-totals">
           {[

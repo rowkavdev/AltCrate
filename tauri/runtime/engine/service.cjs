@@ -182,7 +182,7 @@ async function accountTask(event, action) {
   try { return await action(); } finally { accountOperation = false; }
 }
 async function importAccountFile() {
-  const choice = await fileDialogs.showOpenDialog(mainWindow, { title: 'Importar contas do JSON', properties: ['openFile'], filters: [{ name: 'Contas JSON', extensions: ['json'] }] });
+  const choice = await fileDialogs.showOpenDialog(mainWindow, { title: 'Import accounts from JSON', properties: ['openFile'], filters: [{ name: 'Account JSON', extensions: ['json'] }] });
   if (choice.canceled || !choice.filePaths[0]) return null;
   const file = choice.filePaths[0], info = await fs.stat(file);
   if (!info.isFile() || info.size > 1024 * 1024) throw Error('Escolhe um ficheiro JSON até 1 MB.');
@@ -214,7 +214,7 @@ async function loginAccount(label, existingAccount = null, { signal, manual=fals
   const ses = sessions.fromPartition(partition);
   let credentials = existingAccount && !manual ? await accounts.credentials(existingAccount.id, credentialProtector) : null;
   const loginWindow = new NativeLoginWindow({
-    width: 1050, height: 800, title: `Entrar: ${name}`, parent: mainWindow,
+    width: 1050, height: 800, title: `Sign in: ${name}`, parent: mainWindow,
     webPreferences: { partition, sandbox: true, contextIsolation: true, nodeIntegration: false },
   });
   loginWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -330,7 +330,7 @@ lifecycle.whenReady().then(async () => {
   })});
   operationHistory=createOperationHistory({store:localStore('operation-history.json')});await operationHistory.ready();
   commands.handle('history:query',(event,filters)=>{assertLocalSender(event);return operationHistory.query(filters);});
-  commands.handle('history:export',async event=>{assertLocalSender(event);await operationHistory.flush();const choice=await fileDialogs.showSaveDialog(mainWindow,{title:'Exportar histórico persistente',defaultPath:'altcrate-historico.json',filters:[{name:'JSON',extensions:['json']}]});if(choice.canceled||!choice.filePath)return null;await fs.writeFile(choice.filePath,JSON.stringify(operationHistory.export(),null,2),{mode:0o600});return choice.filePath;});
+  commands.handle('history:export',async event=>{assertLocalSender(event);await operationHistory.flush();const choice=await fileDialogs.showSaveDialog(mainWindow,{title:'Export saved history',defaultPath:'altcrate-history.json',filters:[{name:'JSON',extensions:['json']}]});if(choice.canceled||!choice.filePath)return null;await fs.writeFile(choice.filePath,JSON.stringify(operationHistory.export(),null,2),{mode:0o600});return choice.filePath;});
   commands.handle('extensions:capabilities',event=>{assertLocalSender(event);return listExtensionCapabilities();});
   commands.handle('requests:metrics',event=>{assertLocalSender(event);return requestWork.metrics();});
   const preferencesFile=path.join(lifecycle.getPath('userData'),'app-preferences.json');
@@ -394,7 +394,7 @@ lifecycle.whenReady().then(async () => {
   farmControls=registerFarmIpc({ipcMain:commands,farm,emit,beforeStart:progressionStartGuard,validateSender:preferenceSender,serverProfile:serverDesktop.serverProfile,
     setupServer:profile=>setupServer(profile,{progress:stage=>emit({type:'server-setup',stage})}),
     identity:async profile=>(await probeServerIdentity(profile)).map(({type,fingerprint})=>({type,fingerprint})),trustIdentity:(profile,fingerprint)=>trustServerIdentity(profile,fingerprint),
-    chooseKey:async()=>{const selection=await fileDialogs.showOpenDialog(mainWindow,{title:'Escolher chave SSH',properties:['openFile']});return selection.canceled?null:selection.filePaths[0];},
+    chooseKey:async()=>{const selection=await fileDialogs.showOpenDialog(mainWindow,{title:'Choose an SSH key',properties:['openFile']});return selection.canceled?null:selection.filePaths[0];},
     restartApp:()=>{progressionStartGuard();if(otherOperations.busy()||farmControls?.busy()||accountOperation||['running','stopping'].includes(accountLogins?.status().phase)||['running','stopping'].includes(openScheduler?.status().phase)||['running','stopping'].includes(farm.status().phase))throw Error('Para as operações antes de reiniciar');lifecycle.relaunch();setTimeout(()=>lifecycle.quit(),100);return {restarting:true};}
   });
   const inventoryFetchForAccount=createCoordinatedTransport({requestWork,coordinator,fetchForAccount:account=>(endpoint,options)=>sessions.fromPartition(account.partition).fetch(ORIGIN+endpoint,options)});
@@ -617,8 +617,8 @@ lifecycle.whenReady().then(async () => {
   }));
   commands.handle('run:export', async () => {
     const result = await fileDialogs.showSaveDialog(mainWindow, {
-      title: 'Guardar relatório de execução',
-      defaultPath: `case-clicker-testes-${new Date().toISOString().slice(0, 10)}.json`,
+      title: 'Save operation report',
+      defaultPath: `altcrate-operation-report-${new Date().toISOString().slice(0, 10)}.json`,
       filters: [{ name: 'JSON', extensions: ['json'] }],
     });
     if (result.canceled || !result.filePath) return null;

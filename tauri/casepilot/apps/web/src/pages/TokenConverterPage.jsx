@@ -842,7 +842,7 @@ export default function TokenConverterPage({
           />
           {notice && (
             <p className="converter-run-note" role="status">
-              {notice}
+              {t(notice)}
             </p>
           )}
           {error && !preview && !clearOpen && (

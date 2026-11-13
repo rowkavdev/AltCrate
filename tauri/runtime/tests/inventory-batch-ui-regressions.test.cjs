@@ -25,7 +25,7 @@ function harness(file = 'InventoryBatchPanel.jsx', options = {}) {
     const box = {exports: {}, Date: options.Date || Date, setTimeout: options.setTimeout || setTimeout, clearTimeout: options.clearTimeout || clearTimeout,
       require(name) {
         if (name === 'react') return react;
-        if (name.includes('language')) return {t: value => value};
+        if (name.includes('language')) return {t: value => value, getLocale: () => 'en-GB'};
         if (name.includes('format')) return {formatNumber: String, formatTime: String, formatMoney: String};
         if (name.endsWith('.css')) return {};
         if (name.includes('useInventoryActions')) return {useInventoryActions: () => ({})};
