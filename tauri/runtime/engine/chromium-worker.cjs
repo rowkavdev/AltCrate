@@ -4,7 +4,7 @@ const readline=require('node:readline'),path=require('node:path'),fs=require('no
 const ORIGIN='https://case-clicker.com',MAX_BODY=16*1024*1024;
 const testIndex=process.argv.indexOf('--casepilot-test-origin');
 const testOrigin=testIndex<0?null:new URL(process.argv[testIndex+1]);
-if(testOrigin&&(testOrigin.protocol!=='http:'||testOrigin.hostname!=='127.0.0.1'))throw Error('Tests require a local loopback origin');
+if(testOrigin&&(testOrigin.protocol!=='http:'||testOrigin.hostname!=='127.0.0.1'||testOrigin.username||testOrigin.password))throw Error('Tests require a local loopback origin');
 const dataIndex=process.argv.indexOf('--casepilot-data');
 if(dataIndex<0||!process.argv[dataIndex+1])throw Error('Missing private browser directory');
 const directory=path.resolve(process.argv[dataIndex+1]);fs.mkdirSync(directory,{recursive:true,mode:0o700});
@@ -14,8 +14,8 @@ function stop(){if(transportClosed)return;transportClosed=true;for(const task of
 function send(value){if(transportClosed||process.stdout.destroyed||!process.stdout.writable)return;try{process.stdout.write(JSON.stringify(value)+'\n',error=>{if(error)stop();});}catch{stop();}}
 process.stdout.on('error',stop);process.stdin.on('error',stop);
 function partition(value){if(typeof value!=='string'||!value.startsWith('persist:')||value.length>200)throw Error('Invalid sign-in session.');return value;}
-function siteURL(value){const url=new URL(value);if((url.origin!==ORIGIN&&url.origin!==testOrigin?.origin)||url.username||url.password)throw Error('Invalid sign-in destination.');return url.href;}
-function navigationURL(value){try{const url=new URL(value);return ['about:blank','about:srcdoc'].includes(url.href)||(!url.username&&!url.password&&(url.origin===testOrigin?.origin||(url.protocol==='https:'&&!url.port&&['case-clicker.com','challenges.cloudflare.com'].includes(url.hostname))));}catch{return false;}}
+function siteURL(value){const url=new URL(value);if(url.origin!==(testOrigin?.origin??ORIGIN)||url.username||url.password)throw Error('Invalid sign-in destination.');return url.href;}
+function navigationURL(value){try{const url=new URL(value);return ['about:blank','about:srcdoc'].includes(url.href)||(!url.username&&!url.password&&(testOrigin?url.origin===testOrigin.origin:(url.protocol==='https:'&&!url.port&&['case-clicker.com','challenges.cloudflare.com'].includes(url.hostname))));}catch{return false;}}
 function entryFor(key){return [...windows.values()].find(entry=>entry.partition===key&&!entry.window.isDestroyed());}
 async function cookiesFor(key){return session.fromPartition(partition(key)).cookies.get({url:ORIGIN});}
 async function setCookies(key,values,{replace=false}={}){
@@ -36,6 +36,7 @@ async function prepare(args){
  const key=partition(args.partition);if(stores.has(key))return stores.get(key);if(preparing.has(key))return preparing.get(key);
  const work=(async()=>{
   const store=session.fromPartition(key);
+  if(testOrigin)store.webRequest.onBeforeRequest(({url},callback)=>callback({cancel:!navigationURL(url)}));
   if(args.proxy){const proxy=new URL(args.proxy);if(!['http:','socks5:'].includes(proxy.protocol)||proxy.username||proxy.password)throw Error('Invalid proxy.');await store.setProxy({proxyRules:proxy.href});}else await store.setProxy({mode:'direct'});
   store.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));store.setPermissionCheckHandler(()=>false);
   if(!(await cookiesFor(key)).length)await setCookies(key,args.cookies);

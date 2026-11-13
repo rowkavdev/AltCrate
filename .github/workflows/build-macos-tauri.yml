@@ -66,6 +66,16 @@ jobs:
             exit 1
           fi
           jq -e '.passed == true and (.pages | length == 13) and .nativeLoginIsolation == true' "$report"
+      - name: Exercise the packaged Chromium sign-in helper offline
+        shell: bash
+        timeout-minutes: 3
+        run: |
+          runtime="$PWD/release-tauri/mac-arm64/AltCrate.app/Contents/Resources/runtime"
+          node tauri/scripts/verify-chromium-helper.cjs \
+            "$runtime/chromium/Electron.app/Contents/MacOS/Electron" \
+            "$runtime/engine" | tee "${{ runner.temp }}/altcrate-native/chromium-report.json"
+          jq -e '.passed == true and .observedFixtureWrites == 1' \
+            "${{ runner.temp }}/altcrate-native/chromium-report.json"
       - name: Upload native verification evidence
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
