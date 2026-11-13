@@ -14,6 +14,10 @@ updates:
 
   - package-ecosystem: npm
     directory: /tauri/casepilot
+    ignore:
+      # Keep these definitions aligned with the Node major in .node-version.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     schedule:
       interval: weekly
     groups:
