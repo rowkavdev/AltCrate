@@ -41,7 +41,7 @@ pub fn start(app: &tauri::AppHandle) {
         let state = app.state::<Arc<Engine>>().inner().clone();
         let destination = PathBuf::from(destination);
         let _ = std::fs::create_dir_all(&destination);
-        let mut report = json!({"runtime":"Tauri + native WKWebView + bundled Node","fixture":"temporary empty account store","liveGameRequests":0,"pages":[],"errors":[],"nativeScreenshots":[]});
+        let mut report = json!({"runtime":"Tauri + native WebKit + bundled Node","fixture":"temporary empty account store","liveGameRequests":0,"pages":[],"errors":[],"nativeScreenshots":[]});
         let result:Result<(),String>=async{
             let accounts=state.call("accounts:list".into(),vec![]).await?;
             if accounts!=json!([]){return Err("Fixture store was not empty".into());}
@@ -178,10 +178,10 @@ pub fn start(app: &tauri::AppHandle) {
             report["errors"].as_array_mut().unwrap().push(json!(error));
         }
         report["passed"] = json!(report["errors"].as_array().unwrap().is_empty());
-        let _ = std::fs::write(
-            destination.join("native-report.json"),
-            serde_json::to_vec_pretty(&report).unwrap(),
-        );
+        let temporary = destination.join("native-report.tmp");
+        if std::fs::write(&temporary, serde_json::to_vec_pretty(&report).unwrap()).is_ok() {
+            let _ = std::fs::rename(temporary, destination.join("native-report.json"));
+        }
         if std::env::var("CASEPILOT_VERIFY_EXIT").ok().as_deref() == Some("1") {
             shutdown(&app);
         }

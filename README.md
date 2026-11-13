@@ -31,6 +31,22 @@ npm start
 The application still uses its existing CasePilot name. The local macOS bundle
 is ad-hoc signed; this repository does not provide a notarized release.
 
+## Linux package
+
+The Linux build targets x86-64 Ubuntu 24.04. Download the `.deb` and checksum
+from [Releases](https://github.com/rowkavdev/AltCrate/releases), then run
+`sha256sum -c SHA256SUMS-linux-amd64.txt` and `sudo apt install ./CasePilot*.deb`
+using the downloaded package filename. The desktop session needs an unlocked
+Secret Service provider, such as GNOME Keyring or KeePassXC with Secret Service
+enabled. Linux uses WebKitGTK for account sessions. Live site sign-in on Linux
+requires a manual check.
+
+To build from source on Ubuntu 24.04, install the Tauri Linux development
+packages, including `libwebkit2gtk-4.1-dev`, `libayatana-appindicator3-dev`,
+`librsvg2-dev`, `libxdo-dev` and `libdbus-1-dev`. Install both pnpm workspaces
+with the frozen lockfiles, then run `npm run package:linux`. The package is
+written to `tauri/casepilot/src-tauri/target/release/bundle/deb/`.
+
 ## Offline checks
 
 After installing the dependencies:
@@ -55,9 +71,9 @@ the local test server. It covers navigation, settings persistence, inventory
 account switching, sale confirmation, batch expiry and mobile keyboard navigation. Failed CI
 runs publish traces and screenshots.
 
-The macOS CI job runs Rust tests and launches the signed Apple Silicon package
-against an isolated local fixture to check WKWebView, the Node sidecar and
-native session isolation. Releases built by the workflow are ad-hoc signed.
+The macOS and Linux CI jobs run Rust tests and launch the packaged app against
+an isolated local fixture to check WebKit, the Node sidecar and native session
+isolation. macOS packages are ad-hoc signed.
 Live authentication and game operations require a separate manual check.
 
 ## Source layout

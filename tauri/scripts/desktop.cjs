@@ -9,9 +9,13 @@ if(mode==='start'){
  if(!fs.existsSync(output)){console.error('Compila primeiro a aplicação com npm run build.');process.exit(1);}
  const result=spawnSync('/usr/bin/open',[output],{stdio:'inherit'});process.exit(result.status??1);
 }
-if(process.platform==='darwin'&&(mode==='dev'||mode==='build')){
- if(process.arch!=='arm64'){console.error('Usa Node.js arm64 para compilar a aplicação para Apple Silicon.');process.exit(1);}
- const sidecar=path.join(root,'tauri/casepilot/src-tauri/binaries/casepilot-node-aarch64-apple-darwin');
+if(mode==='dev'||mode==='build'){
+ const target={
+  'darwin:arm64':'aarch64-apple-darwin',
+  'linux:x64':'x86_64-unknown-linux-gnu',
+ }[process.platform+':'+process.arch];
+ if(!target){console.error('Usa Node.js arm64 no macOS ou Node.js x64 no Linux.');process.exit(1);}
+ const sidecar=path.join(root,'tauri/casepilot/src-tauri/binaries/casepilot-node-'+target);
  fs.mkdirSync(path.dirname(sidecar),{recursive:true});
  fs.copyFileSync(process.execPath,sidecar);
  fs.chmodSync(sidecar,0o755);

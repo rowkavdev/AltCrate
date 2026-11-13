@@ -8,9 +8,9 @@ module.exports = function runElectron(args, options = {}) {
   delete env.ELECTRON_RUN_AS_NODE;
   // CI and containers may prohibit Chromium's Linux namespaces.
   const flags = process.platform === 'linux' && env.CASEPILOT_ELECTRON_TEST_NO_SANDBOX === '1'
-    ? ['--no-sandbox']
+    ? ['--no-sandbox', '--ozone-platform=x11']
     : [];
-  return launch(require('electron'), [...flags, ...args], {
+  return launch(require('electron'), [...args, ...flags], {
     maxBuffer: 200000,
     killSignal: 'SIGKILL',
     ...options,

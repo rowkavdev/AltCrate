@@ -103,3 +103,9 @@ jobs:
     needs: [legacy-root-tests, tauri-runtime-tests]
     if: ${{ !cancelled() }}
     uses: ./.github/workflows/build-macos-tauri.yml
+
+  linux:
+    name: Linux
+    needs: [casepilot-web]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/build-linux-tauri.yml

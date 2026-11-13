@@ -1,0 +1,11 @@
+{
+  "bundle": {
+    "targets": ["deb"],
+    "linux": {
+      "deb": {
+        "depends": ["libayatana-appindicator3-1", "xdg-utils"],
+        "recommends": ["gnome-keyring | keepassxc"]
+      }
+    }
+  }
+}

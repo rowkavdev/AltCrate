@@ -1,0 +1,106 @@
+name: Build Linux Tauri
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build-linux:
+    name: Build and smoke-test the Linux x64 package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: tauri/casepilot/package.json
+          cache: true
+          cache_dependency_path: |
+            tauri/casepilot/pnpm-lock.yaml
+            tauri/runtime/pnpm-lock.yaml
+      - name: Install Linux build and smoke-test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev \
+            libxdo-dev libdbus-1-dev xdg-utils dbus-x11 xvfb xauth
+      - run: rustup update stable && rustup default stable
+      - run: pnpm --dir tauri/runtime install --frozen-lockfile
+      - run: pnpm --dir tauri/casepilot install --frozen-lockfile
+      - name: Build the Debian package
+        run: npm run package:linux -- --ci -- --locked
+      - name: Run Rust unit tests
+        run: cargo test --locked --release --manifest-path tauri/casepilot/src-tauri/Cargo.toml
+      - name: Install and smoke-test the package
+        env:
+          CASEPILOT_FIXTURE: "1"
+          CASEPILOT_VERIFY_EXIT: "1"
+          CASEPILOT_VERIFY_UI: ${{ runner.temp }}/casepilot-linux
+          WEBKIT_DISABLE_DMABUF_RENDERER: "1"
+        run: |
+          package="$(find "$PWD/tauri/casepilot/src-tauri/target/release/bundle/deb" -name '*.deb' -print -quit)"
+          test -n "$package"
+          test "$(dpkg-deb -f "$package" Architecture)" = amd64
+          sudo apt-get install -y --no-install-recommends "$package"
+          test -x /usr/bin/casepilot-node
+          mkdir -p "$CASEPILOT_VERIFY_UI"
+          timeout 120s dbus-run-session -- xvfb-run --auto-servernum /usr/bin/casepilot-desktop \
+            > "$CASEPILOT_VERIFY_UI/launch.log" 2>&1 || {
+              cat "$CASEPILOT_VERIFY_UI/launch.log"
+              exit 1
+            }
+          jq -e '.passed == true and (.pages | length == 13) and .nativeLoginIsolation == true' \
+            "$CASEPILOT_VERIFY_UI/native-report.json"
+      - name: Upload Linux verification evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: casepilot-linux-verification
+          path: ${{ runner.temp }}/casepilot-linux/
+          retention-days: 7
+      - name: Upload the Linux release package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: casepilot-linux-amd64
+          path: tauri/casepilot/src-tauri/target/release/bundle/deb/*.deb
+          if-no-files-found: error
+
+  release-linux:
+    name: Publish the verified Linux package
+    needs: [build-linux]
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: casepilot-linux-amd64
+      - name: Publish or update the Linux asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          shopt -s nullglob
+          packages=(*.deb)
+          test "${#packages[@]}" -eq 1
+          sha256sum "${packages[0]}" > SHA256SUMS-linux-amd64.txt
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${packages[0]}" SHA256SUMS-linux-amd64.txt --clobber
+          else
+            gh release create "$RELEASE_TAG" "${packages[0]}" SHA256SUMS-linux-amd64.txt               --verify-tag --generate-notes
+          fi
