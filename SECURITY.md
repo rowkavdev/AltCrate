@@ -24,4 +24,4 @@ Use synthetic fixtures, redacted screenshots, and local-only reproduction steps 
 
 ## Scope notes
 
-CasePilot interacts with third-party game services. Reports about the game itself should go to the game operator unless they are introduced or worsened by CasePilot’s client or bundled engine behaviour.
+AltCrate interacts with third-party game services. Reports about the game itself should go to the game operator unless they are introduced or worsened by AltCrate’s client or bundled engine behaviour.

@@ -1,6 +1,6 @@
-# CasePilot Qt
+# AltCrate Qt
 
-Active migration of the entire CasePilot desktop application to native Qt 6.
+Active migration of the entire AltCrate desktop application to native Qt 6.
 The interface uses PySide6 widgets. The operation engine runs as a private bundled
 Node process and reuses the existing coordination and reconciliation safeguards.
 There is no Electron or React dependency in this application's runtime.

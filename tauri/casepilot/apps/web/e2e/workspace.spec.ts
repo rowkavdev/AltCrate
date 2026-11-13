@@ -3,6 +3,8 @@ import { expect, test } from "./fixtures.ts"
 test("opens the current workspace and navigates using the browser history", async ({ page, commands }) => {
   await page.goto("/#unknown")
   await expect(page).toHaveURL(/#overview$/)
+  await expect(page).toHaveTitle("AltCrate")
+  await expect(page.getByText("AltCrate", { exact: true }).first()).toBeVisible()
   await expect(page.getByRole("heading", { name: "Visão geral", level: 1 })).toBeVisible()
   await page.getByRole("link", { name: "Contas", exact: true }).click()
   await expect(page.getByRole("heading", { name: "Contas", level: 1 })).toBeFocused()

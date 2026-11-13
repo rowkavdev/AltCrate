@@ -229,7 +229,7 @@ export default function AppShell({
             >
               <Menu size={22} />
             </button>
-            <span className="topbar-context">{t("CasePilot")}</span>
+            <span className="topbar-context">{t("AltCrate")}</span>
             <ChevronRight size={14} />
             <strong>{t(current.title)}</strong>
           </div>
@@ -293,7 +293,7 @@ export default function AppShell({
           )}
           {t(children)}
           <footer>
-            <span>{t("CasePilot · Centro de operações")}</span>
+            <span>{t("AltCrate · Centro de operações")}</span>
             <span>{t("Saldo e tokens virtuais")}</span>
           </footer>
         </div>

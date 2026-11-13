@@ -1,7 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "CasePilot",
-  "version": "0.4.0",
+  "productName": "AltCrate",
+  "mainBinaryName": "altcrate",
+  "version": "0.4.1",
   "identifier": "pt.casepilot.desktop",
   "build": {
     "beforeDevCommand": "node ../scripts/bundle-engine.cjs && pnpm --filter web dev --host 127.0.0.1 --port 1420",
@@ -13,7 +14,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "CasePilot",
+        "title": "AltCrate",
         "width": 1440,
         "height": 960,
         "minWidth": 800,

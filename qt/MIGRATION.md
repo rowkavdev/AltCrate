@@ -1,6 +1,6 @@
-# CasePilot Qt migration
+# AltCrate Qt migration
 
-Requested outcome: the complete CasePilot desktop application runs in Qt, with
+Requested outcome: the complete AltCrate desktop application runs in Qt, with
 all existing pages and operations, without Electron or a React/web application
 as its desktop interface. This is an active migration, not a finished release.
 

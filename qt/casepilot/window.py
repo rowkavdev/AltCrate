@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
         self.model = model
         self.fixture = fixture
         self.allow_close = False
-        self.setWindowTitle("CasePilot Qt" + (" · fixture" if fixture else " · em migração"))
+        self.setWindowTitle("AltCrate Qt" + (" · fixture" if fixture else " · em migração"))
         self.resize(1320, 860)
         self.setMinimumSize(780, 600)
         root = QWidget()
@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         brand_layout.addWidget(self.brand_icon)
         brand_text = QVBoxLayout()
         brand_text.setSpacing(2)
-        name = QLabel("CasePilot")
+        name = QLabel("AltCrate")
         name.setObjectName("brand")
         brand_text.addWidget(name)
         note = QLabel(t("Centro de operações"))
@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
         self.menu_toggle.setFixedWidth(40)
         self.menu_toggle.hide()
         top.addWidget(self.menu_toggle)
-        context = QLabel("CasePilot  ›")
+        context = QLabel("AltCrate  ›")
         context.setObjectName("muted")
         top.addWidget(context)
         self.breadcrumb = QLabel()

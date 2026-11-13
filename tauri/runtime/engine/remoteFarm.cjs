@@ -14,7 +14,7 @@ function createRemoteFarm({local,readConfig,writeConfig,preparePayload,rpc,rpcFo
    if(!config.legacy||!enabled||!profile||workerDestinationId(profile)!==workerDestinationId(p))throw error;
    legacyWorker=true;capabilities={protocolVersion:0,maxAccounts:51,routes:[]};
   }
-  if(!legacyWorker&&(capabilities.protocolVersion!==1||!Array.isArray(capabilities.routes)||!capabilities.routes.length||capabilities.maxAccounts!==51))throw Error('Worker incompatível. Instala a versão atual do CasePilot neste servidor.');
+  if(!legacyWorker&&(capabilities.protocolVersion!==1||!Array.isArray(capabilities.routes)||!capabilities.routes.length||capabilities.maxAccounts!==51))throw Error('Worker incompatível. Instala a versão atual do AltCrate neste servidor.');
   const reply=await call({op:'status'});if(!reply.status||!Array.isArray(reply.status.accounts))throw Error('Estado do servidor inválido');const networkCheck=capabilities.features?.networkCheck?(await call({op:'network-check'})).networkCheck:undefined;return {profile:p,capabilities,status:reply.status,legacyWorker,networkCheck};
  }
  async function requireTransferSupport(){if(!strict)return;let cap;try{cap=await factory(profile)({op:'capabilities'});}catch{throw Error('Atualiza o worker deste servidor antes de transferir as contas.');}if(cap.protocolVersion!==1)throw Error('Atualiza o worker deste servidor antes de transferir as contas.');}

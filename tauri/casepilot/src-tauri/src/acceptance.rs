@@ -47,7 +47,7 @@ pub fn start(app: &tauri::AppHandle) {
             if accounts!=json!([]){return Err("Fixture store was not empty".into());}
             state.call("preferences:update".into(),vec![json!({"enableSiteOpening":true})]).await?;
             let window=app.get_webview_window("main").ok_or("Missing main window")?;
-            window.set_title("CasePilot · Tauri · verificação isolada").map_err(|e|e.to_string())?;
+            window.set_title("AltCrate · Tauri · verificação isolada").map_err(|e|e.to_string())?;
             let _=window.set_focus();
             // A cold WKWebView may load the renderer after the engine is already ready.
             // Wait for the bridge itself; a fixed delay can miss the only invocation.
@@ -123,12 +123,12 @@ pub fn start(app: &tauri::AppHandle) {
             let marker=uuid::Uuid::new_v4().to_string();
             let partition_a=format!("fixture-login-a-{marker}");let partition_b=format!("fixture-login-b-{marker}");
             for (id,partition,cookies) in [("login-accept-a",&partition_a,json!([{"name":"casepilot_fixture","value":"isolated","domain":"case-clicker.com","path":"/","secure":true,"httpOnly":true}])),("login-accept-b",&partition_b,json!([]))]{
-                native(app.clone(),state.clone(),"login.create",json!({"id":id,"partition":partition,"title":"CasePilot · verificação local de sessão","width":500,"height":350,"cookies":cookies,"userAgent":"CasePilot-fixture-must-not-be-used"})).await?;
+                native(app.clone(),state.clone(),"login.create",json!({"id":id,"partition":partition,"title":"AltCrate · verificação local de sessão","width":500,"height":350,"cookies":cookies,"userAgent":"AltCrate-fixture-must-not-be-used"})).await?;
                 let login=app.get_webview_window(id).ok_or("Missing login identity window")?;
                 login.navigate("about:blank".parse().unwrap()).map_err(|e|e.to_string())?;
                 let identity=native_login::identity(&login,&state).await?;
                 let actual=evaluate(&login,"navigator.userAgent".into()).await?;
-                if identity["userAgent"]!=actual || !actual.as_str().unwrap_or("").contains("AppleWebKit") || actual==json!("CasePilot-fixture-must-not-be-used"){return Err("The login browser is not using its native identity".into());}
+                if identity["userAgent"]!=actual || !actual.as_str().unwrap_or("").contains("AppleWebKit") || actual==json!("AltCrate-fixture-must-not-be-used"){return Err("The login browser is not using its native identity".into());}
             }
             tokio::time::sleep(Duration::from_millis(250)).await;
             let cookies_a=native(app.clone(),state.clone(),"login.cookies",json!({"partition":partition_a})).await?;
@@ -142,7 +142,7 @@ pub fn start(app: &tauri::AppHandle) {
             let retained=native(app.clone(),state.clone(),"login.cookies",json!({"partition":partition_a})).await?;
             if !retained.as_array().unwrap().iter().any(|c|c["name"]=="casepilot_fixture"){return Err("Retained browser lost its session".into());}
             report["nativeSessionRetained"]=json!(true);
-            native(app.clone(),state.clone(),"login.create",json!({"id":"login-accept-reopened","partition":partition_a,"title":"CasePilot · sessão reaberta","width":500,"height":350,"cookies":[]})).await?;
+            native(app.clone(),state.clone(),"login.create",json!({"id":"login-accept-reopened","partition":partition_a,"title":"AltCrate · sessão reaberta","width":500,"height":350,"cookies":[]})).await?;
             let reopened=native(app.clone(),state.clone(),"login.cookies",json!({"partition":partition_a})).await?;
             if !reopened.as_array().unwrap().iter().any(|c|c["name"]=="casepilot_fixture"){return Err("Reopening the login erased existing native cookies".into());}
             report["nativeBrowserIdentity"]=json!(true);report["nativeCookiesPreservedOnReopen"]=json!(true);

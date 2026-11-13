@@ -122,7 +122,7 @@ const bridge={
 };
 contextBridge.exposeInMainWorld('caseClicker',bridge);
 window.addEventListener('DOMContentLoaded',()=>{
- const banner=document.createElement('div');banner.className='fixture-banner';banner.textContent='Dados simulados · CasePilot · '+count+' contas · '+scenario;document.body.prepend(banner);
+ const banner=document.createElement('div');banner.className='fixture-banner';banner.textContent='Dados simulados · AltCrate · '+count+' contas · '+scenario;document.body.prepend(banner);
  if(arg('farm-check','')==='yes')return;
  setTimeout(()=>{
   accounts.forEach(account=>emit({type:'account-added',accountId:account.id}));

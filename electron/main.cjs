@@ -310,7 +310,7 @@ function createWindow() {
     minWidth: 480,
     minHeight: 560,
     backgroundColor: '#101114',
-    title: 'CasePilot',
+    title: 'AltCrate',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       sandbox: true,
@@ -345,7 +345,7 @@ app.whenReady().then(async () => {
   registerAccountWorkspaceIpc({ipcMain:trustedIpc,service:accountWorkspace});
   operationHistory=createOperationHistory({store:localStore('operation-history.json')});await operationHistory.ready();
   ipcMain.handle('history:query',(event,filters)=>{assertLocalSender(event);return operationHistory.query(filters);});
-  ipcMain.handle('history:export',async event=>{assertLocalSender(event);await operationHistory.flush();const choice=await dialog.showSaveDialog(mainWindow,{title:'Exportar histórico persistente',defaultPath:'casepilot-historico.json',filters:[{name:'JSON',extensions:['json']}]});if(choice.canceled||!choice.filePath)return null;await fs.writeFile(choice.filePath,JSON.stringify(operationHistory.export(),null,2),{mode:0o600});return choice.filePath;});
+  ipcMain.handle('history:export',async event=>{assertLocalSender(event);await operationHistory.flush();const choice=await dialog.showSaveDialog(mainWindow,{title:'Exportar histórico persistente',defaultPath:'altcrate-historico.json',filters:[{name:'JSON',extensions:['json']}]});if(choice.canceled||!choice.filePath)return null;await fs.writeFile(choice.filePath,JSON.stringify(operationHistory.export(),null,2),{mode:0o600});return choice.filePath;});
   ipcMain.handle('extensions:capabilities',event=>{assertLocalSender(event);return listExtensionCapabilities();});
   ipcMain.handle('requests:metrics',event=>{assertLocalSender(event);return requestWork.metrics();});
   const preferencesFile=path.join(app.getPath('userData'),'app-preferences.json');

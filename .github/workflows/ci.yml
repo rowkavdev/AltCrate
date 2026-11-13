@@ -60,7 +60,7 @@ jobs:
       - run: npm run test:tauri
 
   casepilot-web:
-    name: CasePilot web (lint, typecheck, build, Playwright)
+    name: AltCrate web (lint, typecheck, build, Playwright)
     needs: [legacy-root-tests, tauri-runtime-tests]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
@@ -86,13 +86,13 @@ jobs:
       - run: pnpm build
       - name: Install Playwright Chromium and system dependencies
         run: pnpm --filter web exec playwright install --with-deps chromium
-      - name: Test the CasePilot renderer with Playwright
+      - name: Test the AltCrate renderer with Playwright
         run: pnpm --filter web test:e2e
       - name: Upload Playwright diagnostics
         if: ${{ failure() && !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: casepilot-playwright
+          name: altcrate-playwright
           path: |
             tauri/casepilot/apps/web/playwright-report/
             tauri/casepilot/apps/web/test-results/

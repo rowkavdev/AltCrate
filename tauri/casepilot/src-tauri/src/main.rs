@@ -149,7 +149,7 @@ async fn engine_invoke(
             return Err(error);
         }
         if started.elapsed() > Duration::from_secs(45) {
-            return Err("O arranque aguarda acesso ao Porta-chaves. Autoriza o pedido do CasePilot no macOS e volta a abrir a app.".into());
+            return Err("O arranque aguarda acesso ao Porta-chaves. Autoriza o pedido do AltCrate no macOS e volta a abrir a app.".into());
         }
         tokio::time::sleep(Duration::from_millis(100)).await;
     };
@@ -752,7 +752,7 @@ fn main() {
             }
         })
         .build(context)
-        .expect("Não foi possível iniciar o CasePilot.")
+        .expect("Não foi possível iniciar o AltCrate.")
         .run(|app, event| {
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::Reopen { .. } = &event {

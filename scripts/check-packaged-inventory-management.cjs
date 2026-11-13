@@ -1,6 +1,6 @@
 const {app,session}=require('electron');
 const path=require('node:path'),fs=require('node:fs'),os=require('node:os'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..'),archive=path.join(root,'release-inventory-management/mac-arm64/CasePilot.app/Contents/Resources/app.asar');
+const root=path.resolve(__dirname,'..'),archive=path.join(root,'release-inventory-management/mac-arm64/AltCrate.app/Contents/Resources/app.asar');
 process.env.CASE_CLICKER_TEST_DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'casepilot-inventory-boot-'));
 const out=path.join(root,'artifacts/inventory-management-2026-10-14');
 const timer=setTimeout(()=>{console.error('Packaged inventory boot timed out');app.exit(1);},30000);

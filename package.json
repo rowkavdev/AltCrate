@@ -20,7 +20,7 @@
   },
   "build": {
     "appId": "pt.caseclicker.dashboard",
-    "productName": "CasePilot",
+    "productName": "AltCrate",
     "directories": {
       "output": "release"
     },

@@ -4,6 +4,8 @@
     "linux": {
       "deb": {
         "depends": ["xdg-utils"],
+        "conflicts": ["case-pilot"],
+        "replaces": ["case-pilot"],
         "recommends": ["gnome-keyring | keepassxc"]
       }
     }

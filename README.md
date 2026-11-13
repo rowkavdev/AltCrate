@@ -1,7 +1,7 @@
 # AltCrate
 
-Source code for the CasePilot desktop application. The current interface uses
-Tauri 2, React, Vite and Radix UI; the operation engine runs in Node.js.
+Source code for the AltCrate desktop application. The current interface uses
+Tauri 2, React, Vite and Radix UI. The operation engine runs in Node.js.
 The earlier Electron and Qt implementations are retained in this repository.
 
 ## Requirements
@@ -28,18 +28,18 @@ npm run package:mac
 npm start
 ```
 
-The application still uses its existing CasePilot name. The local macOS bundle
-is ad-hoc signed; this repository does not provide a notarized release.
+The local macOS bundle is ad-hoc signed.
 
 ## Linux package
 
 The Linux build targets x86-64 Ubuntu 24.04. Download the `.deb` and checksum
 from [Releases](https://github.com/rowkavdev/AltCrate/releases), then run
-`sha256sum -c SHA256SUMS-linux-amd64.txt` and `sudo apt install ./CasePilot*.deb`
+`sha256sum -c SHA256SUMS-linux-amd64.txt` and `sudo apt install ./AltCrate*.deb`
 using the downloaded package filename. The desktop session needs an unlocked
 Secret Service provider, such as GNOME Keyring or KeePassXC with Secret Service
 enabled. Linux uses WebKitGTK for account sessions. Live site sign-in on Linux
-requires a manual check.
+requires a manual check. The AltCrate package replaces the earlier CasePilot
+package and uses the same local data and credential-store identifiers.
 
 To build from source on Ubuntu 24.04, install the Tauri Linux development
 packages, including `libwebkit2gtk-4.1-dev`, `libayatana-appindicator3-dev`,

@@ -16,7 +16,7 @@ pub fn setup(app: &tauri::AppHandle) -> tauri::Result<()> {
     let open = MenuItem::with_id(
         app,
         "background-open",
-        "Abrir CasePilot",
+        "Abrir AltCrate",
         true,
         None::<&str>,
     )?;
@@ -31,13 +31,13 @@ pub fn setup(app: &tauri::AppHandle) -> tauri::Result<()> {
     let quit = MenuItem::with_id(
         app,
         "background-quit",
-        "Sair do CasePilot",
+        "Sair do AltCrate",
         true,
         None::<&str>,
     )?;
     let menu = Menu::with_items(app, &[&open, &hint, &separator, &quit])?;
     let mut tray = TrayIconBuilder::with_id("casepilot-background")
-        .tooltip("CasePilot · Operações em segundo plano")
+        .tooltip("AltCrate · Operações em segundo plano")
         .menu(&menu)
         .show_menu_on_left_click(true)
         .on_menu_event(|app, event| match event.id.as_ref() {

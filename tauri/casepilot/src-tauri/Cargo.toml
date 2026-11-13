@@ -1,8 +1,8 @@
 [package]
 name = "casepilot-desktop"
-version = "0.4.0"
-description = "CasePilot desktop operations workspace"
-authors = ["CasePilot"]
+version = "0.4.1"
+description = "AltCrate desktop operations workspace"
+authors = ["AltCrate"]
 edition = "2021"
 
 [build-dependencies]
