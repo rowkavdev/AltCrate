@@ -733,7 +733,7 @@ test('network failures identify the operation, cause, retry and automatic suspen
  await h.farm.setModes('a0',{case:true,money:false,vault:false});await h.farm.start(['a0']);
  const errors=h.events.filter(e=>e.type==='account-error');
  assert.equal(errors[0].errorCode,'ERR_CONNECTION_RESET');assert.equal(errors[0].operation,'case');assert.equal(errors[0].stage,'request');assert.equal(errors[0].retryAt,31000);
- assert.equal(errors[2].paused,true);assert.equal(errors[2].retryAt,0);assert.match(errors[2].message,/3 falhas consecutivas/);assert.match(errors[2].message,/Retomar/);assert.equal(errors[2].message.includes('do-not-export'),false);
+ assert.equal(errors[2].paused,true);assert.equal(errors[2].retryAt,0);assert.match(errors[2].message,/3 consecutive failures/);assert.match(errors[2].message,/Resume/);assert.equal(errors[2].message.includes('do-not-export'),false);
  assert.equal(h.events.find(e=>e.type==='farm-finished').reason,'accounts-unavailable');
 });
 test('a refused HTTP request keeps its status instead of becoming a generic network error',async()=>{

@@ -1,4 +1,4 @@
-const OPERATIONS={case:'Caixas',money:'Dinheiro',vault:'Cofre'};
+const OPERATIONS={case:'Cases',money:'Money',vault:'Vault'};
 const NETWORK_CODES=new Set(['ETIMEDOUT','ECONNRESET','ECONNREFUSED','ENOTFOUND','EAI_AGAIN','ENETUNREACH','EHOSTUNREACH']);
 function safeCode(value){const code=String(value||'');return NETWORK_CODES.has(code)||/^ERR_[A-Z_]{1,64}$/.test(code)?code:'';}
 function failureDetails(error){
@@ -17,9 +17,9 @@ function safeFailure(event){
  const failures=Number.isFinite(event.failures)?Math.min(3,Math.max(0,Math.floor(event.failures))):0;
  const paused=event.paused===true;
  const retryAt=!paused&&Number.isFinite(event.retryAt)&&event.retryAt>0&&event.retryAt<=8640000000000000?event.retryAt:0;
- const cause=errorCategory==='http'?'A API devolveu HTTP '+httpStatus+'.':errorCategory==='network'?'Falha de ligação ('+errorCode+').':errorCategory==='response'?'Resposta da API sem os dados esperados.':'Não foi possível concluir a operação.';
- const context=[OPERATIONS[operation],stage==='read'?'leitura':stage==='request'?'pedido':''].filter(Boolean).join(' · ');
- const recovery=paused?' Conta pausada após 3 falhas consecutivas. Usa Atualizar e Retomar em Automação.':retryAt?' Tentativa '+failures+' de 3; nova tentativa às '+new Date(retryAt).toLocaleTimeString('pt-PT')+'.':'';
+ const cause=errorCategory==='http'?`The API returned HTTP ${httpStatus}.`:errorCategory==='network'?`Connection failed (${errorCode}).`:errorCategory==='response'?'The API response was missing expected data.':'Could not complete the operation.';
+ const context=[OPERATIONS[operation],stage==='read'?'read':stage==='request'?'request':''].filter(Boolean).join(' · ');
+ const recovery=paused?' Account paused after 3 consecutive failures. Choose Refresh and Resume in Automation.':retryAt?` Attempt ${failures} of 3. Retrying at ${new Date(retryAt).toLocaleTimeString('en-GB')}.`:'';
  return {operation,stage,httpStatus,errorCode,errorCategory,failures,paused,retryAt,message:(context?context+': ':'')+cause+recovery};
 }
 module.exports={failureDetails,safeFailure};
