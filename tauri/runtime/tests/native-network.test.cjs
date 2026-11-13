@@ -41,8 +41,10 @@ test('an expired cookie with expirationDate zero is removed',async t=>{
 });
 test('a failed persistence write can recover on the next save',async t=>{
  const {network,data}=await fixture(t);const session=network.sessions.fromPartition('a');
+ // Finish the initial disk read before simulating a failure in the write path.
+ assert.deepEqual(await session.cookies.get({}),[]);
  await fs.writeFile(path.join(data,'sessions'),'blocked');
- await assert.rejects(session.cookies.set({name:'auth',value:'one',domain:'case-clicker.com',secure:true}));
+ await assert.rejects(session.cookies.set({name:'auth',value:'one',domain:'case-clicker.com',secure:true}),{code:'EEXIST'});
  await fs.unlink(path.join(data,'sessions'));
  await session.cookies.set({name:'auth',value:'two',domain:'case-clicker.com',secure:true});
  assert.equal((await session.cookies.get({}))[0].value,'two');
