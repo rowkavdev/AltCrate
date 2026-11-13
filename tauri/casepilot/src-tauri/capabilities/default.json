@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "workspace",
+  "description": "The local operations workspace can receive engine events. Remote login windows have no app permissions.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

@@ -1,0 +1,31 @@
+# CasePilot managed worker
+[Unit]
+Description=CasePilot private farm worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{SERVICE_USER}}
+Group={{SERVICE_USER}}
+WorkingDirectory={{INSTALL_DIRECTORY}}
+ExecStart={{NODE_PATH}} {{WORKER_PATH}}
+Environment={{DATA_ENV}}
+Environment=NODE_OPTIONS=--max-old-space-size=160
+UMask=0077
+Restart=always
+RestartSec=5
+TimeoutStopSec=60
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths={{DATA_DIRECTORY}}
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+MemoryMax=256M
+CPUQuota=100%
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

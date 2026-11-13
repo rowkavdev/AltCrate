@@ -1,0 +1,31 @@
+import {t} from '../language.js';
+import React,{useEffect,useRef,useState} from 'react';
+import {Package,Star,X,Ellipsis} from 'lucide-react';
+import {formatMoney,formatNumber} from '../format.js';
+export function ItemPhoto({item,large=false}){
+ const [failed,setFailed]=useState(false);
+ useEffect(()=>setFailed(false),[item.image]);
+ return <div className={'item-photo'+(large?' large':'')}>{item.image&&!failed?<img src={item.image} alt={t('Foto de '+item.name)} width={400} height={300} loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={()=>setFailed(true)}/>:<span><Package size={32}/><small>{t("Imagem indisponível")}</small></span>}</div>;
+}
+export function ItemAccessories({item,large=false}){
+ const accessories=[...(item.stickers||[]),...(item.charm?[item.charm]:[])];if(!accessories.length)return null;
+ return <div className={'item-accessories'+(large?' large':'')} aria-label={t("Autocolantes e charm")}>{accessories.map((a,index)=><figure key={index} title={t(a.name)}><ItemPhoto item={a}/><figcaption>{t(a.name||'Acessório')}</figcaption></figure>)}</div>;
+}
+export function InventoryCard({item,onOpen,onActions,onSelect,selected=false,selectionDisabled=false}){
+ const actions=event=>onActions?.(item,event);
+ return <article className="inventory-card" onContextMenu={actions} onKeyDown={event=>{if(event.key==='ContextMenu'||event.key==='F10'&&event.shiftKey)actions(event);}} style={{'--item-rarity':item.rarityColor||'var(--cp-border)'}}>{onSelect&&<label className={'inventory-select'+(selected?' is-selected':'')}><input type="checkbox" aria-label={t('Selecionar skin '+item.name)} checked={selected} disabled={selectionDisabled} onChange={()=>onSelect(item)}/><span>{t(selected?'Selecionada':'Selecionar')}</span></label>}<button className="inventory-open" type="button" aria-label={t('Ver detalhes de '+item.name)} onClick={()=>onOpen(item.id)}><ItemPhoto item={item}/><div className="item-copy"><span className="item-rarity">{t(item.rarity||'Raridade não indicada')}{item.isFavorite&&<Star size={14} fill="currentColor" aria-label="Favorito"/>}</span><strong>{t(item.name||'Item sem nome')}</strong><small>{t(item.exterior||'Estado não indicado')}</small><span className="item-price">{t(formatMoney(item.price))}</span></div></button><ItemAccessories item={item}/><button className="inventory-actions-trigger" type="button" aria-label={t('Ações de '+item.name)} aria-haspopup="menu" onClick={actions}><Ellipsis size={18}/>{t("Ações")}</button></article>;
+}
+export function InventoryDetails({item,onClose}){
+ const ref=useRef(null);
+ useEffect(()=>{
+  const previous=document.activeElement,overflow=document.body.style.overflow;
+  document.body.style.overflow='hidden';ref.current?.querySelector('button')?.focus();
+  const key=event=>{if(event.key==='Escape'){event.preventDefault();onClose();}if(event.key==='Tab'){event.preventDefault();ref.current?.querySelector('button')?.focus();}};
+  document.addEventListener('keydown',key);return()=>{document.body.style.overflow=overflow;document.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus();};
+ },[item.id]);
+ return <div className="detail-scrim" onClick={event=>{if(event.target===event.currentTarget)onClose();}}><section className="account-details inventory-details" ref={ref} role="dialog" aria-modal="true" aria-labelledby="inventory-detail-title"><header><div><span className="kicker">{t("DETALHES DO ITEM")}</span><h2 id="inventory-detail-title">{t(item.name||'Item sem nome')}</h2></div><button className="icon-button" aria-label={t("Fechar detalhes do item")} onClick={onClose}><X size={20}/></button></header><ItemPhoto item={item} large/><ItemAccessories item={item} large/><dl className="item-detail-values"><div><dt>{t("Preço virtual")}</dt><dd>{t(formatMoney(item.price))}</dd></div><div><dt>{t("Raridade")}</dt><dd>{t(item.rarity||'—')}</dd></div><div><dt>{t("Estado")}</dt><dd>{t(item.exterior||'—')}</dd></div><div><dt>{t("Float")}</dt><dd>{t(formatNumber(item.float,6))}</dd></div><div><dt>{t("Evento")}</dt><dd>{t(item.eventName||'—')}</dd></div><div><dt>{t("Padrão")}</dt><dd>{t(item.patternId||'—')}</dd></div><div><dt>{t("Qualidade")}</dt><dd>{t(formatNumber(item.quality))}</dd></div><div><dt>{t("Origem")}</dt><dd>{t(item.origin||'—')}</dd></div><div><dt>{t("Atributos")}</dt><dd>{t([item.isFavorite?'Favorito':'',item.statTrak?'StatTrak':'',item.souvenir?'Souvenir':''].filter(Boolean).join(' · ')||'Sem atributos indicados')}</dd></div></dl></section></div>;
+}
+
+export function InventoryViews({view,onChange}){
+ return <div className="inventory-views" role="group" aria-label={t("Vista do inventário")}><button aria-label={t("Ver inventário principal")} aria-pressed={view!=='storages'} onClick={()=>onChange('inventory')}>{t("Inventário principal")}</button><button aria-label={t("Ver storages")} aria-pressed={view==='storages'} onClick={()=>onChange('storages')}>{t("Storages")}</button></div>;
+}

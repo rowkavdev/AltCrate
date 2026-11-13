@@ -1,0 +1,3 @@
+const net=require('node:net');let input='';process.stdin.setEncoding('utf8');process.stdin.on('data',chunk=>{input+=chunk;if(input.length>4*1024*1024)process.exit(2);});process.stdin.on('end',()=>{
+ const socket=net.connect(require('node:path').join(process.env.CASEPILOT_SERVER_DATA||'/var/lib/casepilot-farm','control.sock'));let response='';socket.setTimeout(90000,()=>{socket.destroy();process.exit(3);});socket.on('connect',()=>socket.write(input.trim()+'\n'));socket.on('data',chunk=>{response+=chunk;if(response.length>16*1024*1024)process.exit(4);});socket.on('end',()=>process.stdout.write(response));socket.on('error',()=>{process.stderr.write('Farm control unavailable\n');process.exit(1);});
+});

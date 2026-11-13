@@ -1,0 +1,328 @@
+/* Layout rules shared by every route. Container widths account for the sidebar. */
+.page-body {
+  container: workspace / inline-size;
+}
+.page-body :is(h1, h2, h3, h4, p, small, summary, dt, dd) {
+  overflow-wrap: anywhere;
+}
+.page-body :is(.section-heading, .panel-heading) {
+  flex-wrap: wrap;
+}
+.page-body :is(.section-heading, .panel-heading) > div {
+  min-width: 0;
+}
+.page-body .section-heading > button {
+  max-width: 100%;
+  white-space: normal;
+}
+.page-body .toolbar > label {
+  display: grid;
+  gap: 8px;
+  flex: 1 1 180px;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--cp-muted);
+}
+.page-body .toolbar > label :is(input, select) {
+  width: 100%;
+}
+.page-body .status-tag {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.page-body .account-selection summary > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.page-body .selection-actions {
+  flex-wrap: wrap;
+}
+.cp-shell .progression-totals {
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+}
+.cp-shell .progression-account :is(label, button) {
+  min-width: 0;
+}
+.cp-shell .progression-account label {
+  color: var(--cp-muted);
+}
+.cp-shell .progression-preset label {
+  max-width: 100%;
+  color: var(--cp-muted);
+}
+.cp-shell .progression-preset select {
+  min-width: 0;
+  width: 100%;
+}
+.cp-shell .progression-preset label:not(.progression-checkbox) {
+  width: min(100%, 360px);
+}
+.cp-shell .progression-tabs {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.cp-shell .progression-tabs button {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.cp-shell .pass-tier-list li {
+  grid-template-columns: 70px minmax(0, 1fr) minmax(0, 1fr);
+}
+.cp-shell .pass-reward {
+  min-width: 0;
+}
+.cp-shell .pass-reward button {
+  max-width: 100%;
+}
+.cp-shell .autoopen-observed > div {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.cp-shell .autoopen-observed :is(dt, dd) {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.cp-shell .autoopen-fields > label {
+  min-width: 0;
+}
+.cp-shell textarea {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+}
+.cp-shell textarea:focus-visible {
+  outline: 2px solid var(--cp-blue);
+  outline-offset: 3px;
+}
+.page-body .persistent-history .progression-table {
+  min-width: 640px;
+}
+.page-body .progression-table-wrap {
+  max-width: 100%;
+  overscroll-behavior-inline: contain;
+}
+.page-body .capability-row {
+  padding: 16px;
+  border: 1px solid var(--cp-border);
+  border-radius: var(--cp-radius);
+}
+.page-body .capability-row h3 {
+  margin-bottom: 8px;
+}
+.page-body .capability-row p {
+  margin: 12px 0;
+}
+.page-body .opening-feature > div {
+  min-width: 0;
+}
+.page-body .opening-case-grid {
+  grid-auto-rows: minmax(188px, auto);
+}
+.page-body .opening-case-card {
+  height: auto;
+  min-height: 188px;
+}
+.page-body .opening-case-count {
+  padding-top: 8px;
+}
+.page-body .converter-result-heading {
+  flex-wrap: wrap;
+}
+.page-body .converter-counts > div {
+  min-width: 0;
+}
+.page-body .converter-counts dd {
+  overflow-wrap: anywhere;
+}
+.page-body .page-loading {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: var(--cp-muted);
+}
+.page-heading h1:focus {
+  outline: none;
+}
+.skip-navigation {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-160%);
+  z-index: 150;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--cp-surface);
+  color: var(--cp-text);
+}
+.skip-navigation:focus {
+  transform: none;
+}
+
+@container workspace (max-width: 900px) {
+  .page-body .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .page-body
+    :is(
+      .two-column,
+      .opening-browser,
+      .opening-layout,
+      .opening-preference-sections
+    ) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-body .progression-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .page-body .progression-account {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .page-body .progression-account label {
+    flex: 1;
+  }
+  .page-body .progression-account select {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+  .page-body .account-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .page-body .account-row > :is(.account-values, .account-actions) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+@container workspace (max-width: 600px) {
+  .page-body .converter-route {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-body .converter-route-arrow {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+  .page-body .converter-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .page-body
+    :is(
+      .diagnostic-observations,
+      .autoopen-fields,
+      .opening-preference-preset,
+      .opening-preference-choices
+    ) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-body .diagnostic-observations > article + article {
+    border-left: 0;
+    border-top: 1px solid var(--cp-border);
+    padding: 20px 0 0;
+  }
+  .page-body .toolbar > label {
+    flex-basis: 100%;
+  }
+  .page-body .skill-node-list li {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .page-body .skill-node-list button {
+    align-self: flex-start;
+  }
+  .page-body .pass-tier-list li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .page-body .opening-rule-actions button {
+    min-height: 44px;
+  }
+  .page-body .section-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .page-body .persistent-history .section-heading > button {
+    width: 100%;
+  }
+}
+
+@container workspace (max-width: 380px) {
+  .page-body .metric:nth-child(3),
+  .page-body .metric:nth-child(4) {
+    grid-column: 1 / -1;
+  }
+  .page-body .metric > strong {
+    font-size: 24px;
+  }
+  .page-body .opening-feature {
+    flex-direction: column;
+    text-align: center;
+  }
+  .page-body .opening-feature-art {
+    width: 100%;
+    height: 100px;
+  }
+  .page-body .converter-counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .page-body .converter-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-body .converter-steps li {
+    border-right: 0;
+    border-bottom: 1px solid var(--cp-border);
+  }
+  .page-body .converter-steps li:last-child {
+    border-bottom: 0;
+  }
+  .page-body .autoopen-observed dd {
+    text-align: left;
+  }
+}
+
+@media (max-width: 799px) {
+  .topbar > div {
+    flex: 1;
+  }
+  .topbar strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .topbar .execution-pill {
+    flex: 0 1 110px;
+    white-space: normal;
+    min-width: 0;
+  }
+  .page-body .farm-row-actions button {
+    min-height: 44px;
+  }
+}
+
+.cp-shell .progression-autoopen label {
+  color: var(--cp-muted);
+}
+.page-body .progression-scope-accounts {
+  flex-basis: 100%;
+  min-width: 0;
+}
+.page-body .progression-scope-accounts summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--cp-muted);
+  font-size: 13px;
+}
+.page-body .progression-scope-accounts ul {
+  max-height: 200px;
+  overflow: auto;
+  margin: 0;
+  padding-left: 22px;
+}
+.page-body .progression-scope-accounts li {
+  padding: 4px 0;
+  overflow-wrap: anywhere;
+}

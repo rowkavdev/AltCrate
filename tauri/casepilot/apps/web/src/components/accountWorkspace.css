@@ -1,0 +1,12 @@
+.account-groups .toolbar,.local-operation-profiles .toolbar{align-items:end;flex-wrap:wrap}
+.account-groups .toolbar>label,.local-operation-profiles .toolbar>label{display:grid;gap:7px;flex:1;min-width:180px;color:var(--cp-muted)}
+.account-groups details>summary{cursor:pointer;min-height:40px;padding:10px 0;color:var(--cp-text)}
+.account-groups details[open]>summary{margin-bottom:12px}
+.account-group-row{padding:18px 0;border-top:1px solid var(--cp-border)}
+.account-group-row p{overflow-wrap:anywhere;margin:8px 0;font-size:12px}
+.account-group-row h3{margin-bottom:8px}
+.account-group-row .toolbar{margin-bottom:0}
+.account-groups .toolbar>input{flex:1;min-width:160px}
+.local-operation-profiles .selection-items{display:flex;flex-wrap:wrap;gap:14px;padding:14px 0}
+.local-operation-profiles .selection-items label{display:flex;align-items:center;gap:8px}
+@media(max-width:799px){.account-groups .toolbar>label,.local-operation-profiles .toolbar>label{flex-basis:100%;min-width:0}.account-group-row .toolbar>input{flex-basis:100%}.account-groups .toolbar>button{flex:1}.account-groups .section-heading,.local-operation-profiles .section-heading{align-items:start}}

@@ -1,0 +1,12 @@
+button:not(:disabled), [role="button"]:not([aria-disabled="true"]), summary, select { cursor:pointer; }
+html[dir="rtl"] .cp-shell .workspace { margin-left:0; margin-right:0; }
+html[dir="rtl"] .cp-shell .sidebar { left:auto;right:0;border-right:0;border-left:1px solid var(--border); }
+html[dir="rtl"] .sidebar nav a, html[dir="rtl"] .overview-shortcuts button { text-align:right; }
+html[dir="rtl"] .nav-indicator { margin-left:0;margin-right:auto;transform:rotate(180deg); }
+html[dir="rtl"] .topbar > div > svg { transform:rotate(180deg); }
+.direction-setting { display:flex;gap:12px;align-items:center;flex-wrap:wrap; }
+@media(max-width:799px){
+ html[dir="rtl"] .cp-shell .workspace {margin-right:0;}
+ html[dir="rtl"] .cp-shell .sidebar {transform:translateX(100%);}
+ html[dir="rtl"] .cp-shell .sidebar.is-open {transform:translateX(0);}
+}

@@ -1,0 +1,40 @@
+const fs=require('node:fs'),path=require('node:path');
+module.exports=async(win,calls,out)=>{
+  const checks=[],run=code=>win.webContents.executeJavaScript(code),pause=ms=>new Promise(r=>setTimeout(r,ms));
+  const assert=(yes,label)=>{checks.push({label,passed:!!yes});if(!yes)throw Error(label);};
+  await pause(650);
+  assert(await run(`!!document.querySelector('.converter-page')`),'Native converter page loads');
+  assert(await run(`document.querySelector('.converter-run .primary-button').disabled`),'Destination is required');
+  await run(`(()=>{const select=document.querySelector('.converter-destination select');const setter=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set;setter.call(select,'a3');select.dispatchEvent(new Event('change',{bubbles:true}));})()`);await pause(100);
+  assert(await run(`document.querySelector('.converter-destination select').value==='a3'&&!document.querySelector('.converter-run .primary-button').disabled`),'Choosing destination enables the full sequence');
+  assert(await run(`document.querySelectorAll('.account-selection input').length===2`),'Destination is excluded from origins');
+  await run(`(async()=>{const farm=await window.caseClicker.farmStatus();window.farmFixture.emit({type:'farm-started',status:{...farm,phase:'running'}});})()`);await pause(100);
+  assert(await run(`document.querySelector('.converter-run .primary-button').disabled&&document.querySelector('.converter-prerequisites').textContent.includes('O farm está em execução')&&!document.querySelector('.converter-stop-farm').disabled`),'Running farm shows the blocking reason and a working Stop button');
+  fs.writeFileSync(path.join(out,'converter-farm-running.png'),(await win.webContents.capturePage()).toPNG());
+  await run(`(async()=>{const farm=await window.caseClicker.farmStatus();window.farmFixture.emit({type:'farm-stopping',status:{...farm,phase:'stopping'}});})()`);await pause(100);
+  assert(await run(`document.querySelector('.converter-run .primary-button').disabled&&document.querySelector('.converter-prerequisites').textContent.includes('A aguardar a paragem do farm')`),'Outstanding farm requests continue to block conversion');
+  await run(`(async()=>{const farm=await window.caseClicker.farmStatus();window.farmFixture.emit({type:'farm-started',status:{...farm,phase:'running'}});})()`);await pause(100);
+  await run(`document.querySelector('.converter-stop-farm').click()`);await pause(150);
+  assert(calls.some(c=>c.method==='farmStop'),'Converter Stop farm reaches the farm bridge');
+  assert(await run(`!document.querySelector('.converter-run .primary-button').disabled&&!document.querySelector('.converter-stop-farm')`),'Stopped farm enables conversion immediately');
+  assert(!calls.some(c=>c.method==='startTokenConverter'),'Stopping the farm does not start a conversion implicitly');
+  await run(`document.querySelector('.converter-run .primary-button').click()`);await pause(150);
+  const start=calls.find(c=>c.method==='startTokenConverter');
+  assert(start&&JSON.stringify(start.args[0])===JSON.stringify({action:'full',accountIds:['a1','a2'],destinationAccountId:'a3'}),'Full sequence uses the selected origins and exact destination');
+  assert(await run(`!!document.querySelector('.converter-run .stop-button')&&document.querySelector('.converter-result-list').textContent.includes('A vender caixas')`),'Progress and Stop reflect background status');
+  await run(`location.hash='#accounts'`);await pause(150);await run(`location.hash='#converter'`);await pause(150);
+  assert(await run(`document.querySelector('.converter-destination select').value==='a3'&&!!document.querySelector('.converter-run .stop-button')`),'Navigation preserves destination and running operation');
+  await run(`document.querySelector('.converter-run .stop-button').click()`);await pause(150);
+  assert(calls.some(c=>c.method==='stopTokenConverter'),'Stop reaches the native bridge');
+  assert(await run(`document.querySelector('.converter-result-list').textContent.includes('Parada')`),'Stop result remains visible');
+  for(const width of [1440,1024,768,480,390,320]) {
+    win.setContentSize(width,1050);await pause(120);
+    assert(await run(`document.documentElement.scrollWidth<=innerWidth`),'No horizontal overflow at '+width);
+    fs.writeFileSync(path.join(out,'converter-'+width+'.png'),(await win.webContents.capturePage()).toPNG());
+  }
+  win.setContentSize(1220,560);await pause(120);
+  assert(await run(`document.querySelector('.sidebar').scrollHeight<=document.querySelector('.sidebar').clientHeight+1`),'All navigation stays reachable at the minimum desktop height');
+  assert(!calls.some(c=>c.method==='confirmInventoryAction'||c.method==='farmStart'||c.method==='startOpening'),'Converter does not launch other operations');
+  fs.writeFileSync(path.join(out,'runtime-checks.json'),JSON.stringify(checks,null,2));
+  console.log('Token converter runtime checks passed: '+checks.length);
+};

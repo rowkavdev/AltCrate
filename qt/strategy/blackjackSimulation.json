@@ -1,0 +1,125 @@
+{
+  "version": "0.2.14",
+  "kind": "offline-paired-simulation",
+  "initial": {
+    "seed": 2026100814,
+    "scenarios": {
+      "peek": {
+        "table": {
+          "rounds": 500,
+          "net": -0.5,
+          "stake": 559,
+          "meanNetPerInitialUnit": -0.001,
+          "positive": 215,
+          "negative": 241,
+          "push": 44
+        },
+        "math": {
+          "rounds": 500,
+          "net": -10.5,
+          "stake": 558,
+          "meanNetPerInitialUnit": -0.021,
+          "positive": 211,
+          "negative": 246,
+          "push": 43
+        },
+        "pairedDifferencePerInitialUnit": -0.02,
+        "approximate95PercentCI": [
+          -0.036555061465311484,
+          -0.0034449385346885138
+        ]
+      },
+      "noPeek": {
+        "table": {
+          "rounds": 500,
+          "net": -2.5,
+          "stake": 561,
+          "meanNetPerInitialUnit": -0.005,
+          "positive": 215,
+          "negative": 241,
+          "push": 44
+        },
+        "math": {
+          "rounds": 500,
+          "net": -12.5,
+          "stake": 560,
+          "meanNetPerInitialUnit": -0.025,
+          "positive": 211,
+          "negative": 246,
+          "push": 43
+        },
+        "pairedDifferencePerInitialUnit": -0.02,
+        "approximate95PercentCI": [
+          -0.036555061465311484,
+          -0.0034449385346885138
+        ]
+      }
+    }
+  },
+  "validation": {
+    "seed": 2026100815,
+    "scenarios": {
+      "peek": {
+        "table": {
+          "rounds": 2000,
+          "net": -54.5,
+          "stake": 2285,
+          "meanNetPerInitialUnit": -0.02725,
+          "positive": 846,
+          "negative": 982,
+          "push": 172
+        },
+        "math": {
+          "rounds": 2000,
+          "net": -34.5,
+          "stake": 2286,
+          "meanNetPerInitialUnit": -0.01725,
+          "positive": 854,
+          "negative": 973,
+          "push": 173
+        },
+        "pairedDifferencePerInitialUnit": 0.01,
+        "approximate95PercentCI": [
+          -0.0005484574691038534,
+          0.020548457469103852
+        ]
+      },
+      "noPeek": {
+        "table": {
+          "rounds": 2000,
+          "net": -57.5,
+          "stake": 2288,
+          "meanNetPerInitialUnit": -0.02875,
+          "positive": 846,
+          "negative": 982,
+          "push": 172
+        },
+        "math": {
+          "rounds": 2000,
+          "net": -36.5,
+          "stake": 2288,
+          "meanNetPerInitialUnit": -0.01825,
+          "positive": 854,
+          "negative": 973,
+          "push": 173
+        },
+        "pairedDifferencePerInitialUnit": 0.0105,
+        "approximate95PercentCI": [
+          -9.297585047229884e-05,
+          0.0210929758504723
+        ]
+      }
+    },
+    "decisions": {
+      "computed": 4255,
+      "fallback": 1131,
+      "changed": 122,
+      "reasons": {
+        "budget": 1131
+      },
+      "p50Ms": 4,
+      "p95Ms": 223
+    }
+  },
+  "conclusion": "Inconclusive: independent validation confidence intervals include zero. Composition remains experimental; basic strategy is the default."
+}

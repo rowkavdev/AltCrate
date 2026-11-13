@@ -1,0 +1,3 @@
+const test=require('node:test'),assert=require('node:assert/strict'),{identityFromToken}=require('../electron/sessionIdentity.cjs');
+const body=claims=>({token:'header.'+Buffer.from(JSON.stringify(claims)).toString('base64url')+'.signature'});
+test('fresh server token requires one unambiguous private identity',()=>{assert.equal(identityFromToken(body({id:'person'})),'person');assert.equal(identityFromToken(body({sub:'person'})),'person');assert.equal(identityFromToken(body({id:'person',sub:'person'})),'person');for(const value of [{},{token:'bad'},body({}),body({id:'a',sub:'b'}),body({id:{}})])assert.throws(()=>identityFromToken(value),/Identidade/);});

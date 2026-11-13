@@ -1,0 +1,41 @@
+module.exports=async function(win,calls,out){
+ const fs=require('node:fs'),path=require('node:path'),checks=[];
+ const run=source=>win.webContents.executeJavaScript(source,true),pause=ms=>new Promise(r=>setTimeout(r,ms));
+ const assert=(ok,label)=>{if(!ok)throw Error(label);checks.push(label);};
+ const button=async(text,scope='document')=>{await run(`(()=>{const el=[...${scope}.querySelectorAll('button')].find(b=>b.textContent.trim()===${JSON.stringify(text)});if(!el)throw Error('Button missing: '+${JSON.stringify(text)});el.click();})()`);await pause(100);};
+ const select=async(label,value)=>{await run(`(()=>{const el=[...document.querySelectorAll('label')].find(e=>e.childNodes[0]?.textContent===${JSON.stringify(label)})?.querySelector('select');if(!el)throw Error('Select missing');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(el,${JSON.stringify(value)});el.dispatchEvent(new Event('change',{bubbles:true}));})()`);await pause(150);};
+ await pause(650);await run(`location.hash='inventory'`);await pause(650);
+ assert(await run(`document.querySelectorAll('.inventory-select input').length===12`),'selection is available on each skin card');
+ await run(`document.querySelectorAll('.inventory-select input')[1].click();document.querySelectorAll('.inventory-select input')[2].click()`);await pause(80);
+ assert(await run(`document.querySelector('.inventory-batch-panel').textContent.includes('2 selecionados')`),'card selection updates batch count');
+ await select('Ação','sell');await button('Rever lote');await pause(600);
+ assert(calls.filter(c=>c.method==='prepareInventoryBatch').at(-1).args[0].refs.length===2,'sale review receives the exact two selected skins');
+ assert(!calls.some(c=>c.method==='startInventoryBatch'),'review submits no batch mutations');
+ await button('Executar lote');await pause(350);
+ assert(await run(`document.querySelector('.inventory-batch-review').textContent.includes('Concluído')&&document.querySelector('.inventory-batch-review').textContent.includes('vendido')`),'executed sale displays confirmed disposal result');
+ await run(`document.querySelectorAll('.inventory-select input')[1].click();document.querySelectorAll('.inventory-select input')[2].click()`);await pause(80);await select('Ação','convert');await button('Rever lote');await pause(600);await button('Executar lote');await pause(350);
+ assert(calls.filter(c=>c.method==='prepareInventoryBatch').at(-1).args[0].kind==='convert','conversion uses the selected batch');
+ await run(`document.querySelectorAll('.inventory-select input')[1].click();document.querySelectorAll('.inventory-select input')[2].click()`);await pause(80);await run(`document.querySelector('.inventory-pagination button:last-child').click()`);await pause(300);
+ assert(await run(`document.querySelector('.inventory-batch-panel').textContent.includes('2 selecionados')`),'selection survives pagination');
+ await button('Storages');await pause(750);
+ assert(await run(`document.querySelector('.inventory-batch-panel').textContent.includes('2 selecionados')`),'selection survives inventory to storage navigation');
+ await button('Limpar seleção');await button('Rever alteração do cofre');await pause(500);
+ assert(!calls.some(c=>c.method==='confirmStorageManagement'),'storage review does not mutate');
+ await button('Confirmar criar cofre');await pause(650);
+ assert(await run(`document.querySelector('.storage-grid').textContent.includes('Novo cofre')`),'created storage appears after refresh');
+ await select('Ação do cofre','rename');await select('Cofre','a1-created-empty');
+ await run(`(()=>{const el=document.querySelector('[aria-label="Novo nome do cofre"]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,'Coleção azul');el.dispatchEvent(new Event('input',{bubbles:true}));})()`);await pause(100);
+ await button('Rever alteração do cofre');await pause(500);await button('Confirmar mudar nome');await pause(650);
+ assert(await run(`document.querySelector('.storage-grid').textContent.includes('Coleção azul')`),'renamed storage appears after refresh');
+ await select('Ação do cofre','clear');await button('Rever alteração do cofre');await pause(500);await button('Confirmar esvaziar cofre');await pause(650);
+ await select('Ação do cofre','delete');await button('Rever alteração do cofre');await pause(500);await button('Confirmar apagar cofre');await pause(650);
+ assert(await run(`!document.querySelector('.storage-grid').textContent.includes('Coleção azul')`),'deleted storage disappears after refresh');
+ await button('Inventário principal');await pause(650);await button('Selecionar página');
+ assert(await run(`document.querySelectorAll('.inventory-select input:checked').length===document.querySelectorAll('.inventory-select input').length`),'select page checks each visible card');
+ await button('Desmarcar página');assert(await run(`document.querySelectorAll('.inventory-select input:checked').length===0`),'unselect page clears visible cards');
+ for(const width of [320,390,768,1440]){
+  win.setContentSize(width,1000);await run(`document.querySelector('.inventory-batch-panel').scrollIntoView({block:'start'})`);await pause(100);assert(await run(`document.documentElement.scrollWidth<=innerWidth`),'no overflow at '+width);fs.writeFileSync(path.join(out,'inventory-batch-'+width+'.png'),(await win.webContents.capturePage()).toPNG());
+ }
+ await button('Storages');await pause(750);win.setContentSize(390,1000);await pause(100);assert(await run(`document.documentElement.scrollWidth<=innerWidth`),'storage management fits narrow view');fs.writeFileSync(path.join(out,'storage-management-390.png'),(await win.webContents.capturePage()).toPNG());
+ fs.writeFileSync(path.join(out,'runtime-checks.json'),JSON.stringify(checks,null,2));console.log('Inventory management runtime checks: '+checks.length+' passed');
+};

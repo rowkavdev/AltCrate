@@ -1,0 +1,19 @@
+/* Existing pages consume the official bKsI1x32 preset tokens. */
+:root {
+  --cp-bg: var(--background);
+  --cp-surface: var(--card);
+  --cp-elevated: var(--muted);
+  --cp-border: var(--border);
+  --cp-text: var(--foreground);
+  --cp-muted: var(--muted-foreground);
+  --cp-blue: var(--primary);
+  --cp-green: oklch(0.448 0.119 151.328);
+  --cp-amber: oklch(0.473 0.137 46.201);
+  --cp-red: var(--destructive);
+  --cp-radius: var(--radius-4xl);
+  --cp-font: 'Inter Variable', sans-serif;
+}
+.dark {
+  --cp-green: oklch(0.792 0.209 151.711);
+  --cp-amber: oklch(0.828 0.189 84.429);
+}

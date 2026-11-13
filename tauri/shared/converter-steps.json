@@ -1,0 +1,10 @@
+[
+  {"id":"sell","group":"capsules","label":"Vender caixas","description":"Caixas normais → dinheiro virtual"},
+  {"id":"buy","group":"capsules","label":"Comprar cápsulas","description":"Dinheiro virtual → cápsulas Atlanta 2017"},
+  {"id":"open","group":"capsules","label":"Abrir cápsulas","description":"Guarda os stickers obtidos, sem os converter"},
+  {"id":"convert-stickers","group":"capsules","label":"Converter stickers","description":"Só os resultados identificados → tokens"},
+  {"id":"convert-inventory","group":"tokens","label":"Converter inventário","description":"Só as skins revistas na origem → tokens"},
+  {"id":"mint","group":"tokens","label":"Criar skins","description":"Tokens da origem → skins escolhidas pelo site"},
+  {"id":"transfer","group":"tokens","label":"Enviar para a Main","description":"Tokens Pro ou skins revistas, conforme o percurso"},
+  {"id":"convert-received","group":"tokens","label":"Converter recebidas","description":"Só as skins recebidas desta execução → tokens na Main"}
+]

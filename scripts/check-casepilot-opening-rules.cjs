@@ -1,0 +1,23 @@
+module.exports=async function check(win,calls,out){
+ const fs=require('node:fs'),path=require('node:path'),checks=[];
+ const run=source=>win.webContents.executeJavaScript(source,true),pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+ const assert=(condition,name)=>{if(!condition)throw Error(name);checks.push(name);};
+ await pause(700);
+ assert(await run(`document.querySelectorAll('.opening-rule-card').length===4`),'each listed skin has a choice');
+ await run(`document.querySelector('[aria-label="Destino de AK-47 | Item raro"] button:nth-child(2)').click()`);
+ await run(`document.querySelector('[aria-label="Destino de M4A4 | Item comum"] button:nth-child(3)').click()`);await pause(550);
+ assert(await run(`document.querySelector('.opening-storage-choice')?.textContent.includes('Arquivo a1')`),'source storage appears');
+ assert(await run(`document.querySelector('.opening-storage-choice')?.textContent.includes('Arquivo a2')`),'other account storage appears');
+ await run(`Array.from(document.querySelectorAll('.opening-storage-options button')).find(button=>button.textContent.includes('Arquivo a2')).click()`);
+ assert(await run(`document.querySelector('[aria-label="Destino de M4A4 | Item comum"] button:nth-child(3)').getAttribute('aria-pressed')==='true'`),'selected storage appears on skin');
+ assert(!calls.some(call=>call.method==='confirmInventoryAction'),'choosing rules does not move inventory items');
+ await run(`document.querySelector('.opening-special-group').scrollIntoView({block:'start'})`);await pause(100);
+ fs.writeFileSync(path.join(out,'opening-rules-selected.png'),(await win.webContents.capturePage()).toPNG());
+ await run(`document.querySelector('.opening-settings .primary-button').click()`);await pause(100);
+ const start=calls.find(call=>call.method==='startOpening');
+ assert(start?.args?.[0]?.itemRules?.some(rule=>rule.name==='AK-47 | Item raro'&&rule.action==='sell'),'sell rule reaches opening');
+ assert(start?.args?.[0]?.itemRules?.some(rule=>rule.name==='M4A4 | Item comum'&&rule.action==='storage'&&rule.destinationAccountId==='a2'&&rule.storageUnitId==='a2-archive'),'cross-account storage rule reaches opening');
+ assert(start?.args?.[0]?.convert===false,'price conversion disabled for item rules');
+ fs.writeFileSync(path.join(out,'opening-rules-checks.json'),JSON.stringify(checks,null,2));
+ console.log('Opening rules runtime checks: '+checks.length+' passed');
+};

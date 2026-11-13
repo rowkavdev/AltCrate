@@ -1,0 +1,321 @@
+.cp-shell .overview-page {
+  gap: 16px;
+}
+.cp-shell .overview-page .panel,
+.cp-shell .overview-page .metric {
+  border-radius: var(--radius-xl);
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+.cp-shell .overview-page button[data-variant],
+.cp-shell .overview-page a[data-variant],
+.cp-shell .home-refresh {
+  border-radius: var(--radius-lg);
+}
+.cp-shell .home-refresh {
+  height: 36px;
+  font-size: 13px;
+}
+.cp-shell .home-refresh[aria-busy="true"] > svg {
+  animation: overview-spin 1.2s linear infinite;
+}
+.cp-shell .overview-page .overview-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+.cp-shell .overview-page .overview-metric {
+  padding: 20px;
+  container-type: inline-size;
+}
+.cp-shell .overview-metric .metric-label {
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+.cp-shell .overview-metric .metric-label > svg {
+  color: var(--muted-foreground);
+  opacity: 0.8;
+}
+.cp-shell .overview-page .overview-metric > strong {
+  font-size: min(var(--overview-metric-size, 34px), calc(100cqi / var(--metric-width, 1)));
+  font-weight: 550;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  margin: 16px 0 7px;
+}
+.cp-shell .overview-metric > small {
+  font-size: 11px;
+}
+.cp-shell .overview-reading-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+.cp-shell .overview-reading-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+}
+.cp-shell .overview-reading-status.is-paused .overview-reading-icon {
+  color: var(--cp-amber);
+}
+.cp-shell .overview-reading-icon.is-reading > svg {
+  animation: overview-spin 1.2s linear infinite;
+}
+.cp-shell .overview-reading-copy {
+  flex: 1;
+  min-width: 0;
+}
+.cp-shell .overview-reading-copy > strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+}
+.cp-shell .overview-reading-copy > p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.cp-shell .overview-reading-copy > small {
+  display: block;
+  margin-top: 5px;
+  color: var(--cp-amber);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.cp-shell .overview-auto-refresh {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.cp-shell .overview-reading-status > button {
+  flex-shrink: 0;
+}
+.cp-shell .overview-progress {
+  height: 4px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+}
+.cp-shell .overview-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.2s ease;
+}
+.cp-shell .overview-middle {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.cp-shell .overview-page .section-heading {
+  margin: 0 0 18px;
+}
+.cp-shell .overview-page .section-heading h2 {
+  font-size: 14px;
+  font-weight: 550;
+}
+.cp-shell .overview-page .operation-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding: 8px 0;
+}
+.cp-shell .overview-page .operation-summary strong {
+  font-size: 26px;
+  font-weight: 550;
+  margin-bottom: 7px;
+}
+.cp-shell .overview-page .operation-summary span {
+  font-size: 12px;
+}
+.cp-shell .overview-page .operation-next {
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.cp-shell .overview-page .operation-next p,
+.cp-shell .overview-page .operation-next a {
+  font-size: 12px;
+}
+.cp-shell .overview-page .operation-next a {
+  color: var(--foreground);
+}
+.cp-shell .overview-page .operation-next a > svg {
+  color: var(--muted-foreground);
+}
+.cp-shell .overview-action-list {
+  display: grid;
+  gap: 2px;
+}
+.cp-shell .overview-action-list > a {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  height: auto;
+  min-height: 51px;
+  padding: 8px;
+  white-space: normal;
+}
+.cp-shell .overview-shortcut-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  color: var(--foreground);
+}
+.cp-shell .overview-action-list > a > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.cp-shell .overview-action-list strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+}
+.cp-shell .overview-action-list small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.cp-shell .overview-action-list > a > svg:last-child {
+  color: var(--muted-foreground);
+}
+.cp-shell .overview-history {
+  gap: 16px;
+}
+.cp-shell .overview-page .overview-history .section-heading {
+  margin-bottom: 12px;
+}
+.cp-shell .overview-empty {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 0 12px;
+  color: var(--muted-foreground);
+}
+.cp-shell .overview-empty > svg {
+  flex-shrink: 0;
+  opacity: 0.65;
+  margin-top: 2px;
+}
+.cp-shell .overview-empty strong {
+  display: block;
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 500;
+}
+.cp-shell .overview-empty p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  max-width: 43ch;
+}
+.cp-shell .overview-onboarding {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.cp-shell .overview-onboarding > div {
+  flex: 1;
+}
+.cp-shell .overview-onboarding h2 {
+  font-size: 15px;
+  margin: 0 0 6px;
+}
+.cp-shell .overview-onboarding p {
+  margin: 0;
+  font-size: 12px;
+}
+@keyframes overview-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 1100px) {
+  .cp-shell .overview-page .overview-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cp-shell .overview-middle {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 650px) {
+  .cp-shell .overview-page .overview-metrics {
+    gap: 10px;
+  }
+  .cp-shell .overview-page .overview-metric {
+    padding: 16px 14px;
+  }
+  .cp-shell .overview-metric .metric-label {
+    align-items: flex-start;
+    font-size: 11px;
+  }
+  .cp-shell .overview-metric .metric-label > svg {
+    width: 14px;
+    height: 14px;
+  }
+  .cp-shell .overview-page .overview-metric > strong {
+    margin-top: 14px;
+    --overview-metric-size: 24px;
+  }
+  .cp-shell .overview-metric > small {
+    font-size: 10px;
+  }
+  .cp-shell .overview-reading-status {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px;
+  }
+  .cp-shell .overview-reading-status > button {
+    margin-inline-start: 27px;
+  }
+  .cp-shell .overview-reading-copy {
+    flex-basis: calc(100% - 32px);
+  }
+  .cp-shell .overview-page .operation-summary {
+    gap: 10px;
+  }
+  .cp-shell .overview-page .operation-summary strong {
+    font-size: 24px;
+  }
+  .cp-shell .overview-page .operation-summary span {
+    font-size: 11px;
+  }
+  .cp-shell .overview-onboarding {
+    flex-wrap: wrap;
+  }
+  .cp-shell .overview-onboarding > div {
+    flex-basis: calc(100% - 40px);
+  }
+}
+@media (max-width: 480px) {
+  .cp-shell .overview-page .overview-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp-shell .overview-reading-icon > svg,
+  .cp-shell .home-refresh > svg {
+    animation: none;
+  }
+  .cp-shell .overview-progress > span {
+    transition: none;
+  }
+}

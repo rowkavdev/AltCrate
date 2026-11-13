@@ -1,0 +1,12 @@
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),cp=require('node:child_process');const {app}=require('electron');
+const directory=fs.mkdtempSync(path.join(os.tmpdir(),'casepilot-own-server-boot-'));process.env.CASE_CLICKER_TEST_DATA_DIR=directory;let sshCalls=0;const spawn=cp.spawn;cp.spawn=function(program,...args){if(/(?:^|[\\/])ssh(?:\.exe)?$/.test(program)){sshCalls++;throw Error('Unexpected SSH on fresh installation');}return spawn.call(this,program,...args);};
+const timeout=setTimeout(()=>{console.error('Fresh server workflow boot timed out');app.exit(1);},30000);
+app.on('browser-window-created',(_event,win)=>{win.hide();win.webContents.session.webRequest.onBeforeRequest({urls:['http://*/*','https://*/*']},(_details,callback)=>callback({cancel:true}));win.webContents.once('did-finish-load',async()=>{try{const report=await win.webContents.executeJavaScript(`(async()=>{const bridge=window.caseClicker;const configuration=await bridge.farmServerConfig();const farm=await bridge.farmStatus();let rejected=false;try{await bridge.farmTestServer({host:'-oProxyCommand=bad',user:'farmer',keyPath:'/tmp/key'});}catch{rejected=true;}location.hash='#settings';return {enabled:configuration.enabled,configured:!!configuration.profile,phase:farm.phase,execution:farm.execution.kind,accounts:farm.accounts.length,rejected};})()`,true);// Route code loads on demand; wait for the actual form instead of a fixed delay.
+for(let attempt=0;attempt<50;attempt++){
+ if(await win.webContents.executeJavaScript(`!!document.querySelector('.server-settings')`,true))break;
+ await new Promise(resolve=>setTimeout(resolve,100));
+}
+report.formVisible=await win.webContents.executeJavaScript(`!!document.querySelector('.server-settings')&&document.querySelector('input[name="farm-destination"][value="local"]').checked`,true);report.sshCalls=sshCalls;console.log(JSON.stringify(report));clearTimeout(timeout);app.quit();}catch(error){console.error(error.stack);app.exit(1);}});});
+const archive=process.env.CASEPILOT_SERVER_BOOT_APP&&path.join(process.env.CASEPILOT_SERVER_BOOT_APP,'Contents/Resources/app.asar');
+if(archive){const Module=require('node:module'),resolve=Module._resolveFilename;Module._resolveFilename=function(request,parent,...rest){const result=resolve.call(this,request,parent,...rest);if(parent?.filename?.startsWith(archive)&&path.isAbsolute(result)&&!result.startsWith(archive))throw Error('Packaged dependency escaped the app: '+request);return result;};}
+require(archive?archive+'/electron/main.cjs':'../electron/main.cjs');

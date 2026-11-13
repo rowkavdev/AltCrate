@@ -1,0 +1,211 @@
+const contextBridge={exposeInMainWorld:(name,value)=>{window[name]=value;}};
+const ipcRenderer={send:()=>{}};
+const process={argv:['--cp-count=8','--cp-state=idle']};
+const arg=(name,fallback)=>{const value=process.argv.find(item=>item.startsWith('--cp-'+name+'='));return value?value.split('=').slice(1).join('='):fallback;};
+const count=Math.max(1,Math.min(100,Number(new URLSearchParams(location.search).get('accounts')||arg('count','1'))||8)),scenario=arg('state','idle');
+let accounts=Array.from({length:count},(_,index)=>({id:'a'+(index+1),label:index===0?'Principal · conta de ensaio com nome extenso':'Conta '+(index+1)}));
+let accountWorkspace;
+try{accountWorkspace=JSON.parse(localStorage.getItem('casepilot:preview-workspace')||'null');const names=JSON.parse(localStorage.getItem('casepilot:preview-account-names')||'{}');accounts=accounts.map(account=>({...account,label:names[account.id]||account.label}));}catch{}
+accountWorkspace=accountWorkspace||{version:1,groups:[{id:'farmer',name:'Farmer'},{id:'trader',name:'Trader'},{id:'storage',name:'Storage'},{id:'principal',name:'Principal'}],accountGroups:{},profiles:[]};
+const entries=()=>accounts.map((account,index)=>({id:account.id,selected:['waiting','running'].includes(scenario),paused:scenario==='error'&&index===0,needsLogin:scenario==='needs-login'&&index===0,inFlight:scenario==='running'&&index<4,nextClickMode:index%2?'money':'case',results:{case:scenario==='idle'?0:6+index%3,money:scenario==='idle'?0:4.81,vault:scenario==='idle'?0:1160,unconfirmedRequests:0},modes:{case:true,money:true,vault:true},vaultNextAt:Date.now()+720000,retryAt:0,error:scenario==='vault-unavailable'&&index===0?'Dados do cofre indisponíveis nesta conta. Atualiza a leitura para voltar a verificar.':scenario==='error'&&index===0?'A sessão está temporariamente indisponível. Esta mensagem extensa verifica que os detalhes e a lista continuam legíveis quando o erro ocupa várias linhas.':'',last:{kind:'money',confirmedDelta:253.64999999999964}}));
+let farm={phase:['waiting','running'].includes(scenario)?'running':'idle',accounts:entries(),budget:{combinedRemaining:scenario==='waiting'?0:1900,caseUsed:scenario==='waiting'?950:0,moneyUsed:scenario==='waiting'?950:0,waitUntil:scenario==='waiting'?Date.now()+310000:0}};
+let opening={phase:'idle',opened:0,converted:0,failed:0,intervalMs:500};
+const converterWait=Math.max(0,Math.min(300000,Number(new URLSearchParams(location.search).get('converter-wait'))||0));
+let converter={phase:'idle',rows:[],sentTokens:0,...(converterWait?{retryAt:Date.now()+converterWait}:{})};
+if(new URLSearchParams(location.search).get('converter-history')==='1') converter={phase:'blocked',lastSelection:{steps:['sell','buy','open','convert-stickers'],routing:'selected',destinationAccountId:'a1'},rows:[
+ {operationId:'pending-fixture',accountId:'a2',sourceLabel:'Conta 2',state:'unconfirmed',stage:'open',unconfirmedResults:9,selectedSteps:['sell','buy','open','convert-stickers'],steps:['open','convert-stickers'],completedSteps:['sell','buy'],message:'Resultados por confirmar',handoffCounts:{source:0,destination:0}},
+ {operationId:'saved-fixture',canRepeat:true,accountId:'a3',sourceLabel:'Conta 3',state:'stopped',stage:'open',pendingStickers:160,selectedSteps:['sell','buy','open','convert-stickers'],steps:['open','convert-stickers'],completedSteps:['sell','buy'],availableSteps:['open','convert-stickers'],canReviewNext:true,handoffCounts:{source:160,destination:0}}
+],sentTokens:0};
+if(new URLSearchParams(location.search).get('converter-history')==='1') converter.rows.push({operationId:'done-fixture',accountId:'a4',sourceLabel:'Conta 4',state:'confirmed',stage:'result',selectedSteps:['sell'],steps:['sell'],completedSteps:['sell'],canRepeat:true,verified:true,sold:2,handoffCounts:{source:0,destination:0}});
+const converterPreviews=new Map();
+const listeners=new Set();
+const clearableConverterRow=row=>['confirmed','failed','stopped','cancelled','skipped','reviewed'].includes(row.state)&&!row.pendingItems&&!row.pendingStickers&&!row.handoffCounts?.source&&!row.handoffCounts?.destination;
+const converterStatus=()=>({...converter,rows:converter.rows.map(row=>({...row,canVerify:['unconfirmed','unresolved'].includes(row.state),canCloseUnresolved:row.state==='unconfirmed'&&row.verification?.phase==='complete'&&row.verification.outcome==='pending',canStop:!row.stopRequested&&['running','waiting','stopped','paused','unconfirmed'].includes(row.state)})),clearableCount:converter.rows.filter(clearableConverterRow).length});
+function emit(event){if(event.type==='token-converter')event={...event,status:converterStatus()};for(const listener of listeners)listener(event);}
+const log=(method,args)=>ipcRenderer.send('fixture:call',{method,args});
+const snapshot=(id='a1')=>({money:15150.541668254264,casesTotal:13582,tokens:23455.63,membership:Number(id.slice(1))%4===0?null:Number(id.slice(1))%3===1?'pro':'free',inventoryCount:12,inventorySize:1000,observedAt:new Date().toISOString(),cases:[{id:'gallery',name:'Gallery Case',amount:1531},{id:'kilowatt',name:'Kilowatt Case',amount:1085}]});
+const caseImage=(label,color)=>'data:image/svg+xml;base64,'+btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="160" height="130"><rect x="21" y="27" width="118" height="86" rx="10" fill="${color}" stroke="#e5e5e5" stroke-width="4"/><path d="M21 58h118" stroke="#e5e5e5" stroke-width="4"/><text x="80" y="87" text-anchor="middle" fill="white" font-family="sans-serif" font-size="16">${label}</text></svg>`);
+let inventoryShrunk=false;
+let storageFailed=false;
+const actionPreviews=new Map(),inventoryOperations=[],itemViews=new Map();
+const favoriteOverrides=new Map(),removedItems=new Set();
+let actionSequence=0;
+const fixtureBatches=new Map(),storageManagementPreviews=new Map(),storageManagementOperations=[],unitOverrides=new Map(),extraUnits=new Map();
+contextBridge.exposeInMainWorld('inventoryFixture',{shrink:()=>{inventoryShrunk=true;}});
+contextBridge.exposeInMainWorld('farmFixture',{emit:event=>{if(event.status)farm=event.status;emit(event);}});
+const progressionPreviews=new Map(),progressionStates=new Map(),claimedRewards=new Set(),ownedSkills=new Map();
+const progressionConfig={favoriteLowFloats:true,favoriteHighFloats:true,favoriteCustomFloats:false,favoritePatterns:true,autosellActivated:false,autosellAmount:500,autosellVariant:'money',customLowFloat:0.0000001,customHighFloat:0.99999,customSelectedFloats:[],patternBlacklist:[]};
+const progressionConfigs=new Map(),claimedMissions=new Set(),claimedPasses=new Map();
+let appPreferences={enableSiteOpening:false};
+try{appPreferences.enableSiteOpening=JSON.parse(localStorage.getItem('fixture:preferences'))?.enableSiteOpening===true;}catch{}
+
+const fixtureSkillMap=name=>({name,image:caseImage('MAPA DE ENSAIO','#244764'),requiredRankId:1,skills:[{id:'a1',name:'CT Spawn',cost:1,requiredPrevSkillId:null,nextSkillIds:['a2'],rewards:['15;0.1'],effects:['+0.1 pontos percentuais de caixas por clique'],waypointX:40,waypointY:30},{id:'a2',name:'CT Mid',cost:5,requiredPrevSkillId:'a1',nextSkillIds:[],rewards:['11;0.002'],effects:['+0.002 dinheiro virtual por clique'],waypointX:65,waypointY:65}]});
+let serverConfig={enabled:false};let serverTrusted=false;
+const bridge={
+ farmServerConfig:async()=>({...serverConfig}),
+ farmChooseServerKey:async()=>{log('farmChooseServerKey',[]);return '/tmp/fixture-ssh-key';},
+ farmServerIdentity:async profile=>{log('farmServerIdentity',[profile]);return [{type:'ssh-ed25519',fingerprint:'SHA256:fixture-own-server'}];},
+ farmTrustServer:async(profile,fingerprint)=>{log('farmTrustServer',[profile,fingerprint]);if(fingerprint!=='SHA256:fixture-own-server')throw Error('Identidade inválida');serverTrusted=true;return {trusted:true};},
+ farmSetupServer:async profile=>{log('farmSetupServer',[profile]);if(!serverTrusted)throw Error('Confirma a identidade SSH');emit({type:'server-setup',stage:'installing'});return {installed:true,networkCheck:{routes:[{routeId:'direct',family:4,ok:true,latencyMs:42,message:'Ligação ao jogo verificada.'}],healthy:1,total:1},profile:{...profile,nodePath:'/opt/casepilot-runtime/node/bin/node'},capabilities:{protocolVersion:1,maxAccounts:51,routes:[{id:'direct',family:4}]}};},
+ farmTestServer:async profile=>{log('farmTestServer',[profile]);if(!serverTrusted)throw Error('Confirma a identidade SSH');if(profile.host==='offline.example')throw Error('Sem ligação ao servidor');return {networkCheck:{routes:[{routeId:'direct',family:4,ok:true,latencyMs:42,message:'Ligação ao jogo verificada.'}],healthy:1,total:1},capabilities:{protocolVersion:1,maxAccounts:51,routes:[{id:'direct',family:4}]},status:{phase:'idle',accounts:[]}};},
+ farmConfigureServer:async profile=>{log('farmConfigureServer',[profile]);serverConfig={enabled:false,profile,preferredExecution:'server'};farm={...farm,execution:{kind:'local',configuredServer:{name:profile.name,host:profile.host}}};emit({type:'farm-configured',status:farm});return serverConfig;},
+ farmMoveToServer:async ids=>{log('farmMoveToServer',[ids]);serverConfig={...serverConfig,enabled:true};farm={...farm,phase:'idle',execution:{kind:'server',name:serverConfig.profile.name,host:serverConfig.profile.host,connected:true,updatedAt:Date.now()},accounts:farm.accounts.map(account=>({...account,selected:ids.includes(account.id)}))};emit({type:'farm-started',status:farm});return farm;},
+ farmMoveToLocal:async()=>{log('farmMoveToLocal',[]);serverConfig={...serverConfig,enabled:false,restartRequired:true,preferredExecution:'local'};farm={...farm,phase:'idle',execution:{kind:'local',restartRequired:true}};emit({type:'farm-finished',status:farm});return serverConfig;},
+ farmRecoverServer:async()=>serverConfig,
+ farmRestartApp:async()=>{log('farmRestartApp',[]);return {restarting:true};},
+ readAppPreferences:async()=>({...appPreferences}),
+ updateAppPreferences:async patch=>{log('updateAppPreferences',[patch]);if(typeof patch?.enableSiteOpening!=='boolean')throw Error('Preferência inválida');appPreferences={enableSiteOpening:patch.enableSiteOpening};localStorage.setItem('fixture:preferences',JSON.stringify(appPreferences));return {...appPreferences};},
+ readRewards:async id=>{log('readRewards',[id]);return {accountId:id,readAt:new Date().toISOString(),tracks:[{key:'nextClickReward',title:'Cliques',id:14.71,eligible:!claimedRewards.has(id),description:'Aumentar geração de dinheiro por clique',requirement:'750 000 cliques',current:791023,target:750000,progress:100},{key:'nextOpenedCasesReward',title:'Caixas abertas',id:386,eligible:false,description:'20 caixas virtuais',requirement:'7 000 000 caixas',current:1000,target:7000000,progress:0.01}]};},
+ readMissions:async id=>{log('readMissions',[id]);const claimed=claimedPasses.get(id)||[];return {accountId:id,readAt:new Date().toISOString(),missions:[{id:'mission-1',goal:'clickedCases',title:'Clicar para receber caixas',description:'Missão semanal',current:20,target:20,progress:1,redeemed:claimedMissions.has(id+':mission-1'),eligible:true,duration:'week',validTill:'2099-10-19T00:00:00.000Z'},{id:'mission-2',title:'Jogar Blackjack',description:'Missão diária',current:2,target:30,redeemed:false,eligible:false,duration:'day',validTill:'2099-10-19T00:00:00.000Z'}],pass:{period:'2026-10',endsAt:'2099-11-01T00:00:00.000Z',points:45,maxPoints:750,tier:3,totalTiers:50,pointsPerTier:15,pointsToNextTier:15,isPremium:true,claimedFreeTiers:claimed.includes('free:2')?[2]:[],claimedPremiumTiers:[1,2,...(claimed.includes('premium:3')?[3]:[])],claimableFreeTiers:claimed.includes('free:2')?[]:[2],claimablePremiumTiers:claimed.includes('premium:3')?[]:[3],track:[{tier:1,freeReward:null,premiumReward:'Dinheiro virtual'},{tier:2,freeReward:'Facas aleatórias',premiumReward:'Munições'},{tier:3,freeReward:null,premiumReward:'Tokens'}]}};},
+ readSkillMap:async(id,name)=>{log('readSkillMap',[id,name]);return {accountId:id,map:fixtureSkillMap(name),ownedIds:ownedSkills.get(id)||[],money:1000,skillPoints:3,rank:18,readAt:new Date().toISOString()};},
+ listSkillPresets:async accountId=>{log('listSkillPresets',[accountId]);const presets=JSON.parse(arg('skill-presets','null'))||[{id:'test-build',name:'Preset de ensaio',description:'Duas habilidades dependentes; os custos são revistos antes de aplicar.',skillIds:['a1','a2']}];return accountId===undefined?presets:{accountId,presets,readAt:new Date().toISOString()};},
+ readAutoOpen:async id=>{if(!appPreferences.enableSiteOpening)throw Error('Ativa Preferências de abertura nas Definições.');log('readAutoOpen',[id]);return {accountId:id,config:progressionConfigs.get(id)||{...progressionConfig},activePresetId:null,presets:[],readAt:new Date().toISOString()};},
+ readDiagnostics:async id=>{log('readDiagnostics',[id]);return {accountId:id,before:{money:100,tokens:12,casesTotal:20,inventoryCount:5,readAt:new Date().toISOString()},after:{money:110,tokens:12,casesTotal:21,inventoryCount:5,readAt:new Date().toISOString()},changes:[{field:'money',before:100,after:110},{field:'casesTotal',before:20,after:21}],readAt:new Date().toISOString()};},
+ prepareProgression:async(id,kind,payload)=>{log('prepareProgression',[id,kind,payload]);const previewId='p-'+(++actionSequence);const record={previewId,accountId:id,kind,payload,title:kind==='reward'?'Receber recompensa':kind==='mission'?'Recolher missão':kind==='pass'?'Recolher passe mensal':'Rever alteração',steps:[{kind,name:kind==='skill-preset'?'Aplicar duas habilidades':'Alteração revista',mapName:payload.mapName,skillId:payload.skillId}],cost:kind==='skill-buy'?1:kind==='skill-preset'?6:0,refund:0,pointCost:kind==='skill-preset'?2:1,changes:kind==='autoopen'?[{field:'autosellAmount',before:500,after:payload.config.autosellAmount}]:[],warnings:payload.reset?['Vendas devolvem metade do custo']:[]};progressionPreviews.set(previewId,record);return record;},
+ confirmProgression:async previewId=>{log('confirmProgression',[previewId]);const p=progressionPreviews.get(previewId);if(!p)throw Error('Revisão expirada');let state={operationId:previewId,accountId:p.accountId,kind:p.kind,state:'running',completed:0,total:p.kind==='skill-preset'?2:1,verified:false,message:'A aplicar a sequência revista…'};progressionStates.set(p.accountId,state);await new Promise(r=>setTimeout(r,p.kind==='skill-preset'?1600:200));state=progressionStates.get(p.accountId);if(state.state!=='stopped'){if(p.kind==='reward')claimedRewards.add(p.accountId);if(p.kind==='mission')claimedMissions.add(p.accountId+':'+p.payload.id);if(p.kind==='pass')claimedPasses.set(p.accountId,[...(claimedPasses.get(p.accountId)||[]),p.payload.track+':'+p.payload.tier]);if(p.kind==='autoopen')progressionConfigs.set(p.accountId,p.payload.config);if(p.kind==='skill-buy')ownedSkills.set(p.accountId,[...(ownedSkills.get(p.accountId)||[]),p.payload.skillId]);state={...state,state:'completed',verified:true,completed:state.total,message:'Alteração confirmada nos dados de ensaio.'};}progressionStates.set(p.accountId,state);emit({type:'progression',...state,at:new Date().toISOString()});return state;},
+ verifyProgression:async id=>({operationId:id,state:'completed',verified:true,message:'Verificado em ensaio'}),
+ progressionStatus:async id=>progressionStates.get(id)||{state:'idle',completed:0,total:0,message:'Sem operação ativa'},
+ stopProgression:async id=>{log('stopProgression',[id]);const status={...(progressionStates.get(id)||{}),state:'stopped',verified:true,message:'Sequência parada antes da próxima ação.'};progressionStates.set(id,status);return status;},
+ readInventorySummary:async id=>{log('readInventorySummary',[id]);return {value:2450,floatCoverage:{totalSkins:100,rankedSkins:25,percent:25,oldestUpdated:null},events:[{value:'',label:'Todos'},{value:'Orbit 2026',label:'Orbit 2026'}],errors:[],readAt:Date.now()};},
+
+ getTokenConverterStatus:async()=>converterStatus(),
+ clearTokenConverter:async()=>{
+  if(['running','stopping'].includes(converter.phase))throw Error('Aguarda o fim da execução antes de limpar.');
+  converter={...converter,rows:converter.rows.filter(row=>!clearableConverterRow(row)),message:'Execução anterior arquivada. Podes preparar uma nova sequência.'};converterPreviews.clear();
+  emit({type:'token-converter',status:converter});return converterStatus();
+ },
+ inspectTokenConverter:async config=>({checkedAt:Date.now(),issues:new URLSearchParams(location.search).get('converter-issues')==='autosell'&&config.steps.includes('open')?config.accountIds.map(accountId=>({code:'autosell',accountId,label:accounts.find(a=>a.id===accountId)?.label,message:'A venda automática do site pode retirar os resultados do inventário.',actions:['preferences','remove-open']})):[]}),
+ prepareTokenConverter:async config=>{
+  log('prepareTokenConverter',[config]);
+  if(config.action==='sequence'&&(!config.steps?.length))throw Error('Seleciona pelo menos uma etapa');
+  const steps=config.action==='sequence'?config.steps:null;
+  const preview={previewId:crypto.randomUUID(),expiresAt:Date.now()+300000,includeInventory:config.includeInventory,steps,config,destination:config.destinationAccountId?{accountId:config.destinationAccountId,label:accounts.find(a=>a.id===config.destinationAccountId)?.label}:null,rows:config.accountIds.map(id=>{
+   const membership=snapshot(id).membership||'basic',old=converter.rows.find(row=>row.accountId===id),ordinary={id:'a'.repeat(22)+String(Number(id.slice(1))).padStart(2,'0'),name:'AK-47 | Slate (Field-Tested)',price:8,isFavorite:false,protection:[]},special={id:'b'.repeat(22)+String(Number(id.slice(1))).padStart(2,'0'),name:'AK-47 | Case Hardened · Tier 4',price:20,isFavorite:false,protection:['pattern']},include=config.protectedItemIds?.includes(id+':'+special.id);
+   const effectiveSteps=steps?(config.routing==='auto'&&membership==='pro'&&steps.includes('transfer')?steps.filter(s=>!['mint','convert-received'].includes(s)):steps):[];
+   const resuming=config.resumeOperationIds?.includes(old?.operationId),savedSkin={id:'c'.repeat(22)+String(Number(id.slice(1))).padStart(2,'0'),name:'Skin criada nesta execução',price:2345,isFavorite:false,protection:[]};
+   const inventory=steps?steps.includes('convert-inventory')||steps.includes('transfer')&&!steps.includes('mint')&&membership!=='pro':config.includeInventory;
+   const route=steps?.includes('mint')||old?.handoffCounts?.source||old?.handoffCounts?.destination?'skins':membership==='pro'?'tokens':'skins';
+   return {accountId:id,label:accounts.find(a=>a.id===id)?.label,membership,route,effectiveSteps,prerequisites:steps?.includes('open')&&new URLSearchParams(location.search).get('converter-issues')==='autosell'?[{kind:'disable-autosell'}]:[],tokens:23455.63,maxTokens:inventory?23535+(include?200:0):23455,items:!resuming&&inventory?[ordinary,...(include?[special]:[])]:[],excludedItems:!resuming&&inventory&&!include?[special]:[],transferItems:resuming&&steps.includes('transfer')?[savedSkin]:[],receivedItems:resuming&&steps.includes('convert-received')&&old?.handoffCounts?.destination?[savedSkin]:[],resumeOperationId:resuming?old.operationId:null};
+  })};converterPreviews.set(preview.previewId,preview);return preview;
+ },
+ startTokenConverter:async config=>{
+  log('startTokenConverter',[config]);const preview=['sequence','consolidate'].includes(config.action)?converterPreviews.get(config.previewId):null;
+  if(['sequence','consolidate'].includes(config.action)&&!preview)throw Error('Revisão expirada');
+  if(preview)converterPreviews.delete(preview.previewId);
+  const ids=preview?preview.rows.map(row=>row.accountId):config.accountIds,destinationAccountId=preview?.destination?.accountId||config.destinationAccountId;
+  const oldRows=converter.rows;
+  const rows=ids.map((id,index)=>{const old=oldRows.find(row=>row.accountId===id),p=preview?.rows[index];return {...(p?.resumeOperationId?old:{}),operationId:p?.resumeOperationId||'token-'+id,accountId:id,sourceLabel:accounts.find(a=>a.id===id)?.label,destinationAccountId:destinationAccountId||old?.destinationAccountId,state:index?'waiting':'running',stage:index?'waiting':p?.effectiveSteps[0]||'inventory',message:'Simulação local em curso. Nenhuma operação no jogo.',sold:0,bought:0,opened:0,converted:0,sentTokens:0,...(preview?{route:p.route,membership:p.membership,steps:p.effectiveSteps,originalConverted:0,mintedItems:old?.mintedItems||0,pendingItems:old?.pendingItems||0,pendingStickers:old?.pendingStickers||0,receivedTokens:0,canReviewNext:false}: {})};});
+  converter={phase:'running',action:config.action,destinationAccountId,sentTokens:0,message:'Simulação local em curso. Nenhuma operação no jogo.',rows:preview?.config?.resumeOperationIds?.length?oldRows.map(row=>rows.find(r=>r.operationId===row.operationId)||row):[...oldRows.filter(row=>['unconfirmed','unresolved'].includes(row.state)&&!rows.some(next=>next.operationId===row.operationId)),...rows]};emit({type:'token-converter',status:converter});
+  if(config.action==='sequence')setTimeout(()=>{
+   if(converter.phase!=='running')return;
+   converter={...converter,phase:'idle',message:'Etapas de ensaio concluídas.',rows:converter.rows.map(row=>{
+    const p=preview.rows.find(p=>p.accountId===row.accountId);if(!p||['unresolved','unconfirmed'].includes(row.state))return row;
+    const steps=p.effectiveSteps,old=oldRows.find(r=>r.accountId===row.accountId),counts={source:old?.handoffCounts?.source||0,destination:old?.handoffCounts?.destination||0};let pendingStickers=old?.pendingStickers||0;
+    if(steps.includes('open')){pendingStickers+=2;counts.source+=2;}
+    if(steps.includes('convert-stickers')){counts.source=Math.max(0,counts.source-pendingStickers);pendingStickers=0;}
+    if(steps.includes('mint'))counts.source++;
+    if(steps.includes('transfer')&&p.route==='skins'){counts.destination+=counts.source;counts.source=0;}
+    if(steps.includes('convert-received'))counts.destination=0;
+    const availableSteps=[pendingStickers?'convert-stickers':null,counts.source&&!pendingStickers?'transfer':null,counts.destination||counts.source&&!pendingStickers?'convert-received':null].filter(Boolean),paused=counts.source+counts.destination>0;
+    return {...row,state:paused?'paused':'confirmed',verified:true,stage:'result',completedSteps:[...new Set([...(old?.completedSteps||[]),...steps])],handoffCounts:counts,pendingStickers,pendingItems:Math.max(0,counts.source+counts.destination-pendingStickers),canReviewNext:paused,availableSteps,sold:steps.includes('sell')?5:0,bought:steps.includes('buy')?2:0,opened:steps.includes('open')?2:0,mintedItems:(old?.mintedItems||0)+(steps.includes('mint')?1:0),message:paused?'Etapas concluídas. Itens guardados para a próxima etapa.':'Etapas escolhidas concluídas.'};
+   })};emit({type:'token-converter',status:converter});
+  },120);
+  return converter;
+ },
+ stopTokenConverter:async()=>{log('stopTokenConverter',[]);converter={...converter,phase:converter.rows.some(row=>row.state==='unconfirmed')?'blocked':'idle',message:'Execução parada.',rows:converter.rows.map(row=>row.state==='unresolved'?row:{...row,stopRequested:true,state:row.state==='unconfirmed'?'unconfirmed':'stopped',message:'Execução parada.'})};emit({type:'token-converter',status:converter});return converterStatus();},
+ stopTokenConverterAccount:async id=>{log('stopTokenConverterAccount',[id]);converter={...converter,rows:converter.rows.map(row=>row.operationId===id&&row.state!=='unresolved'?{...row,stopRequested:true,state:row.state==='unconfirmed'?'unconfirmed':'stopped'}:row)};emit({type:'token-converter',status:converter});return converterStatus();},
+ resumeTokenConverter:async id=>{log('resumeTokenConverter',[id]);converter={...converter,phase:'running',rows:converter.rows.map(row=>row.operationId===id?{...row,state:'running',canResume:false}:row)};emit({type:'token-converter',status:converter});return converter;},
+ verifyTokenConversion:async id=>{
+  log('verifyTokenConversion',[id]);const row=converter.rows.find(row=>row.operationId===id);if(!row)throw Error('Operação pendente não encontrada.');
+  row.verification={phase:'running',stage:'account',attempt:(row.verification?.attempt||0)+1,startedAt:new Date().toISOString()};emit({type:'token-converter',status:converterStatus()});
+  await new Promise(resolve=>setTimeout(resolve,200));
+  const expected=row.unconfirmedResults||0;row.verification={...row.verification,phase:'complete',outcome:['unconfirmed','unresolved'].includes(row.state)?'pending':'confirmed',finishedAt:new Date().toISOString(),expected,found:0,message:'Dados de demonstração: esta verificação não consulta o site.'};
+  emit({type:'token-converter',status:converterStatus()});return converterStatus();
+ },
+ closeUnresolvedTokenConversion:async id=>{
+  log('closeUnresolvedTokenConversion',[id]);const row=converter.rows.find(row=>row.operationId===id);
+  if(!row||!converterStatus().rows.find(value=>value.operationId===id)?.canCloseUnresolved)throw Error('Verifica os resultados antes de encerrar.');
+  row.state='unresolved';row.verified=false;row.resolution={kind:'unresolved-opening',closedAt:new Date().toISOString(),unconfirmedCount:row.unconfirmedResults};
+  converter.phase=converter.rows.some(value=>value.state==='unconfirmed')?'blocked':'idle';emit({type:'token-converter',status:converter});return converterStatus();
+ },
+ cancelTokenTrade:async id=>{log('cancelTokenTrade',[id]);return converter;},
+ acknowledgeTokenConversion:async id=>{log('acknowledgeTokenConversion',[id]);return converter;},
+ listInventoryOperations:async()=>inventoryOperations,
+ prepareInventoryBatch:async request=>{log('prepareInventoryBatch',[request]);const rows=[];for(const ref of request.refs){const item=itemViews.get(ref.itemId);if(['sell','convert'].includes(request.kind)&&item?.isFavorite)throw Error('Item favorito. Remove o favorito primeiro.');const preview=await bridge.prepareInventoryAction({...request,ref});rows.push({ref,preview,state:'queued'});}const batch={batchId:'batch-'+(++actionSequence),kind:request.kind,state:'review',createdAt:new Date().toISOString(),items:rows,limitation:'Cada item é verificado individualmente',capacity:{message:'Limite publicado: 1000 skins por cofre.'}};fixtureBatches.set(batch.batchId,batch);return batch;},
+ startInventoryBatch:async id=>{log('startInventoryBatch',[id]);const batch=fixtureBatches.get(id);batch.state='running';emit({type:'inventory-batch',batch});for(const row of batch.items){await new Promise(r=>setTimeout(r,60));row.state='confirmed';row.finalLocation={accountId:row.ref.accountId,location:batch.kind==='sell'?'sold':batch.kind==='convert'?'converted':'storage'};}batch.state='completed';emit({type:'inventory-batch',batch});return batch;},
+ listInventoryBatches:async()=>[...fixtureBatches.values()],
+ stopInventoryBatch:async id=>fixtureBatches.get(id),verifyInventoryBatch:async id=>fixtureBatches.get(id),resumeInventoryBatch:async id=>bridge.startInventoryBatch(id),
+ prepareStorageManagement:async request=>{log('prepareStorageManagement',[request]);const units=await bridge.listStorageUnits(request.accountId),p={...request,previewId:'storage-preview-'+(++actionSequence),accountLabel:accounts.find(a=>a.id===request.accountId)?.label,unit:units.find(u=>u.id===request.storageUnitId)};storageManagementPreviews.set(p.previewId,p);return p;},
+ confirmStorageManagement:async id=>{log('confirmStorageManagement',[id]);const p=storageManagementPreviews.get(id);if(p.kind==='create')extraUnits.set(p.accountId,[...(extraUnits.get(p.accountId)||[]),{id:p.accountId+'-created-empty',name:'Novo cofre',count:0,index:2}]);else unitOverrides.set(p.unit.id,p.kind==='rename'?{name:p.name}:p.kind==='clear'?{count:0}:{deleted:true});const op={...p,operationId:'storage-op-'+(++actionSequence),state:'confirmed',verified:true,message:'Alteração do cofre confirmada em ensaio'};storageManagementOperations.push(op);emit({type:'storage-management',accountId:p.accountId,operation:op});return op;},
+ listStorageManagement:async()=>storageManagementOperations,
+ verifyStorageManagement:async id=>storageManagementOperations.find(o=>o.operationId===id),
+ prepareInventoryAction:async(request)=>{log('prepareInventoryAction',[request]);await new Promise(r=>setTimeout(r,220));const item=itemViews.get(request.ref.itemId);const preview={previewId:'preview-'+(++actionSequence),kind:request.kind,ref:request.ref,item,sourceLabel:accounts.find(a=>a.id===request.ref.accountId).label,destinationAccountId:request.destinationAccountId,destinationLabel:accounts.find(a=>a.id===request.destinationAccountId)?.label,destinationStorageUnitId:request.destinationStorageUnitId,destinationStorageName:request.destinationStorageUnitId?'Arquivo '+request.destinationAccountId:undefined,quoteTokens:null,steps:[...(request.ref.storageUnitId?['Retirar do storage para o inventário']:[]),...(request.kind==='move-to-storage'?[...(request.destinationAccountId!==request.ref.accountId?['Enviar para outra conta']:[]), 'Guardar no storage Arquivo '+request.destinationAccountId]:[request.kind==='transfer'?'Enviar para outra conta':request.kind==='sell'?'Vender por dinheiro virtual':request.kind==='favorite'?'Atualizar favorito':'Converter em tokens'])]};actionPreviews.set(preview.previewId,{preview,request});return preview;},
+ confirmInventoryAction:async(id)=>{log('confirmInventoryAction',[id]);await new Promise(r=>setTimeout(r,100));const {preview,request}=actionPreviews.get(id);if(request.kind==='favorite')favoriteOverrides.set(request.ref.itemId,request.isFavorite);if(request.kind==='withdraw')removedItems.add(request.ref.itemId);const operation={operationId:'operation-'+(++actionSequence),accountId:preview.ref.accountId,destinationAccountId:preview.destinationAccountId,kind:preview.kind,item:preview.item,state:preview.kind==='transfer'?'unconfirmed':'confirmed',verified:preview.kind!=='transfer',message:preview.kind==='transfer'?'A confirmar chegada':'Ação confirmada no ensaio',stage:'result',updatedAt:new Date().toISOString(),httpStatus:200,observedMoney:15150,observedTokens:100};inventoryOperations.push(operation);emit({type:'inventory-action',at:operation.updatedAt,...operation});return {operation};},
+ verifyInventoryOperation:async(id)=>{log('verifyInventoryOperation',[id]);return inventoryOperations.find(o=>o.operationId===id);},
+ cancelInventoryOperation:async(id)=>{log('cancelInventoryOperation',[id]);const operation=inventoryOperations.find(o=>o.operationId===id);Object.assign(operation,{state:'cancelled',verified:true,message:'Item devolvido no ensaio'});emit({type:'inventory-action',at:new Date().toISOString(),...operation});return operation;},
+ readAccountWorkspace:async()=>structuredClone(accountWorkspace),
+ accountWorkspaceCommand:async(action,payload)=>{
+  log('accountWorkspaceCommand',[action,payload]);
+  if(action==='createGroup')accountWorkspace.groups.push({id:crypto.randomUUID(),name:payload.name.trim()});
+  if(action==='updateGroup'){const group=accountWorkspace.groups.find(group=>group.id===payload.id);if(!group)throw Error('Grupo inexistente');group.name=payload.name.trim();}
+  if(action==='deleteGroup'){accountWorkspace.groups=accountWorkspace.groups.filter(group=>group.id!==payload.id);for(const [id,group] of Object.entries(accountWorkspace.accountGroups))if(group===payload.id)delete accountWorkspace.accountGroups[id];}
+  if(action==='assignAccounts')for(const id of payload.accountIds)payload.groupId===null?delete accountWorkspace.accountGroups[id]:accountWorkspace.accountGroups[id]=payload.groupId;
+  if(action==='renameAccount'){if(accounts.some(account=>account.id!==payload.id&&account.label.toLowerCase()===payload.label.trim().toLowerCase()))throw Error('Já existe uma conta com esse nome.');accounts=accounts.map(account=>account.id===payload.id?{...account,label:payload.label.trim()}:account);localStorage.setItem('casepilot:preview-account-names',JSON.stringify(Object.fromEntries(accounts.map(account=>[account.id,account.label]))));}
+  localStorage.setItem('casepilot:preview-workspace',JSON.stringify(accountWorkspace));return structuredClone(accountWorkspace);
+ },
+ listAccounts:async()=>accounts,
+ importAccounts:async()=>{log('importAccounts',[]);const imported={id:'imported-1',label:'player+1@example.com',email:'player+1@example.com',hasPassword:true};if(!accounts.some(a=>a.id===imported.id))accounts.push(imported);return {added:1,updated:0,withoutPassword:0,accounts};},
+ connectAccount:async(id)=>{log('connectAccount',[id]);return accounts.find(a=>a.id===id);},
+ listCaseShowcase:async()=>[{id:'gallery',name:'Gallery Case',slug:'gallery-case',image:caseImage('Gallery','#596997')},{id:'kilowatt',name:'Kilowatt Case',slug:'kilowatt-case',image:caseImage('Kilowatt','#9b6846')}],
+ caseDetails:async id=>({id,name:id==='gallery'?'Gallery Case':'Kilowatt Case',image:caseImage(id==='gallery'?'Gallery':'Kilowatt',id==='gallery'?'#596997':'#9b6846'),items:[{name:'AK-47 | Item raro',rarity:'Covert',rarityColor:'#eb4b4b',image:caseImage('AK-47','#a13d49'),specialCount:0},{name:'M4A4 | Item comum',rarity:'Mil-Spec Grade',rarityColor:'#4b69ff',image:caseImage('M4A4','#40558a'),specialCount:0},{name:'Rare Special Items',rarity:'Covert',rarityColor:'#FCC419',image:caseImage('Rare','#8c763e'),specialCount:2,specialItems:[{name:'Karambit | Fade',image:caseImage('Karambit','#98682f')},{name:'Bayonet | Blue Steel',image:caseImage('Bayonet','#55697f')}]}]}),
+ listStorageUnits:async(id)=>{
+  log('listStorageUnits',[id]);await new Promise(resolve=>setTimeout(resolve,id==='a1'?350:40));
+  if(id==='a4'&&!storageFailed){storageFailed=true;throw Error('Storages: HTTP 503');}
+  if(id==='a3')return [];
+  return [{id:id+'-archive',name:'Arquivo '+id,count:201-[...removedItems].filter(item=>item.startsWith(id+'-archive')).length,image:null,index:0},{id:id+'-empty',name:'Vazio '+id,count:0,image:null,index:1},...(extraUnits.get(id)||[])].map(unit=>({...unit,...unitOverrides.get(unit.id)})).filter(unit=>!unit.deleted);
+ },
+ readStorageInventory:async(id,unit,page=1,filters={})=>{
+  log('readStorageInventory',[id,unit,page,filters]);await new Promise(resolve=>setTimeout(resolve,unit.endsWith('empty')?40:300));
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#20232b"/><text x="200" y="145" text-anchor="middle" font-family="sans-serif" font-size="22" fill="#a7adb9">Imagem de ensaio</text></svg>';
+  const skins=unit.endsWith('empty')||unitOverrides.get(unit)?.count===0?[]:Array.from({length:12},(_,index)=>({id:unit+'-'+page+'-'+index,name:'AK-47 | Item guardado '+index,image:'data:image/svg+xml;base64,'+btoa(svg),price:12.5+index,rarity:'Restricted',rarityColor:'#8847ff',exterior:'Field-Tested',float:0.123456,isFavorite:true,origin:'Gallery Case'}));
+  for(const item of skins){item.stickers=[{name:'Autocolante de ensaio',image:item.image}];item.charm={name:'Charm de ensaio',image:item.image};itemViews.set(item.id,item);}
+  return {pages:skins.length?3:1,count:skins.length?201-removedItems.size:0,value:skins.length?120:0,skins:skins.filter(item=>!removedItems.has(item.id))};
+ },
+ readInventory:async(id,page=1,filters={})=>{
+  log('readInventory',[id,page,filters]);await new Promise(resolve=>setTimeout(resolve,id==='a1'?350:40));
+  if(scenario==='error')throw Error('Inventário: HTTP 503');
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#20232b"/><rect x="75" y="70" width="250" height="130" rx="20" fill="#2b2f39"/><text x="200" y="145" text-anchor="middle" font-family="sans-serif" font-size="22" fill="#a7adb9">Imagem de ensaio</text></svg>';
+  const image='data:image/svg+xml;base64,'+btoa(svg);
+  const skins=scenario==='inventory-empty'?[]:Array.from({length:page===3?2:12},(_,index)=>({id:id+'-'+page+'-'+index,name:(id==='a1'?'USP-S':'AK-47')+' | Item de ensaio '+(page*12+index),image:index===1?null:image,price:index===2?null:12.5+index,rarity:index%2?'Restricted':'Covert',rarityColor:index%2?'#8847ff':'#eb4b4b',exterior:'Field-Tested',float:0.123456,isFavorite:index%3===0,statTrak:index===0,souvenir:false,origin:'Gallery Case'}));
+  for(const item of skins){if(favoriteOverrides.has(item.id))item.isFavorite=favoriteOverrides.get(item.id);item.stickers=[{name:'Autocolante de ensaio',image}];item.charm={name:'Charm de ensaio',image};itemViews.set(item.id,item);}
+  if(inventoryShrunk&&page>1)return {pages:1,count:4,skins:[]};
+  return {pages:inventoryShrunk?1:skins.length?3:1,count:inventoryShrunk?4:skins.length?26:0,skins:filters.favorites==='only'?skins.filter(item=>item.isFavorite):skins.filter(item=>!filters.search||item.name.includes(filters.search))};
+ },
+ refreshAccount:async(id)=>{log('refreshAccount',[id]);if(scenario==='error'&&id==='a1')throw Error(entries()[0].error);return snapshot(id);},
+ farmStatus:async()=>farm,getOpeningStatus:async()=>opening,
+ openLogin:async(label)=>{log('openLogin',[label]);const account={id:'a'+(accounts.length+1),label};accounts=[...accounts,account];farm={...farm,accounts:[...farm.accounts,{id:account.id,modes:{case:true,money:true,vault:true}}]};return account;},
+ removeAccount:async(id)=>{log('removeAccount',[id]);accounts=accounts.filter(item=>item.id!==id);farm={...farm,accounts:farm.accounts.filter(item=>item.id!==id)};},
+ farmStart:async(ids)=>{log('farmStart',[ids]);farm={...farm,phase:'running',accounts:farm.accounts.map(item=>({...item,selected:ids.includes(item.id)}))};emit({type:'farm-started',status:farm});return farm;},
+ farmStop:async()=>{log('farmStop',[]);farm={...farm,phase:'idle'};emit({type:'farm-finished',status:farm});return farm;},
+ farmSetModes:async(id,modes)=>{log('farmSetModes',[id,modes]);await new Promise(resolve=>setTimeout(resolve,5));if(id==='a50')throw Error('Falha simulada na conta 50');farm={...farm,accounts:farm.accounts.map(item=>item.id===id?{...item,modes}:item)};emit({type:'account-configured',status:farm});return farm;},
+ farmPause:async(id)=>{log('farmPause',[id]);farm={...farm,accounts:farm.accounts.map(item=>item.id===id?{...item,paused:true}:item)};emit({type:'account-paused',status:farm});},
+ farmResume:async(id)=>{log('farmResume',[id]);farm={...farm,accounts:farm.accounts.map(item=>item.id===id?{...item,paused:false}:item)};emit({type:'account-resumed',status:farm});},
+ startOpening:async(config)=>{log('startOpening',[config]);opening={...opening,phase:config.testOnce?'idle':'running',opened:1};emit({type:'open',accountId:config.accountIds[0],httpStatus:200,skinCount:1,observedCaseDelta:-1,at:new Date().toISOString(),status:opening});return opening;},
+ stopOpening:async()=>{log('stopOpening',[]);opening={...opening,phase:'idle'};return opening;},
+ loadGame:async(id,game)=>{log('loadGame',[id,game]);return {supported:true,tokens:23455.63,money:15150.54,state:{active:false},socket:{connected:true,events:{blackjackConfig:{minBet:1,maxBet:5000000},blackjackTableJoined:{tableId:'table-'+id,code:'TEST01'},blackjackMySeat:{tableId:'table-'+id,seatIndex:0},blackjackTableState:{tableId:'table-'+id,phase:'betting',roundNumber:1,minBet:1,maxBet:5000000,deadlineAt:Date.now()+600000,seats:[{index:0,mine:true,status:'betting',hands:[]}],dealerCards:[]},games:{games:[]}}}};},
+ leaveGame:async(id,game)=>{log('leaveGame',[id,game]);},
+ gameAction:async(id,game,action,payload)=>{log('gameAction',[id,game,action,payload]);return {sent:true,verified:false};},
+ gameOptions:async()=>[{id:'target',name:'Item de ensaio',price:12}],
+ blackjackHistory:async()=>[],localAiStatus:async()=>({phase:'missing',message:'IA desativada neste ensaio visual.'}),prepareLocalAi:async()=>({phase:'missing',message:'Ensaio visual sem modelo.'}),localAiDecision:async()=>({move:'stand',latencyMs:1}),
+ exportRun:async()=>{log('exportRun',[]);return 'Relatório de ensaio';},
+ onEvent:(listener)=>{listeners.add(listener);return()=>listeners.delete(listener);},
+};
+contextBridge.exposeInMainWorld('caseClicker',bridge);
+window.addEventListener('DOMContentLoaded',()=>{
+ const banner=document.createElement('div');banner.className='fixture-banner';banner.textContent='Dados simulados · CasePilot · '+count+' contas · '+scenario;document.body.prepend(banner);
+ if(arg('farm-check','')==='yes')return;
+ setTimeout(()=>{
+  accounts.forEach(account=>emit({type:'account-added',accountId:account.id}));
+  if(accounts.length){const at=new Date().toISOString();emit({type:'request',kind:'case',accountId:'a1',httpStatus:200,clicks:950,verifiedDelta:316,awardedCount:316,caseId:'gallery',caseName:'Gallery Case',at});emit({type:'request',kind:'money',accountId:'a1',httpStatus:200,clicks:950,verifiedDelta:253.65,at});emit({type:'vault',accountId:'a1',httpStatus:200,confirmedDelta:1007.42,at});}
+ },400);
+});

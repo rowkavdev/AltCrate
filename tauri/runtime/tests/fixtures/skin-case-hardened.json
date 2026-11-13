@@ -1,0 +1,255 @@
+{
+  "containers": [
+    {
+      "href": "/cases/cases/cs-go-weapon-case",
+      "iconUrl": "/pictures/cases/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsRVx4MwFo5_T3eAQ3i6DMIW0X7ojiwoHax6egMOKGxj4G68Nz3-jCp4itjFWx-ktqfSmtcwqV.png",
+      "kind": "case",
+      "name": "CS:GO Weapon Case",
+      "price": 168
+    }
+  ],
+  "copy": {
+    "description": "AK-47 | Case Hardened: Classified AK-47 skin from the CS:GO Weapon Case. Float 0.00 to 1.00 (FN, MW, FT, WW, BS). StatTrak available. 6 special patterns. Drops from the CS:GO Weapon Case.",
+    "faq": [
+      {
+        "answer": "The AK-47 | Case Hardened float range is 0.00 to 1.00. That covers Factory New, Minimal Wear, Field-Tested, Well-Worn and Battle-Scarred.",
+        "question": "What is the float range of the AK-47 | Case Hardened?"
+      },
+      {
+        "answer": "The AK-47 | Case Hardened drops from the CS:GO Weapon Case, where it is a Classified drop. You can open that container for free in Case Clicker Online with the real CS2 odds.",
+        "question": "Which case drops the AK-47 | Case Hardened?"
+      },
+      {
+        "answer": "Yes. StatTrak is a separate 10 % roll on each drop. In the simulator the StatTrak AK-47 | Case Hardened is worth $472.41 to $1,116.61 depending on wear.",
+        "question": "Is there a StatTrak AK-47 | Case Hardened?"
+      },
+      {
+        "answer": "Yes, 6: Blue Gem, Gold Gem, Tier 2, Tier 3, Blue Mag and Tier 4. The Blue Gem is the rarest at 1 in 1,000 and adds $150,000.00 of overpay. See the patterns page for every skin with patterns.",
+        "question": "Does the AK-47 | Case Hardened have special patterns?"
+      }
+    ],
+    "intro": "The AK-47 | Case Hardened is a Classified AK-47 skin from the CS:GO Weapon Case. The AK-47 | Case Hardened float range is 0.00 to 1.00, so it exists in Factory New, Minimal Wear, Field-Tested, Well-Worn and Battle-Scarred. A StatTrak version of the AK-47 | Case Hardened exists; there is no Souvenir version. It has 6 special patterns (Blue Gem, Gold Gem and Tier 2 and more), each rolled on every drop in Case Clicker Online. In Case Clicker Online the AK-47 | Case Hardened drops from the CS:GO Weapon Case, which you can open for free in the simulator. The plain skin is worth $230.41 to $606.57 of simulator money depending on wear.",
+    "title": "AK-47 | Case Hardened: Float, Patterns and Cases"
+  },
+  "exteriors": [
+    {
+      "available": true,
+      "key": "FN",
+      "label": "Factory New",
+      "max": 0.07,
+      "min": 0,
+      "price": 606.57,
+      "souvenirPrice": null,
+      "statTrakPrice": 1116.61
+    },
+    {
+      "available": true,
+      "key": "MW",
+      "label": "Minimal Wear",
+      "max": 0.15,
+      "min": 0.07,
+      "price": 375.19,
+      "souvenirPrice": null,
+      "statTrakPrice": 749.4
+    },
+    {
+      "available": true,
+      "key": "FT",
+      "label": "Field-Tested",
+      "max": 0.38,
+      "min": 0.15,
+      "price": 300.8,
+      "souvenirPrice": null,
+      "statTrakPrice": 556.56
+    },
+    {
+      "available": true,
+      "key": "WW",
+      "label": "Well-Worn",
+      "max": 0.45,
+      "min": 0.38,
+      "price": 230.41,
+      "souvenirPrice": null,
+      "statTrakPrice": 514.5
+    },
+    {
+      "available": true,
+      "key": "BS",
+      "label": "Battle-Scarred",
+      "max": 1,
+      "min": 0.45,
+      "price": 242.51,
+      "souvenirPrice": null,
+      "statTrakPrice": 472.41
+    }
+  ],
+  "hasSouvenir": false,
+  "hasStatTrak": true,
+  "patterns": [
+    {
+      "color": "#186fd6",
+      "iconUrl": "/pictures/skins/ak_ch_bg.png",
+      "maxFloat": null,
+      "minFloat": null,
+      "name": "Blue Gem",
+      "overpay": 150000,
+      "probability": 1000
+    },
+    {
+      "color": "#d6a118",
+      "iconUrl": "/pictures/skins/ak_ch_gg.png",
+      "maxFloat": null,
+      "minFloat": null,
+      "name": "Gold Gem",
+      "overpay": 500,
+      "probability": 750
+    },
+    {
+      "color": "#5B9BD5",
+      "iconUrl": "/pictures/skins/ak_ch_tier2.png",
+      "maxFloat": null,
+      "minFloat": null,
+      "name": "Tier 2",
+      "overpay": 35000,
+      "probability": 500
+    },
+    {
+      "color": "#7B8EC4",
+      "iconUrl": "/pictures/skins/ak_ch_tier3.png",
+      "maxFloat": null,
+      "minFloat": null,
+      "name": "Tier 3",
+      "overpay": 10000,
+      "probability": 250
+    },
+    {
+      "color": "#2F6FBF",
+      "iconUrl": "/pictures/skins/ak_ch_blue_mag.png",
+      "maxFloat": null,
+      "minFloat": null,
+      "name": "Blue Mag",
+      "overpay": 1000,
+      "probability": 200
+    },
+    {
+      "color": "#B8860B",
+      "iconUrl": "/pictures/skins/ak_ch_tier4.png",
+      "maxFloat": null,
+      "minFloat": null,
+      "name": "Tier 4",
+      "overpay": 5000,
+      "probability": 100
+    }
+  ],
+  "priceMax": 606.57,
+  "priceMin": 230.41,
+  "related": {
+    "sameCollection": [
+      {
+        "name": "AWP | Lightning Strike",
+        "rarityColor": "eb4b4b",
+        "slug": "awp-lightning-strike"
+      },
+      {
+        "name": "Desert Eagle | Hypnotic",
+        "rarityColor": "d32ce6",
+        "slug": "desert-eagle-hypnotic"
+      },
+      {
+        "name": "Glock-18 | Dragon Tattoo",
+        "rarityColor": "8847ff",
+        "slug": "glock-18-dragon-tattoo"
+      },
+      {
+        "name": "M4A1-S | Dark Water",
+        "rarityColor": "8847ff",
+        "slug": "m4a1-s-dark-water"
+      },
+      {
+        "name": "USP-S | Dark Water",
+        "rarityColor": "8847ff",
+        "slug": "usp-s-dark-water"
+      },
+      {
+        "name": "AUG | Wings",
+        "rarityColor": "4b69ff",
+        "slug": "aug-wings"
+      },
+      {
+        "name": "MP7 | Skulls",
+        "rarityColor": "4b69ff",
+        "slug": "mp7-skulls"
+      },
+      {
+        "name": "SG 553 | Ultraviolet",
+        "rarityColor": "4b69ff",
+        "slug": "sg-553-ultraviolet"
+      }
+    ],
+    "sameWeapon": [
+      {
+        "name": "AK-47 | Aphrodite",
+        "rarityColor": "eb4b4b",
+        "slug": "ak-47-aphrodite"
+      },
+      {
+        "name": "AK-47 | Aquamarine Revenge",
+        "rarityColor": "eb4b4b",
+        "slug": "ak-47-aquamarine-revenge"
+      },
+      {
+        "name": "AK-47 | Asiimov",
+        "rarityColor": "eb4b4b",
+        "slug": "ak-47-asiimov"
+      },
+      {
+        "name": "AK-47 | AUTOEXEC",
+        "rarityColor": "eb4b4b",
+        "slug": "ak-47-autoexec"
+      },
+      {
+        "name": "AK-47 | B the Monster",
+        "rarityColor": "eb4b4b",
+        "slug": "ak-47-b-the-monster"
+      },
+      {
+        "name": "AK-47 | Bloodsport",
+        "rarityColor": "eb4b4b",
+        "slug": "ak-47-bloodsport"
+      },
+      {
+        "name": "AK-47 | Consequence of the Jinn",
+        "rarityColor": "eb4b4b",
+        "slug": "ak-47-consequence-of-the-jinn"
+      },
+      {
+        "name": "AK-47 | Fire Serpent",
+        "rarityColor": "eb4b4b",
+        "slug": "ak-47-fire-serpent"
+      }
+    ]
+  },
+  "skin": {
+    "collection": "CS:GO Weapon Case",
+    "hasPattern": true,
+    "imageUrl": "https://steamcommunity-a.akamaihd.net/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhhwszHeDFH6OO6nYeDg7mtYbiJkjoDvcAlj7yVotmtjAfjrkpoZW36IoaWclM3MFnY8lK9k-vnm9bi67lSw9Es",
+    "isNonObtainable": false,
+    "isVanilla": false,
+    "maxFloat": 1,
+    "minFloat": 0,
+    "name": "AK-47 | Case Hardened",
+    "rarity": "Classified",
+    "rarityColor": "d32ce6",
+    "slug": "ak-47-case-hardened",
+    "weapon": "AK-47",
+    "weaponClass": "Rifle",
+    "weaponSlug": "ak-47"
+  },
+  "wearKeys": [
+    "FN",
+    "MW",
+    "FT",
+    "WW",
+    "BS"
+  ]
+}

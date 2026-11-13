@@ -1,0 +1,204 @@
+/* AIO account controls, adapted to the existing CasePilot theme. */
+.cp-shell .games-workspace { --games-radius: min(var(--radius), 12px); }
+.cp-shell .games-workspace [hidden] { display:none!important; }
+.cp-shell .games-workspace button:not([data-slot]):not(.nav-scrim), .cp-shell .games-workspace input:not([type=checkbox]):not([data-slot]), .cp-shell .games-workspace select:not([data-slot]) { border-radius:min(var(--radius),8px); }
+.cp-shell .games-workspace :is(button,input,select):focus-visible { outline:2px solid var(--ring); outline-offset:3px; }
+.cp-shell .games-workspace button { display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:12px; }
+.cp-shell .games-workspace .positive { color:var(--cp-green); }
+.cp-shell .games-workspace .negative { color:var(--cp-red); }
+.games-live-dot { display:inline-block;width:6px;height:6px;flex:none;border-radius:50%;background:var(--cp-muted); }
+.games-live-dot.active { background:var(--cp-green); }
+.games-session { display:flex;align-items:center;gap:32px;padding:14px 20px;border:1px solid var(--cp-border);border-radius:var(--games-radius);background:var(--cp-surface); }
+.games-session-label { display:flex;align-items:center;gap:10px;min-width:145px;font-size:12px;font-weight:600; }
+.games-session-label small { display:block;font-size:11px;font-weight:400;color:var(--cp-muted);margin-top:5px; }
+.games-session dl { display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px;flex:1;margin:0;padding-inline-start:28px;border-inline-start:1px solid var(--cp-border); }
+.games-session dl>div { min-width:0; }
+.games-session dt { display:flex;align-items:center;gap:4px;font-size:11px;color:var(--cp-muted);margin-bottom:6px; }
+.games-session dd { margin:0;font-size:20px;line-height:1.2;font-weight:600;letter-spacing:-.5px;font-variant-numeric:tabular-nums; }
+.games-session dd small { display:inline-block;margin-inline-start:6px;font-size:11px;font-weight:400;letter-spacing:0;color:var(--cp-muted); }
+.games-navigation { display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--cp-border);margin:14px 0; }
+.games-tabs { display:flex;align-items:center;gap:20px; }
+.cp-shell .games-tabs button { position:relative;border:0;background:transparent;color:var(--cp-muted);padding:12px 0 14px;min-height:44px;border-radius:0; }
+.cp-shell .games-tabs button[aria-selected=true] { color:var(--cp-text); }
+.games-tabs button[aria-selected=true]:after { content:'';position:absolute;inset-inline:0;bottom:-1px;height:2px;background:var(--primary); }
+.games-tabs button>span { background:var(--cp-elevated);border:1px solid var(--cp-border);padding:1px 6px;border-radius:5px;font-size:10px; }
+.games-control-desk { background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:var(--games-radius);overflow:hidden; }
+.games-control-desk>header { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 18px;border-bottom:1px solid var(--cp-border); }
+.games-section-title { display:flex;align-items:center;gap:11px;min-width:0; }
+.games-section-icon { display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--cp-border);border-radius:9px;background:var(--cp-bg);color:var(--primary); }
+.games-section-title h2 { font-size:14px;margin:0 0 3px;letter-spacing:0; }
+.games-section-title p { margin:0;font-size:11px; }
+.cp-shell .games-pick-trigger { background:var(--cp-bg);min-height:34px;font-size:11px;flex-shrink:0; }
+.games-config-fields { display:grid;grid-template-columns:1fr 1.3fr 1.1fr;gap:16px;padding:12px 18px; }
+.games-config-fields>label { display:flex;flex-direction:column;gap:7px;color:var(--cp-muted);font-size:11px;min-width:0; }
+.games-config-fields>label>small { display:none; }
+.cp-shell .games-config-fields :is(input,select) { font-size:12px;height:38px;min-height:38px;background:var(--cp-bg);color:var(--cp-text); }
+.games-amount-input { position:relative; }
+.games-amount-input>svg { position:absolute;inset-inline-start:11px;top:11px;color:var(--cp-muted);pointer-events:none; }
+.cp-shell .games-amount-input input { padding-inline-start:35px;font-variant-numeric:tabular-nums; }
+.cp-shell .games-control-desk>footer { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 18px;margin:0;border-top:1px solid var(--cp-border);background:var(--cp-bg); }
+.games-control-desk>footer>p { display:flex;align-items:center;gap:7px;margin:0;font-size:11px; }
+.games-launch-actions { display:flex;gap:8px;flex-shrink:0; }
+.cp-shell .games-workspace .games-start-all { background:var(--primary);border-color:var(--primary);color:var(--primary-foreground);min-height:36px;padding:8px 14px; }
+.cp-shell .games-workspace .games-stop-all { background:color-mix(in oklch,var(--cp-red) 9%,var(--cp-surface));border-color:color-mix(in oklch,var(--cp-red) 40%,var(--cp-border));color:var(--cp-red);min-height:36px;padding:8px 14px; }
+.cp-shell .games-manual-bet { background:var(--cp-surface);min-height:36px; }
+.games-control-note { padding:5px 18px;border-top:1px solid var(--cp-border);font-size:10px;color:var(--cp-muted); }
+.games-control-note summary { display:flex;align-items:center;gap:6px;cursor:pointer;list-style:none; }
+.games-control-note summary:after { content:'+';margin-inline-start:auto;font-size:14px; }
+.games-control-note[open] summary:after { content:'−'; }
+.games-control-note p { margin:10px 0 2px;font-size:11px;line-height:1.6;max-width:100ch; }
+.games-feedback,.games-stopped { padding:10px 18px;margin:0;border-top:1px solid var(--cp-border);font-size:12px; }
+.games-stopped summary { cursor:pointer; }
+.games-stopped p { font-size:11px;margin:8px 0; }
+.games-tables-toolbar { display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:26px 0 14px; }
+.games-tables-toolbar>div:first-child { margin-inline-end:auto; }
+.games-tables-toolbar h2 { display:flex;align-items:center;gap:8px;font-size:15px;letter-spacing:0;margin:0 0 4px; }
+.games-tables-toolbar h2>span { color:var(--cp-muted);font-size:11px;font-weight:400; }
+.games-tables-toolbar small { color:var(--cp-muted);font-size:10px; }
+.games-search { display:flex;align-items:center;gap:8px;position:relative;min-width:0; }
+.games-search>svg { position:absolute;inset-inline-start:11px;color:var(--cp-muted);pointer-events:none; }
+.cp-shell .games-search input { background:var(--cp-surface);font-size:11px;height:36px;min-height:36px;padding-inline-start:33px;width:190px; }
+.cp-shell .games-workspace .games-filter select { background:var(--cp-surface);font-size:11px;height:36px;min-height:36px;max-width:150px; }
+.games-density { display:flex;align-items:center;gap:7px; }
+.games-density>svg { color:var(--cp-muted); }
+.cp-shell .games-density select { width:100px;min-height:36px;height:36px;font-size:11px;background:var(--cp-surface); }
+.cp-shell .games-manage-tables { background:var(--cp-surface);min-height:36px; }
+.games-bet-picker,.games-tables-manager { padding:14px 18px;background:var(--cp-bg);border-bottom:1px solid var(--cp-border); }
+.games-bet-picker>small { display:block;color:var(--cp-muted);margin-top:10px;font-size:10px; }
+.games-picker-tools { display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px; }
+.games-picker-tools>.games-search { margin-inline-end:auto; }
+.games-picker-tools>span { color:var(--cp-muted);font-size:11px; }
+.cp-shell .games-picker-tools>button { padding:6px 10px;min-height:32px;background:var(--cp-surface);font-size:11px; }
+.games-account-choices { display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;max-height:190px;overflow-y:auto;overscroll-behavior:contain; }
+.games-account-choices>label { display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--cp-border);border-radius:7px;background:var(--cp-surface);font-size:11px;cursor:pointer;min-width:0; }
+.games-account-choices>label>span { overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.games-account-choices>label.selected { border-color:color-mix(in oklch,var(--primary) 45%,var(--cp-border));background:color-mix(in oklch,var(--primary) 5%,var(--cp-surface)); }
+.games-account-choices>label:has(input:disabled) { opacity:.5;cursor:default; }
+.games-account-choices input { width:15px;height:15px; }
+.games-tables-manager { border:1px solid var(--cp-border);border-radius:var(--games-radius);margin-bottom:16px;background:var(--cp-surface); }
+.games-tables-manager>header { display:flex;align-items:start;gap:16px;justify-content:space-between;margin-bottom:12px; }
+.games-tables-manager h3 { margin:0 0 4px;font-size:14px; }
+.games-tables-manager p { margin:0;font-size:11px; }
+.cp-shell .games-icon-button { width:32px;min-height:32px;padding:5px; }
+.games-inline-empty { padding:16px 0;font-size:12px; }
+.games-focus-bar { display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;margin-bottom:14px; }
+.cp-shell .games-workspace .games-grid { margin:0;gap:14px; }
+.cp-shell .games-workspace .game-card { border-radius:var(--games-radius);padding:14px;background:var(--cp-surface);border-color:var(--cp-border);min-height:0; }
+.cp-shell .games-workspace .game-card-selected { border-color:color-mix(in oklch,var(--primary) 55%,var(--cp-border)); }
+.cp-shell .games-workspace .game-card.focused { border-color:var(--primary);max-width:100%; }
+.cp-shell .games-workspace .game-card-head { gap:8px; }
+.game-card-select { display:flex;align-items:center; }
+.game-card-select input { width:15px;height:15px; }
+.cp-shell .games-workspace .game-card-head .avatar { width:30px;height:30px;min-width:30px;flex:0 0 30px;font-size:10px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--cp-bg);color:var(--cp-text); }
+.game-card-identity { min-width:0;flex:1; }
+.cp-shell .games-workspace .game-card-head strong { display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.cp-shell .games-workspace .game-card-head small { display:flex;align-items:center;gap:5px;font-size:10px;margin-top:4px; }
+.cp-shell .games-workspace .game-card-head>button { width:30px;min-width:30px;min-height:30px;height:30px;padding:6px;background:transparent; }
+.cp-shell .games-workspace .game-label { display:flex;align-items:center;gap:12px;margin:14px 0 10px;font-size:11px; }
+.cp-shell .games-workspace .game-label select { flex:1;min-height:34px;height:34px;font-size:12px;background:var(--cp-bg);border-radius:7px; }
+.cp-shell .games-workspace .game-visual { margin:0 0 10px;border-radius:9px; }
+.cp-shell .games-workspace .blackjack-visual { height:230px!important;padding:8px;background:#0b2420;border-color:#254b3e; }
+.cp-shell .games-workspace .game-card.focused .blackjack-visual { height:320px!important; }
+.cp-shell .games-workspace .felt-rim { border-width:3px;border-radius:50px 50px 18px 18px;padding:5px;box-shadow:inset 0 0 0 1px #a28b56; }
+.cp-shell .games-workspace .felt-table { border-radius:42px 42px 13px 13px; }
+.cp-shell .games-workspace .table-top { padding-top:9px; }
+.cp-shell .games-workspace .table-top span:first-child { display:none; }
+.cp-shell .games-workspace .table-phase { font-size:8px;letter-spacing:.5px; }
+.cp-shell .games-workspace .dealer-zone { margin-top:6px;gap:3px; }
+.cp-shell .games-workspace .player-zone { margin-top:auto;margin-bottom:5px;gap:3px; }
+.cp-shell .games-workspace .blackjack-results { flex-shrink:0;min-height:18px;margin:5px 0; }
+.cp-shell .games-workspace .table-rule { font-size:7px;margin:5px 0; }
+.cp-shell .games-workspace .card-fan { min-height:42px; }
+.cp-shell .games-workspace .playing-card { width:30px;height:43px; }
+.cp-shell .games-workspace .playing-card b { font-size:8px; }
+.cp-shell .games-workspace .playing-card strong { font-size:17px; }
+.cp-shell .games-workspace .game-card.focused .playing-card { width:44px;height:62px; }
+.cp-shell .games-workspace .game-card.focused .playing-card strong { font-size:25px; }
+.cp-shell .games-workspace .game-card.focused .card-fan { min-height:62px; }
+.cp-shell .games-workspace .cards-waiting { font-size:10px; }
+.cp-shell .games-workspace .seat-dots { margin:0 0 8px; }
+.cp-shell .games-workspace .game-balance { padding:9px 10px;gap:8px;background:var(--cp-bg);border-radius:7px; }
+.cp-shell .games-workspace .game-balance small { font-size:9px; }
+.cp-shell .games-workspace .game-balance strong { font-size:15px;font-variant-numeric:tabular-nums; }
+.cp-shell .games-workspace .game-balance-icon { background:transparent;padding:0;width:auto;color:var(--cp-amber); }
+.game-money { margin-inline-start:auto;font-size:11px;color:var(--cp-muted);font-variant-numeric:tabular-nums; }
+.cp-shell .games-workspace .game-balance>button { width:28px;min-width:28px;height:28px;min-height:28px;padding:5px;background:transparent;margin:0; }
+.cp-shell .games-workspace .game-controls { margin-top:10px;gap:9px; }
+.cp-shell .games-workspace .game-controls :is(input,select) { min-height:34px;height:34px;font-size:12px; }
+.cp-shell .games-workspace .game-controls label { font-size:10px; }
+.cp-shell .games-workspace .game-controls :is(button,.primary-button,.game-secondary) { min-height:34px!important;height:auto!important;font-size:11px!important;padding:7px 9px; }
+.cp-shell .games-workspace .blackjack-entry { grid-template-columns:1fr auto;gap:7px; }
+.cp-shell .games-workspace .blackjack-entry>button:first-child { grid-column:1/-1; }
+.cp-shell .games-workspace .blackjack-entry>label { grid-column:1;grid-row:2; }
+.cp-shell .games-workspace .blackjack-entry>.game-secondary { grid-row:2;align-self:end; }
+.cp-shell .games-workspace .socket-state { padding:6px 8px;font-size:10px;border-radius:6px; }
+.cp-shell .games-workspace .socket-state.online { background:color-mix(in oklch,var(--cp-green) 6%,var(--cp-bg));border-color:color-mix(in oklch,var(--cp-green) 25%,var(--cp-border));color:var(--cp-green); }
+.cp-shell .games-workspace .socket-stat { padding:9px;background:var(--cp-bg);border-color:var(--cp-border);border-radius:7px; }
+.cp-shell .games-workspace .socket-stat strong { font-size:12px;color:var(--cp-text); }
+.cp-shell .games-workspace .socket-stat small { font-size:10px;color:var(--cp-muted); }
+.cp-shell .games-workspace .blackjack-bet-panel { padding:10px;border-radius:7px; }
+.cp-shell .games-workspace .blackjack-bet-panel>small { font-size:10px; }
+.cp-shell .games-workspace .blackjack-turn-status small,.cp-shell .games-workspace .blackjack-timer { font-size:10px; }
+.cp-shell .games-workspace .card-bet-stats { font-size:10px;padding:8px 0; }
+.cp-shell .games-workspace .game-auto-status { display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:10px;background:color-mix(in oklch,var(--cp-green) 6%,var(--cp-bg));color:var(--cp-text);border-color:var(--cp-border); }
+.cp-shell .games-workspace .game-auto-status.stopped { background:var(--cp-bg); }
+.cp-shell .games-workspace .game-auto-status .game-stop-account { color:var(--cp-red);background:var(--cp-surface);font-size:10px;min-height:28px;padding:4px 8px; }
+.game-table-details { border-top:1px solid var(--cp-border);margin-top:12px;padding-top:10px; }
+.game-table-details>summary { font-size:10px;color:var(--cp-muted);cursor:pointer; }
+.cp-shell .games-workspace .game-table-details :is(.shoe-readout,.payout-review,.edge-readout) { padding:10px;border-radius:7px; }
+.cp-shell .games-workspace .game-table-details :is(p,small) { font-size:10px; }
+.games-empty-state { text-align:center;padding:50px 20px;border:1px dashed var(--cp-border);border-radius:var(--games-radius);color:var(--cp-muted); }
+.games-empty-state>svg { margin-bottom:12px; }
+.games-empty-state h3 { color:var(--cp-text);font-size:16px;margin-bottom:8px; }
+.games-empty-state p { font-size:12px;max-width:50ch;margin:0 auto 18px; }
+.games-account-report { background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:var(--games-radius);overflow:hidden; }
+.games-account-report>header { padding:18px;border-bottom:1px solid var(--cp-border); }
+.games-account-report h2 { font-size:15px;margin:0 0 4px; }
+.games-account-report p { font-size:11px;margin:0; }
+.games-results-scroll { overflow-x:auto; }
+.games-account-report table { width:100%;border-collapse:collapse;font-size:12px; }
+.games-account-report th,.games-account-report td { padding:13px 18px;text-align:end;border-bottom:1px solid var(--cp-border);font-variant-numeric:tabular-nums;white-space:nowrap; }
+.games-account-report th { font-weight:500; }
+.games-account-report th:first-child { text-align:start;white-space:normal;min-width:160px; }
+.games-account-report thead { color:var(--cp-muted);font-size:11px;background:var(--cp-bg); }
+.games-account-report tbody tr:last-child :is(td,th) { border:0; }
+.games-advanced-intro { display:flex;align-items:start;gap:11px;padding:8px 0 12px; }
+.games-advanced-intro>svg { color:var(--cp-muted);margin-top:2px; }
+.games-advanced-intro h2 { font-size:15px;margin-bottom:5px; }
+.games-advanced-intro p { font-size:12px;margin:0; }
+@container(max-width:1000px) {
+  .games-tables-toolbar>.games-search { order:2;flex:1; }
+  .games-tables-toolbar>.games-search input { width:100%; }
+  .games-tables-toolbar>.games-filter,.games-tables-toolbar>.games-density { order:2; }
+  .games-tables-toolbar>div:first-child { flex-basis:60%; }
+  .games-session { gap:20px;padding:16px; }
+  .games-session dl { gap:18px;padding-inline-start:20px; }
+}
+@container(max-width:650px) {
+  .games-session { flex-direction:column;align-items:stretch;gap:15px; }
+  .games-session-label { padding-bottom:12px;border-bottom:1px solid var(--cp-border); }
+  .games-session-label>span:last-child { display:flex;align-items:center;justify-content:space-between;gap:12px;flex:1; }
+  .games-session-label small { margin:0; }
+  .games-session dl { padding:0;border:0;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .games-session dd { font-size:19px; }
+  .games-control-desk>header { padding:14px;align-items:start; }
+  .games-section-icon { display:none; }
+  .games-section-title p { max-width:22ch; }
+  .cp-shell .games-pick-trigger { font-size:10px;padding:7px 9px; }
+  .games-config-fields { grid-template-columns:1fr;padding:14px;gap:12px; }
+  .cp-shell .games-control-desk>footer { flex-direction:column;align-items:stretch;gap:12px;padding:14px; }
+  .games-launch-actions>button { flex:1; }
+  .games-control-note { padding:10px 14px; }
+  .games-picker-tools>.games-search { flex-basis:100%; }
+  .games-picker-tools>.games-search input { width:100%; }
+  .games-tabs { gap:16px; }
+  .cp-shell .games-tabs button { gap:5px;font-size:11px; }
+  .games-tables-toolbar { margin-top:22px; }
+  .games-tables-toolbar>div:first-child { flex-basis:auto; }
+  .games-tables-toolbar>.games-search { flex-basis:100%; }
+  .games-tables-toolbar>.games-filter { flex:1; }
+  .cp-shell .games-tables-toolbar>.games-filter select { width:100%;max-width:none; }
+  .cp-shell .games-workspace .game-card { padding:12px; }
+  .games-account-report th,.games-account-report td { padding:12px; }
+}
+@media(prefers-reduced-motion:reduce) { .games-workspace * { scroll-behavior:auto!important; } }

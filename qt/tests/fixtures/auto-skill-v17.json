@@ -1,0 +1,2317 @@
+{
+  "Dust II": [
+    {
+      "id": "a1",
+      "nextSkillIds": [
+        "a2",
+        "a10"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 1,
+      "name": "CT Spawn",
+      "rewards": [
+        "15;0.1"
+      ]
+    },
+    {
+      "id": "a2",
+      "nextSkillIds": [
+        "a3",
+        "a6"
+      ],
+      "requiredPrevSkillId": "a1",
+      "cost": 5,
+      "name": "CT Mid",
+      "rewards": [
+        "15;0.1"
+      ]
+    },
+    {
+      "id": "a3",
+      "nextSkillIds": [
+        "a4"
+      ],
+      "requiredPrevSkillId": "a2",
+      "cost": 10,
+      "name": "B Window",
+      "rewards": [
+        "15;0.1"
+      ]
+    },
+    {
+      "id": "a4",
+      "nextSkillIds": [
+        "a5"
+      ],
+      "requiredPrevSkillId": "a3",
+      "cost": 10,
+      "name": "Double",
+      "rewards": [
+        "11;0.002"
+      ]
+    },
+    {
+      "id": "a5",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "a4",
+      "cost": 50,
+      "name": "Back Plat",
+      "rewards": [
+        "11;0.002",
+        "15;0.1",
+        "13;10"
+      ]
+    },
+    {
+      "id": "a6",
+      "nextSkillIds": [
+        "a7"
+      ],
+      "requiredPrevSkillId": "a2",
+      "cost": 10,
+      "name": "B Doors",
+      "rewards": [
+        "15;0.05"
+      ]
+    },
+    {
+      "id": "a7",
+      "nextSkillIds": [
+        "a8"
+      ],
+      "requiredPrevSkillId": "a6",
+      "cost": 10,
+      "name": "B Car",
+      "rewards": [
+        "15;0.05"
+      ]
+    },
+    {
+      "id": "a8",
+      "nextSkillIds": [
+        "a9"
+      ],
+      "requiredPrevSkillId": "a7",
+      "cost": 10,
+      "name": "Big Box",
+      "rewards": [
+        "13;10"
+      ]
+    },
+    {
+      "id": "a9",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "a8",
+      "cost": 10,
+      "name": "Fence",
+      "rewards": [
+        "13;10"
+      ]
+    },
+    {
+      "id": "a10",
+      "nextSkillIds": [
+        "a11",
+        "a13"
+      ],
+      "requiredPrevSkillId": "a1",
+      "cost": 10,
+      "name": "A Long Car",
+      "rewards": [
+        "11;0.002"
+      ]
+    },
+    {
+      "id": "a11",
+      "nextSkillIds": [
+        "a12"
+      ],
+      "requiredPrevSkillId": "a10",
+      "cost": 25,
+      "name": "A Long Corner",
+      "rewards": [
+        "13;20"
+      ]
+    },
+    {
+      "id": "a12",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "a11",
+      "cost": 50,
+      "name": "A Long Pit",
+      "rewards": [
+        "13;20",
+        "14;2.5"
+      ]
+    },
+    {
+      "id": "a13",
+      "nextSkillIds": [
+        "a14"
+      ],
+      "requiredPrevSkillId": "a10",
+      "cost": 10,
+      "name": "A Ramp",
+      "rewards": [
+        "13;5"
+      ]
+    },
+    {
+      "id": "a14",
+      "nextSkillIds": [
+        "a15"
+      ],
+      "requiredPrevSkillId": "a13",
+      "cost": 10,
+      "name": "Safe",
+      "rewards": [
+        "14;2.5"
+      ]
+    },
+    {
+      "id": "a15",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "a14",
+      "cost": 10,
+      "name": "Goose",
+      "rewards": [
+        "15;0.2"
+      ]
+    },
+    {
+      "id": "a16",
+      "nextSkillIds": [
+        "a17",
+        "a24",
+        "a26"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 1,
+      "name": "T Spawn",
+      "rewards": [
+        "11;0.002"
+      ]
+    },
+    {
+      "id": "a17",
+      "nextSkillIds": [
+        "a18"
+      ],
+      "requiredPrevSkillId": "a16",
+      "cost": 20,
+      "name": "Suicide",
+      "rewards": [
+        "16;50"
+      ]
+    },
+    {
+      "id": "a18",
+      "nextSkillIds": [
+        "a19",
+        "a21"
+      ],
+      "requiredPrevSkillId": "a17",
+      "cost": 20,
+      "name": "Top Mid",
+      "rewards": [
+        "15;0.2"
+      ]
+    },
+    {
+      "id": "a19",
+      "nextSkillIds": [
+        "a20"
+      ],
+      "requiredPrevSkillId": "a18",
+      "cost": 20,
+      "name": "Middle",
+      "rewards": [
+        "15;0.2"
+      ]
+    },
+    {
+      "id": "a20",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "a19",
+      "cost": 50,
+      "name": "Xbox",
+      "rewards": [
+        "13;20",
+        "14;2.5"
+      ]
+    },
+    {
+      "id": "a21",
+      "nextSkillIds": [
+        "a22"
+      ],
+      "requiredPrevSkillId": "a18",
+      "cost": 10,
+      "name": "Catwalk",
+      "rewards": [
+        "11;0.002"
+      ]
+    },
+    {
+      "id": "a22",
+      "nextSkillIds": [
+        "a23"
+      ],
+      "requiredPrevSkillId": "a21",
+      "cost": 10,
+      "name": "A Short Stairs",
+      "rewards": [
+        "11;0.002"
+      ]
+    },
+    {
+      "id": "a23",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "a22",
+      "cost": 25,
+      "name": "Ninja",
+      "rewards": [
+        "15;0.2"
+      ]
+    },
+    {
+      "id": "a24",
+      "nextSkillIds": [
+        "a25"
+      ],
+      "requiredPrevSkillId": "a16",
+      "cost": 10,
+      "name": "A Long Entrance",
+      "rewards": [
+        "11;0.001"
+      ]
+    },
+    {
+      "id": "a25",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "a24",
+      "cost": 10,
+      "name": "A Long Connector",
+      "rewards": [
+        "11;0.001"
+      ]
+    },
+    {
+      "id": "a26",
+      "nextSkillIds": [
+        "a27"
+      ],
+      "requiredPrevSkillId": "a16",
+      "cost": 10,
+      "name": "Football",
+      "rewards": [
+        "13;10"
+      ]
+    },
+    {
+      "id": "a27",
+      "nextSkillIds": [
+        "a28"
+      ],
+      "requiredPrevSkillId": "a26",
+      "cost": 10,
+      "name": "B Tunnels Entrance",
+      "rewards": [
+        "13;10"
+      ]
+    },
+    {
+      "id": "a28",
+      "nextSkillIds": [
+        "a29"
+      ],
+      "requiredPrevSkillId": "a27",
+      "cost": 20,
+      "name": "B Tunnels",
+      "rewards": [
+        "13;10"
+      ]
+    },
+    {
+      "id": "a29",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "a28",
+      "cost": 50,
+      "name": "Lower Tunnels",
+      "rewards": [
+        "15;0.2",
+        "13;20",
+        "14;2.5",
+        "11;0.001"
+      ]
+    }
+  ],
+  "Mirage": [
+    {
+      "id": "b1",
+      "nextSkillIds": [
+        "b2",
+        "b8",
+        "b11"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 10,
+      "name": "CT Spawn",
+      "rewards": [
+        "15;0.15"
+      ]
+    },
+    {
+      "id": "b2",
+      "nextSkillIds": [
+        "b3",
+        "b6"
+      ],
+      "requiredPrevSkillId": "b1",
+      "cost": 30,
+      "name": "Ticket",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b3",
+      "nextSkillIds": [
+        "b4"
+      ],
+      "requiredPrevSkillId": "b2",
+      "cost": 30,
+      "name": "Tripple",
+      "rewards": [
+        "11;0.002"
+      ]
+    },
+    {
+      "id": "b4",
+      "nextSkillIds": [
+        "b5"
+      ],
+      "requiredPrevSkillId": "b3",
+      "cost": 40,
+      "name": "Palm",
+      "rewards": [
+        "11;0.002"
+      ]
+    },
+    {
+      "id": "b5",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b4",
+      "cost": 100,
+      "name": "Stairs",
+      "rewards": [
+        "11;0.005",
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "b6",
+      "nextSkillIds": [
+        "b7"
+      ],
+      "requiredPrevSkillId": "b2",
+      "cost": 30,
+      "name": "A Default",
+      "rewards": [
+        "14;5"
+      ]
+    },
+    {
+      "id": "b7",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b6",
+      "cost": 50,
+      "name": "Fire Box",
+      "rewards": [
+        "13;25"
+      ]
+    },
+    {
+      "id": "b8",
+      "nextSkillIds": [
+        "b9",
+        "b10"
+      ],
+      "requiredPrevSkillId": "b1",
+      "cost": 20,
+      "name": "Vent",
+      "rewards": [
+        "13;25"
+      ]
+    },
+    {
+      "id": "b9",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b8",
+      "cost": 30,
+      "name": "Window",
+      "rewards": [
+        "13;25"
+      ]
+    },
+    {
+      "id": "b10",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b8",
+      "cost": 30,
+      "name": "Jungle",
+      "rewards": [
+        "14;5"
+      ]
+    },
+    {
+      "id": "b11",
+      "nextSkillIds": [
+        "b12",
+        "b15"
+      ],
+      "requiredPrevSkillId": "b1",
+      "cost": 50,
+      "name": "Market",
+      "rewards": [
+        "16;100"
+      ]
+    },
+    {
+      "id": "b12",
+      "nextSkillIds": [
+        "b13"
+      ],
+      "requiredPrevSkillId": "b11",
+      "cost": 30,
+      "name": "Market Window",
+      "rewards": [
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "b13",
+      "nextSkillIds": [
+        "b14"
+      ],
+      "requiredPrevSkillId": "b12",
+      "cost": 30,
+      "name": "E Box",
+      "rewards": [
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "b14",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b13",
+      "cost": 100,
+      "name": "Pillar",
+      "rewards": [
+        "15;1",
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b15",
+      "nextSkillIds": [
+        "b16"
+      ],
+      "requiredPrevSkillId": "b11",
+      "cost": 30,
+      "name": "Market Door",
+      "rewards": [
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "b16",
+      "nextSkillIds": [
+        "b17"
+      ],
+      "requiredPrevSkillId": "b15",
+      "cost": 30,
+      "name": "B Bench",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b17",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b16",
+      "cost": 300,
+      "name": "Van",
+      "rewards": [
+        "15;2",
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b18",
+      "nextSkillIds": [
+        "b19",
+        "b23",
+        "b25",
+        "b31"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 10,
+      "name": "T Spawn",
+      "rewards": [
+        "13;10"
+      ]
+    },
+    {
+      "id": "b19",
+      "nextSkillIds": [
+        "b20"
+      ],
+      "requiredPrevSkillId": "b18",
+      "cost": 30,
+      "name": "T Roof",
+      "rewards": [
+        "14;2.5"
+      ]
+    },
+    {
+      "id": "b20",
+      "nextSkillIds": [
+        "b21"
+      ],
+      "requiredPrevSkillId": "b19",
+      "cost": 30,
+      "name": "T Ramp",
+      "rewards": [
+        "14;2.5"
+      ]
+    },
+    {
+      "id": "b21",
+      "nextSkillIds": [
+        "b22"
+      ],
+      "requiredPrevSkillId": "b20",
+      "cost": 50,
+      "name": "Tetris",
+      "rewards": [
+        "13;50"
+      ]
+    },
+    {
+      "id": "b22",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b21",
+      "cost": 300,
+      "name": "Sandwich",
+      "rewards": [
+        "13;100",
+        "14;5"
+      ]
+    },
+    {
+      "id": "b23",
+      "nextSkillIds": [
+        "b24"
+      ],
+      "requiredPrevSkillId": "b18",
+      "cost": 30,
+      "name": "Palace",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b24",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b23",
+      "cost": 30,
+      "name": "Balcony",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b25",
+      "nextSkillIds": [
+        "b26",
+        "b29"
+      ],
+      "requiredPrevSkillId": "b18",
+      "cost": 30,
+      "name": "Top Mid",
+      "rewards": [
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "b26",
+      "nextSkillIds": [
+        "b27"
+      ],
+      "requiredPrevSkillId": "b25",
+      "cost": 30,
+      "name": "Chair",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b27",
+      "nextSkillIds": [
+        "b28"
+      ],
+      "requiredPrevSkillId": "b26",
+      "cost": 30,
+      "name": "Middle",
+      "rewards": [
+        "14;2.5"
+      ]
+    },
+    {
+      "id": "b28",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b27",
+      "cost": 200,
+      "name": "A Connector",
+      "rewards": [
+        "11;0.005",
+        "13;25",
+        "14;5",
+        "15;1"
+      ]
+    },
+    {
+      "id": "b29",
+      "nextSkillIds": [
+        "b30"
+      ],
+      "requiredPrevSkillId": "b25",
+      "cost": 30,
+      "name": "Catwalk",
+      "rewards": [
+        "13;10"
+      ]
+    },
+    {
+      "id": "b30",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b29",
+      "cost": 100,
+      "name": "Ladder Room",
+      "rewards": [
+        "13;50",
+        "14;5"
+      ]
+    },
+    {
+      "id": "b31",
+      "nextSkillIds": [
+        "b32"
+      ],
+      "requiredPrevSkillId": "b18",
+      "cost": 30,
+      "name": "T Apartments",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b32",
+      "nextSkillIds": [
+        "b33",
+        "b34"
+      ],
+      "requiredPrevSkillId": "b31",
+      "cost": 30,
+      "name": "Alley",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b33",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b32",
+      "cost": 30,
+      "name": "Underpass",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "b34",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "b32",
+      "cost": 30,
+      "name": "Apartments",
+      "rewards": [
+        "11;0.005"
+      ]
+    }
+  ],
+  "Inferno": [
+    {
+      "id": "c1",
+      "nextSkillIds": [
+        "c2",
+        "c6"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 50,
+      "name": "T Spawn",
+      "rewards": [
+        "15;0.3"
+      ]
+    },
+    {
+      "id": "c2",
+      "nextSkillIds": [
+        "c3",
+        "c4",
+        "c5"
+      ],
+      "requiredPrevSkillId": "c1",
+      "cost": 100,
+      "name": "T Ramp",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c3",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c2",
+      "cost": 100,
+      "name": "Banana",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c4",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c2",
+      "cost": 100,
+      "name": "Middle",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c5",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c2",
+      "cost": 100,
+      "name": "Underpass",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c6",
+      "nextSkillIds": [
+        "c7"
+      ],
+      "requiredPrevSkillId": "c1",
+      "cost": 100,
+      "name": "Radio",
+      "rewards": [
+        "14;5"
+      ]
+    },
+    {
+      "id": "c7",
+      "nextSkillIds": [
+        "c8"
+      ],
+      "requiredPrevSkillId": "c6",
+      "cost": 100,
+      "name": "T Arches",
+      "rewards": [
+        "14;5"
+      ]
+    },
+    {
+      "id": "c8",
+      "nextSkillIds": [
+        "c9"
+      ],
+      "requiredPrevSkillId": "c7",
+      "cost": 100,
+      "name": "Second Middle",
+      "rewards": [
+        "13;25"
+      ]
+    },
+    {
+      "id": "c9",
+      "nextSkillIds": [
+        "c10"
+      ],
+      "requiredPrevSkillId": "c8",
+      "cost": 100,
+      "name": "Squeaky",
+      "rewards": [
+        "13;25"
+      ]
+    },
+    {
+      "id": "c10",
+      "nextSkillIds": [
+        "c11"
+      ],
+      "requiredPrevSkillId": "c9",
+      "cost": 200,
+      "name": "Back Alley",
+      "rewards": [
+        "16;200"
+      ]
+    },
+    {
+      "id": "c11",
+      "nextSkillIds": [
+        "c12"
+      ],
+      "requiredPrevSkillId": "c10",
+      "cost": 200,
+      "name": "Apartments Corridor",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c12",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c11",
+      "cost": 1000,
+      "name": "Balcony",
+      "rewards": [
+        "13;300",
+        "14;20"
+      ]
+    },
+    {
+      "id": "c13",
+      "nextSkillIds": [
+        "c14",
+        "c24",
+        "c30"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 50,
+      "name": "CT Spawn",
+      "rewards": [
+        "11;0.002"
+      ]
+    },
+    {
+      "id": "c14",
+      "nextSkillIds": [
+        "c15"
+      ],
+      "requiredPrevSkillId": "c13",
+      "cost": 100,
+      "name": "Well",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c15",
+      "nextSkillIds": [
+        "c16",
+        "c18",
+        "c20"
+      ],
+      "requiredPrevSkillId": "c14",
+      "cost": 300,
+      "name": "Tree",
+      "rewards": [
+        "16;200"
+      ]
+    },
+    {
+      "id": "c16",
+      "nextSkillIds": [
+        "c17"
+      ],
+      "requiredPrevSkillId": "c15",
+      "cost": 200,
+      "name": "Sandbags",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "c17",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c16",
+      "cost": 200,
+      "name": "Car",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "c18",
+      "nextSkillIds": [
+        "c19"
+      ],
+      "requiredPrevSkillId": "c15",
+      "cost": 100,
+      "name": "Church",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c19",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c18",
+      "cost": 500,
+      "name": "Coffins",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "c20",
+      "nextSkillIds": [
+        "c21"
+      ],
+      "requiredPrevSkillId": "c15",
+      "cost": 100,
+      "name": "Pool",
+      "rewards": [
+        "16;100"
+      ]
+    },
+    {
+      "id": "c21",
+      "nextSkillIds": [
+        "c22"
+      ],
+      "requiredPrevSkillId": "c20",
+      "cost": 300,
+      "name": "Oranges",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "c22",
+      "nextSkillIds": [
+        "c23"
+      ],
+      "requiredPrevSkillId": "c21",
+      "cost": 500,
+      "name": "B New Box",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "c23",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c22",
+      "cost": 2000,
+      "name": "B Dark",
+      "rewards": [
+        "11;0.01",
+        "15;1",
+        "13;100",
+        "14;5"
+      ]
+    },
+    {
+      "id": "c24",
+      "nextSkillIds": [
+        "c25"
+      ],
+      "requiredPrevSkillId": "c13",
+      "cost": 100,
+      "name": "Arch",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "c25",
+      "nextSkillIds": [
+        "c26"
+      ],
+      "requiredPrevSkillId": "c24",
+      "cost": 100,
+      "name": "A Long",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c26",
+      "nextSkillIds": [
+        "c27"
+      ],
+      "requiredPrevSkillId": "c25",
+      "cost": 100,
+      "name": "Long Cubby",
+      "rewards": [
+        "13;25"
+      ]
+    },
+    {
+      "id": "c27",
+      "nextSkillIds": [
+        "c28"
+      ],
+      "requiredPrevSkillId": "c26",
+      "cost": 200,
+      "name": "Top Mid",
+      "rewards": [
+        "14;5"
+      ]
+    },
+    {
+      "id": "c28",
+      "nextSkillIds": [
+        "c29"
+      ],
+      "requiredPrevSkillId": "c27",
+      "cost": 300,
+      "name": "Apartments Boiler",
+      "rewards": [
+        "16;100"
+      ]
+    },
+    {
+      "id": "c29",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c28",
+      "cost": 1000,
+      "name": "Apartments Bedroom",
+      "rewards": [
+        "11;0.005",
+        "13;25",
+        "14;5",
+        "15;1",
+        "16;100"
+      ]
+    },
+    {
+      "id": "c30",
+      "nextSkillIds": [
+        "c31"
+      ],
+      "requiredPrevSkillId": "c13",
+      "cost": 100,
+      "name": "Library",
+      "rewards": [
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "c31",
+      "nextSkillIds": [
+        "c32",
+        "c33",
+        "c34"
+      ],
+      "requiredPrevSkillId": "c30",
+      "cost": 100,
+      "name": "Moto",
+      "rewards": [
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "c32",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c31",
+      "cost": 100,
+      "name": "Graveyard",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c33",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c31",
+      "cost": 100,
+      "name": "Pit",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "c34",
+      "nextSkillIds": [
+        "c35"
+      ],
+      "requiredPrevSkillId": "c31",
+      "cost": 200,
+      "name": "A Short",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "c35",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "c34",
+      "cost": 200,
+      "name": "Quad",
+      "rewards": [
+        "15;1"
+      ]
+    }
+  ],
+  "Ancient": [
+    {
+      "id": "d1",
+      "nextSkillIds": [
+        "d2",
+        "d7",
+        "d8"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 500,
+      "name": "CT Spawn",
+      "rewards": [
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "d2",
+      "nextSkillIds": [
+        "d3"
+      ],
+      "requiredPrevSkillId": "d1",
+      "cost": 1000,
+      "name": "Temple",
+      "rewards": [
+        "15;0.5"
+      ]
+    },
+    {
+      "id": "d3",
+      "nextSkillIds": [
+        "d4",
+        "d5",
+        "d6"
+      ],
+      "requiredPrevSkillId": "d2",
+      "cost": 1000,
+      "name": "Box",
+      "rewards": [
+        "16;250"
+      ]
+    },
+    {
+      "id": "d4",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d3",
+      "cost": 1000,
+      "name": "A Plat",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "d5",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d3",
+      "cost": 1000,
+      "name": "Flowers",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "d6",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d3",
+      "cost": 1000,
+      "name": "Triple",
+      "rewards": [
+        "14;10"
+      ]
+    },
+    {
+      "id": "d7",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d1",
+      "cost": 5000,
+      "name": "Sniper's Nest",
+      "rewards": [
+        "16;1000"
+      ]
+    },
+    {
+      "id": "d8",
+      "nextSkillIds": [
+        "d9",
+        "d12"
+      ],
+      "requiredPrevSkillId": "d1",
+      "cost": 1000,
+      "name": "Back Square",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "d9",
+      "nextSkillIds": [
+        "d10",
+        "d11"
+      ],
+      "requiredPrevSkillId": "d8",
+      "cost": 1000,
+      "name": "Left Square",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "d10",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d9",
+      "cost": 1000,
+      "name": "Cave",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "d11",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d9",
+      "cost": 2500,
+      "name": "Dark",
+      "rewards": [
+        "11;0.005",
+        "15;1"
+      ]
+    },
+    {
+      "id": "d12",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d8",
+      "cost": 1000,
+      "name": "Right Square",
+      "rewards": [
+        "13;50"
+      ]
+    },
+    {
+      "id": "d13",
+      "nextSkillIds": [
+        "d14",
+        "d18",
+        "d24"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 500,
+      "name": "T Spawn",
+      "rewards": [
+        "16;100"
+      ]
+    },
+    {
+      "id": "d14",
+      "nextSkillIds": [
+        "d15"
+      ],
+      "requiredPrevSkillId": "d13",
+      "cost": 1000,
+      "name": "T Tunnel",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "d15",
+      "nextSkillIds": [
+        "d16"
+      ],
+      "requiredPrevSkillId": "d14",
+      "cost": 1000,
+      "name": "Ruins",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "d16",
+      "nextSkillIds": [
+        "d17"
+      ],
+      "requiredPrevSkillId": "d15",
+      "cost": 1000,
+      "name": "B Doors",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "d17",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d16",
+      "cost": 10000,
+      "name": "B Ramp",
+      "rewards": [
+        "17;3",
+        "15;1",
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "d18",
+      "nextSkillIds": [
+        "d19",
+        "d21"
+      ],
+      "requiredPrevSkillId": "d13",
+      "cost": 1000,
+      "name": "T Entrance",
+      "rewards": [
+        "13;50"
+      ]
+    },
+    {
+      "id": "d19",
+      "nextSkillIds": [
+        "d20",
+        "d23"
+      ],
+      "requiredPrevSkillId": "d18",
+      "cost": 1000,
+      "name": "Middle",
+      "rewards": [
+        "14;10"
+      ]
+    },
+    {
+      "id": "d20",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d19",
+      "cost": 1000,
+      "name": "Mid Cubby",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "d21",
+      "nextSkillIds": [
+        "d22"
+      ],
+      "requiredPrevSkillId": "d18",
+      "cost": 1000,
+      "name": "Upper Mid",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "d22",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d21",
+      "cost": 1000,
+      "name": "Jaguar",
+      "rewards": [
+        "13;100"
+      ]
+    },
+    {
+      "id": "d23",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d19",
+      "cost": 10000,
+      "name": "Donut",
+      "rewards": [
+        "17;2",
+        "13;200",
+        "14;10"
+      ]
+    },
+    {
+      "id": "d24",
+      "nextSkillIds": [
+        "d25"
+      ],
+      "requiredPrevSkillId": "d13",
+      "cost": 1000,
+      "name": "Outside",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "d25",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "d24",
+      "cost": 1000,
+      "name": "A Main",
+      "rewards": [
+        "15;1"
+      ]
+    }
+  ],
+  "Anubis": [
+    {
+      "id": "e1",
+      "nextSkillIds": [
+        "e2",
+        "e6"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 5000,
+      "name": "T Spawn",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "e2",
+      "nextSkillIds": [
+        "e3"
+      ],
+      "requiredPrevSkillId": "e1",
+      "cost": 10000,
+      "name": "Trash",
+      "rewards": [
+        "16;1000"
+      ]
+    },
+    {
+      "id": "e3",
+      "nextSkillIds": [
+        "e4"
+      ],
+      "requiredPrevSkillId": "e2",
+      "cost": 10000,
+      "name": "Upper Long",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "e4",
+      "nextSkillIds": [
+        "e5"
+      ],
+      "requiredPrevSkillId": "e3",
+      "cost": 10000,
+      "name": "Lower Long",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "e5",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e4",
+      "cost": 10000,
+      "name": "B Main",
+      "rewards": [
+        "11;0.02"
+      ]
+    },
+    {
+      "id": "e6",
+      "nextSkillIds": [
+        "e7",
+        "e10"
+      ],
+      "requiredPrevSkillId": "e1",
+      "cost": 10000,
+      "name": "Beans",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "e7",
+      "nextSkillIds": [
+        "e8"
+      ],
+      "requiredPrevSkillId": "e6",
+      "cost": 10000,
+      "name": "T Connector",
+      "rewards": [
+        "13;250"
+      ]
+    },
+    {
+      "id": "e8",
+      "nextSkillIds": [
+        "e9"
+      ],
+      "requiredPrevSkillId": "e7",
+      "cost": 10000,
+      "name": "T Bridge",
+      "rewards": [
+        "13;250"
+      ]
+    },
+    {
+      "id": "e9",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e8",
+      "cost": 10000,
+      "name": "Bridge",
+      "rewards": [
+        "14;20"
+      ]
+    },
+    {
+      "id": "e10",
+      "nextSkillIds": [
+        "e11",
+        "e15"
+      ],
+      "requiredPrevSkillId": "e6",
+      "cost": 10000,
+      "name": "Street",
+      "rewards": [
+        "16;250"
+      ]
+    },
+    {
+      "id": "e11",
+      "nextSkillIds": [
+        "e12"
+      ],
+      "requiredPrevSkillId": "e10",
+      "cost": 10000,
+      "name": "Stairs",
+      "rewards": [
+        "15;2"
+      ]
+    },
+    {
+      "id": "e12",
+      "nextSkillIds": [
+        "e13"
+      ],
+      "requiredPrevSkillId": "e11",
+      "cost": 10000,
+      "name": "Arches",
+      "rewards": [
+        "11;0.005"
+      ]
+    },
+    {
+      "id": "e13",
+      "nextSkillIds": [
+        "e14"
+      ],
+      "requiredPrevSkillId": "e12",
+      "cost": 10000,
+      "name": "Canal",
+      "rewards": [
+        "13;200"
+      ]
+    },
+    {
+      "id": "e14",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e13",
+      "cost": 10000,
+      "name": "B Connector",
+      "rewards": [
+        "17;2"
+      ]
+    },
+    {
+      "id": "e15",
+      "nextSkillIds": [
+        "e16"
+      ],
+      "requiredPrevSkillId": "e10",
+      "cost": 10000,
+      "name": "Drop",
+      "rewards": [
+        "15;2"
+      ]
+    },
+    {
+      "id": "e16",
+      "nextSkillIds": [
+        "e17"
+      ],
+      "requiredPrevSkillId": "e15",
+      "cost": 10000,
+      "name": "Water",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "e17",
+      "nextSkillIds": [
+        "e18"
+      ],
+      "requiredPrevSkillId": "e16",
+      "cost": 10000,
+      "name": "A Main",
+      "rewards": [
+        "14;20"
+      ]
+    },
+    {
+      "id": "e18",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e17",
+      "cost": 50000,
+      "name": "Plat",
+      "rewards": [
+        "17;3",
+        "15;2"
+      ]
+    },
+    {
+      "id": "e19",
+      "nextSkillIds": [
+        "e20",
+        "e24",
+        "e37",
+        "e38"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 5000,
+      "name": "CT Spawn",
+      "rewards": [
+        "13;100"
+      ]
+    },
+    {
+      "id": "e20",
+      "nextSkillIds": [
+        "e21"
+      ],
+      "requiredPrevSkillId": "e19",
+      "cost": 20000,
+      "name": "Beach",
+      "rewards": [
+        "16;500"
+      ]
+    },
+    {
+      "id": "e21",
+      "nextSkillIds": [
+        "e22"
+      ],
+      "requiredPrevSkillId": "e20",
+      "cost": 20000,
+      "name": "Tunnel",
+      "rewards": [
+        "16;500"
+      ]
+    },
+    {
+      "id": "e22",
+      "nextSkillIds": [
+        "e23"
+      ],
+      "requiredPrevSkillId": "e21",
+      "cost": 20000,
+      "name": "A Heaven",
+      "rewards": [
+        "16;500"
+      ]
+    },
+    {
+      "id": "e23",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e22",
+      "cost": 20000,
+      "name": "Gate",
+      "rewards": [
+        "16;500"
+      ]
+    },
+    {
+      "id": "e24",
+      "nextSkillIds": [
+        "e25",
+        "e33"
+      ],
+      "requiredPrevSkillId": "e19",
+      "cost": 10000,
+      "name": "CT Mid",
+      "rewards": [
+        "13;250"
+      ]
+    },
+    {
+      "id": "e25",
+      "nextSkillIds": [
+        "e26"
+      ],
+      "requiredPrevSkillId": "e24",
+      "cost": 10000,
+      "name": "Headshot",
+      "rewards": [
+        "13;250"
+      ]
+    },
+    {
+      "id": "e26",
+      "nextSkillIds": [
+        "e27",
+        "e31",
+        "e32"
+      ],
+      "requiredPrevSkillId": "e25",
+      "cost": 25000,
+      "name": "Middle",
+      "rewards": [
+        "16;500"
+      ]
+    },
+    {
+      "id": "e27",
+      "nextSkillIds": [
+        "e28"
+      ],
+      "requiredPrevSkillId": "e26",
+      "cost": 10000,
+      "name": "A Connector",
+      "rewards": [
+        "14;25"
+      ]
+    },
+    {
+      "id": "e28",
+      "nextSkillIds": [
+        "e29"
+      ],
+      "requiredPrevSkillId": "e27",
+      "cost": 10000,
+      "name": "Walkway",
+      "rewards": [
+        "14;25"
+      ]
+    },
+    {
+      "id": "e29",
+      "nextSkillIds": [
+        "e30"
+      ],
+      "requiredPrevSkillId": "e28",
+      "cost": 10000,
+      "name": "Box",
+      "rewards": [
+        "13;500"
+      ]
+    },
+    {
+      "id": "e30",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e29",
+      "cost": 25000,
+      "name": "Default",
+      "rewards": [
+        "13;1000",
+        "14;25"
+      ]
+    },
+    {
+      "id": "e31",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e26",
+      "cost": 500000,
+      "name": "Window",
+      "rewards": [
+        "17;5"
+      ]
+    },
+    {
+      "id": "e32",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e26",
+      "cost": 500000,
+      "name": "Mid Doors",
+      "rewards": [
+        "17;5"
+      ]
+    },
+    {
+      "id": "e33",
+      "nextSkillIds": [
+        "e34"
+      ],
+      "requiredPrevSkillId": "e24",
+      "cost": 10000,
+      "name": "Palace",
+      "rewards": [
+        "15;1.5"
+      ]
+    },
+    {
+      "id": "e34",
+      "nextSkillIds": [
+        "e35"
+      ],
+      "requiredPrevSkillId": "e33",
+      "cost": 10000,
+      "name": "Bricks",
+      "rewards": [
+        "15;1.5"
+      ]
+    },
+    {
+      "id": "e35",
+      "nextSkillIds": [
+        "e36"
+      ],
+      "requiredPrevSkillId": "e34",
+      "cost": 10000,
+      "name": "Back Site",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "e36",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e35",
+      "cost": 25000,
+      "name": "Dark",
+      "rewards": [
+        "11;0.01",
+        "15;1.5"
+      ]
+    },
+    {
+      "id": "e37",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e19",
+      "cost": 30000,
+      "name": "Snipers Nest",
+      "rewards": [
+        "13;1000"
+      ]
+    },
+    {
+      "id": "e38",
+      "nextSkillIds": [
+        "e39"
+      ],
+      "requiredPrevSkillId": "e19",
+      "cost": 10000,
+      "name": "Cave",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "e39",
+      "nextSkillIds": [
+        "e40"
+      ],
+      "requiredPrevSkillId": "e38",
+      "cost": 10000,
+      "name": "Alley",
+      "rewards": [
+        "11;0.02"
+      ]
+    },
+    {
+      "id": "e40",
+      "nextSkillIds": [
+        "e41"
+      ],
+      "requiredPrevSkillId": "e39",
+      "cost": 25000,
+      "name": "Ninja",
+      "rewards": [
+        "11;0.02"
+      ]
+    },
+    {
+      "id": "e41",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "e40",
+      "cost": 50000,
+      "name": "B Plat",
+      "rewards": [
+        "17;2",
+        "11;0.05"
+      ]
+    }
+  ],
+  "Cobblestone": [
+    {
+      "id": "f1",
+      "nextSkillIds": [
+        "f2",
+        "f3"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 10000,
+      "name": "T Spawn",
+      "rewards": [
+        "11;0.01"
+      ]
+    },
+    {
+      "id": "f2",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "f1",
+      "cost": 20000,
+      "name": "Snipers Nest",
+      "rewards": [
+        "13;1500"
+      ]
+    },
+    {
+      "id": "f3",
+      "nextSkillIds": [
+        "f4",
+        "f9"
+      ],
+      "requiredPrevSkillId": "f1",
+      "cost": 20000,
+      "name": "Statue",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "f4",
+      "nextSkillIds": [
+        "f5"
+      ],
+      "requiredPrevSkillId": "f3",
+      "cost": 20000,
+      "name": "T Ramp",
+      "rewards": [
+        "11;0.02"
+      ]
+    },
+    {
+      "id": "f5",
+      "nextSkillIds": [
+        "f6"
+      ],
+      "requiredPrevSkillId": "f4",
+      "cost": 40000,
+      "name": "Catwalk",
+      "rewards": [
+        "11;0.04"
+      ]
+    },
+    {
+      "id": "f6",
+      "nextSkillIds": [
+        "f7"
+      ],
+      "requiredPrevSkillId": "f5",
+      "cost": 40000,
+      "name": "Barrels",
+      "rewards": [
+        "11;0.04"
+      ]
+    },
+    {
+      "id": "f7",
+      "nextSkillIds": [
+        "f8"
+      ],
+      "requiredPrevSkillId": "f6",
+      "cost": 80000,
+      "name": "Boost",
+      "rewards": [
+        "11;0.1"
+      ]
+    },
+    {
+      "id": "f8",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "f7",
+      "cost": 150000,
+      "name": "A Long",
+      "rewards": [
+        "11;0.3"
+      ]
+    },
+    {
+      "id": "f9",
+      "nextSkillIds": [
+        "f10"
+      ],
+      "requiredPrevSkillId": "f3",
+      "cost": 20000,
+      "name": "Patio",
+      "rewards": [
+        "14;50"
+      ]
+    },
+    {
+      "id": "f10",
+      "nextSkillIds": [
+        "f11"
+      ],
+      "requiredPrevSkillId": "f9",
+      "cost": 20000,
+      "name": "Dragon",
+      "rewards": [
+        "13;2000"
+      ]
+    },
+    {
+      "id": "f11",
+      "nextSkillIds": [
+        "f12",
+        "f14"
+      ],
+      "requiredPrevSkillId": "f10",
+      "cost": 50000,
+      "name": "B Halls",
+      "rewards": [
+        "13;1000",
+        "11;0.05",
+        "15;1"
+      ]
+    },
+    {
+      "id": "f12",
+      "nextSkillIds": [
+        "f13"
+      ],
+      "requiredPrevSkillId": "f11",
+      "cost": 20000,
+      "name": "Spiral Staircase",
+      "rewards": [
+        "13;2000"
+      ]
+    },
+    {
+      "id": "f13",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "f12",
+      "cost": 100000,
+      "name": "Sky",
+      "rewards": [
+        "14;50",
+        "11;0.1"
+      ]
+    },
+    {
+      "id": "f14",
+      "nextSkillIds": [
+        "f15"
+      ],
+      "requiredPrevSkillId": "f11",
+      "cost": 20000,
+      "name": "B Long",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "f15",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "f14",
+      "cost": 100000,
+      "name": "B Plat",
+      "rewards": [
+        "11;0.1"
+      ]
+    },
+    {
+      "id": "f16",
+      "nextSkillIds": [
+        "f17",
+        "f19",
+        "f21"
+      ],
+      "requiredPrevSkillId": null,
+      "cost": 50000,
+      "name": "CT Spawn",
+      "rewards": [
+        "16;1000"
+      ]
+    },
+    {
+      "id": "f17",
+      "nextSkillIds": [
+        "f18"
+      ],
+      "requiredPrevSkillId": "f16",
+      "cost": 20000,
+      "name": "Stables",
+      "rewards": [
+        "13;2000"
+      ]
+    },
+    {
+      "id": "f18",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "f17",
+      "cost": 20000,
+      "name": "Cubby",
+      "rewards": [
+        "14;50"
+      ]
+    },
+    {
+      "id": "f19",
+      "nextSkillIds": [
+        "f20"
+      ],
+      "requiredPrevSkillId": "f16",
+      "cost": 20000,
+      "name": "CT Ramp",
+      "rewards": [
+        "14;50"
+      ]
+    },
+    {
+      "id": "f20",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "f19",
+      "cost": 500000,
+      "name": "Mid",
+      "rewards": [
+        "17;3"
+      ]
+    },
+    {
+      "id": "f21",
+      "nextSkillIds": [
+        "f22"
+      ],
+      "requiredPrevSkillId": "f16",
+      "cost": 20000,
+      "name": "Balcony",
+      "rewards": [
+        "11;0.025"
+      ]
+    },
+    {
+      "id": "f22",
+      "nextSkillIds": [
+        "f23"
+      ],
+      "requiredPrevSkillId": "f21",
+      "cost": 20000,
+      "name": "A Vent",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "f23",
+      "nextSkillIds": [
+        "f24"
+      ],
+      "requiredPrevSkillId": "f22",
+      "cost": 20000,
+      "name": "A Doors",
+      "rewards": [
+        "11;0.025"
+      ]
+    },
+    {
+      "id": "f24",
+      "nextSkillIds": [
+        "f25",
+        "f28"
+      ],
+      "requiredPrevSkillId": "f23",
+      "cost": 50000,
+      "name": "Connector",
+      "rewards": [
+        "15;2"
+      ]
+    },
+    {
+      "id": "f25",
+      "nextSkillIds": [
+        "f26"
+      ],
+      "requiredPrevSkillId": "f24",
+      "cost": 20000,
+      "name": "Window",
+      "rewards": [
+        "15;1"
+      ]
+    },
+    {
+      "id": "f26",
+      "nextSkillIds": [
+        "f27"
+      ],
+      "requiredPrevSkillId": "f25",
+      "cost": 20000,
+      "name": "B Drop",
+      "rewards": [
+        "14;50"
+      ]
+    },
+    {
+      "id": "f27",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "f26",
+      "cost": 1000000,
+      "name": "Electric",
+      "rewards": [
+        "19;15",
+        "15;1"
+      ]
+    },
+    {
+      "id": "f28",
+      "nextSkillIds": [
+        "f29"
+      ],
+      "requiredPrevSkillId": "f24",
+      "cost": 20000,
+      "name": "B Doors",
+      "rewards": [
+        "11;0.025"
+      ]
+    },
+    {
+      "id": "f29",
+      "nextSkillIds": [
+        "f30"
+      ],
+      "requiredPrevSkillId": "f28",
+      "cost": 20000,
+      "name": "Rock",
+      "rewards": [
+        "13;1000"
+      ]
+    },
+    {
+      "id": "f30",
+      "nextSkillIds": [
+        "f31"
+      ],
+      "requiredPrevSkillId": "f29",
+      "cost": 25000,
+      "name": "Chicken",
+      "rewards": [
+        "16;500"
+      ]
+    },
+    {
+      "id": "f31",
+      "nextSkillIds": [],
+      "requiredPrevSkillId": "f30",
+      "cost": 3000000,
+      "name": "Ninja",
+      "rewards": [
+        "20;1",
+        "15;1"
+      ]
+    }
+  ]
+}

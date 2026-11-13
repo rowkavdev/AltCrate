@@ -1,0 +1,15 @@
+{
+  "name": "casepilot-qt-engine",
+  "version": "0.4.0",
+  "private": true,
+  "description": "CasePilot operation engine for the native Qt desktop application",
+  "scripts": {
+    "start": "node engine/worker.cjs",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "dependencies": {
+    "engine.io-client": "6.6.7",
+    "socket.io-client": "4.8.1"
+  },
+  "type": "module"
+}

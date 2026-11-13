@@ -1,0 +1,23 @@
+.skill-presets{display:grid;gap:16px;min-width:0}
+.skill-presets>p{margin:0}
+.skill-preset-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.skill-preset-card{display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid var(--cp-border);border-radius:12px;min-width:0}
+.skill-preset-card.selected{border-color:var(--cp-accent,#ef233c)}
+.skill-preset-card .section-heading{align-items:start}
+.skill-preset-card h4,.skill-preset-card p{margin:0}
+.skill-preset-goal{font-size:13px;font-weight:600}
+.skill-preset-card>button{margin-top:auto;align-self:start}
+.skill-preset-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0}
+.skill-preset-values dt{font-size:11px;color:var(--cp-muted)}
+.skill-preset-values dd{margin:4px 0 0;font-size:14px;font-variant-numeric:tabular-nums}
+.skill-preset-cost{font-size:13px}
+.skill-preset-card details{font-size:12px;color:var(--cp-muted)}
+.skill-preset-card details summary{cursor:pointer;min-height:32px}
+.skill-preset-selection{display:grid;gap:14px;padding-top:16px;border-top:1px solid var(--cp-border)}
+.skill-preset-selection>label{display:grid;gap:8px;min-width:0}
+.skill-preset-selection>label.progression-checkbox{display:flex}
+.skill-preset-selection>button{justify-self:start}
+.skill-preset-projection{padding:14px;border:1px solid var(--cp-border);border-radius:8px}
+.skill-preset-projection h4{margin:0 0 8px}
+.skill-preset-projection p{margin:6px 0}
+@media(max-width:760px){.skill-preset-grid{grid-template-columns:1fr}.skill-presets>.section-heading{flex-wrap:wrap;gap:12px}.skill-preset-card{padding:14px}.skill-preset-selection>button{width:100%}}

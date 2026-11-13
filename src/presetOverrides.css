@@ -1,0 +1,53 @@
+/* Luma shapes and subtle menus for the existing workspace components. */
+.cp-shell .sidebar { background: var(--sidebar); border-color: var(--sidebar-border); }
+.cp-shell .sidebar nav a { border-radius: var(--radius-3xl); }
+.cp-shell .sidebar nav a:hover, .cp-shell .sidebar nav a.active { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+.cp-shell .sidebar nav a.active { font-weight: 600; }
+.cp-shell .sidebar nav a.active > svg:first-child, .cp-shell .brand > svg { color: var(--primary); }
+.cp-shell .brand > svg { flex: none; }
+.cp-shell .panel, .cp-shell .metric { border-radius: var(--radius-4xl); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.06); }
+.cp-shell .panel[data-slot=card], .cp-shell .metric[data-slot=card] { gap: 0; }
+.cp-shell .panel[data-slot=card] { overflow: visible; }
+.cp-shell button:not([data-slot]):not(.nav-scrim):not(.inventory-menu-scrim), .cp-shell input:not([type=checkbox]), .cp-shell select, .cp-shell .opening-case-card, .cp-shell .inventory-card, .cp-shell .account-row, .cp-shell .account-selection { border-radius: var(--radius-3xl); }
+.cp-shell button:not([data-slot]):not(.nav-scrim):not(.inventory-menu-scrim):not(.inventory-card):not(.opening-case-card) { transition: background-color 120ms, border-color 120ms; }
+.cp-shell input:not([type=checkbox]), .cp-shell select { background: color-mix(in oklch, var(--input) 50%, transparent); border-color: transparent; }
+.cp-shell input:not([type=checkbox]):focus-visible, .cp-shell select:focus-visible { border-color: var(--ring); }
+.cp-shell .primary-button { background: var(--primary); border-color: transparent; color: var(--primary-foreground); }
+.cp-shell .primary-button:hover:not(:disabled) { background: color-mix(in oklch, var(--primary) 80%, transparent); border-color: transparent; }
+.cp-shell .secondary-button, .cp-shell .test-button { background: var(--background); }
+.cp-shell .secondary-button:hover:not(:disabled), .cp-shell .test-button:hover:not(:disabled) { background: var(--muted); }
+.cp-shell .stop-button { color: var(--destructive); background: color-mix(in oklch, var(--destructive) 10%, transparent); border-color: transparent; }
+.cp-shell .status-tag, .cp-shell .execution-pill { border-radius: var(--radius-3xl); }
+.cp-shell .execution-pill { margin-left: auto; padding: 5px 10px; background: var(--muted); }
+.cp-shell .execution-pill.running, .cp-shell .section-heading .automation-running { color: var(--cp-green); }
+.cp-shell .theme-toggle { flex: none; }
+.cp-shell .notice { background: color-mix(in oklch, var(--primary) 5%, var(--background)); border-color: color-mix(in oklch, var(--primary) 25%, var(--border)); border-radius: var(--radius-xl); }
+.cp-shell .event-icon { border-radius: var(--radius-xl); }
+.cp-shell .status-tag.good { color: var(--cp-green); background: color-mix(in oklch, var(--cp-green) 10%, transparent); }
+.cp-shell .status-tag.waiting { color: var(--cp-amber); background: color-mix(in oklch, var(--cp-amber) 10%, transparent); }
+.cp-shell .status-tag.error { color: var(--destructive); background: color-mix(in oklch, var(--destructive) 10%, transparent); }
+@media (min-width:800px) and (max-width:1279px) { .cp-shell .brand > svg { width:32px; height:32px; } }
+@media (max-width:799px) { .cp-shell [data-slot=button] { min-height:44px; } .cp-shell .topbar { gap:8px; } .cp-shell .theme-toggle { min-width:44px; } }
+/* Game artwork keeps its colours; all workspace controls use the preset. */
+.cp-shell .games-toolbar label, .cp-shell .game-label, .cp-shell .game-controls label, .cp-shell .game-balance small, .cp-shell .game-cost, .cp-shell .local-ai-panel label, .cp-shell .local-ai-benchmark, .cp-shell .local-ai-decision span, .cp-shell .local-ai-decision small, .cp-shell .game-unavailable p, .cp-shell .empty-games { color: var(--muted-foreground); }
+.cp-shell .games-toolbar select, .cp-shell .game-label select, .cp-shell .game-controls input, .cp-shell .game-controls select, .cp-shell .local-ai-panel select { color: var(--foreground); background: var(--muted); border-color: var(--border); }
+.cp-shell .betting-selection label { color: var(--foreground); border-radius: var(--radius-3xl); }
+.cp-shell .betting-selection label:has(input:checked) { background: var(--accent); border-color: var(--primary); }
+.cp-shell .betting-selection input { accent-color: var(--primary); }
+.cp-shell .game-card, .cp-shell .advanced-section, .cp-shell .betting-batch, .cp-shell .blackjack-history { border-radius: var(--radius-4xl); }
+.cp-shell .game-card:has(.blackjack-visual) { border-color: var(--border); }
+.cp-shell .game-card.focused { border-color: var(--primary); }
+.cp-shell .game-card button:not(.primary-button), .cp-shell .local-ai-panel .game-secondary, .cp-shell .games-back, .cp-shell .game-card-head button, .cp-shell .game-balance button { background: var(--secondary); color: var(--secondary-foreground); border-color: var(--border); }
+.cp-shell .game-balance, .cp-shell .socket-stat, .cp-shell .blackjack-bet-panel, .cp-shell .local-ai-decision, .cp-shell .socket-lobby > div { background: var(--muted); border-color: var(--border); color: var(--foreground); }
+.cp-shell .game-balance strong, .cp-shell .socket-stat strong, .cp-shell .socket-lobby > strong { color: var(--foreground); }
+.cp-shell .socket-stat small, .cp-shell .socket-lobby > div { color: var(--muted-foreground); }
+.cp-shell .socket-state { background: var(--muted); border-color: var(--border); color: var(--muted-foreground); }
+.cp-shell .socket-state.online { background: color-mix(in oklch, var(--cp-green) 10%, transparent); border-color: var(--cp-green); color: var(--cp-green); }
+.cp-shell .game-result { background: var(--muted); border-color: var(--border); color: var(--foreground); }
+.cp-shell .game-result.verified { background: color-mix(in oklch, var(--cp-green) 10%, transparent); border-color: var(--cp-green); }
+.cp-shell .game-error { background: color-mix(in oklch, var(--destructive) 10%, transparent); border-color: var(--destructive); color: var(--destructive); }
+.cp-shell .game-unavailable { background: var(--muted); border-color: var(--border); color: var(--cp-amber); }
+.cp-shell .betting-batch .auto-start-button { color: var(--primary-foreground); border-color: transparent; }
+.cp-shell .game-card :focus-visible, .cp-shell .games-stage button:focus-visible, .cp-shell .games-stage select:focus-visible, .cp-shell .games-stage input:focus-visible { outline-color: var(--ring); }
+.cp-shell .test-button { color: var(--foreground); border-color: var(--border); font-weight:500; }
+.cp-shell .test-button:hover:not(:disabled) { background: var(--muted); }
