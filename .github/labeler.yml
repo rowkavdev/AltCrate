@@ -1,0 +1,25 @@
+"area:ui":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tauri/casepilot/apps/web/**"
+          - "tauri/casepilot/packages/ui/**"
+
+"area:engine":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tauri/runtime/**"
+          - "tests/**"
+
+"area:tauri":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tauri/casepilot/**"
+          - "tauri/scripts/**"
+
+"area:electron-legacy":
+  - changed-files:
+      - any-glob-to-any-file: "electron/**"
+
+"area:qt-legacy":
+  - changed-files:
+      - any-glob-to-any-file: "qt/**"

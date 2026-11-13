@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  legacy-root-tests:
+    name: Legacy root tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: npm test
+        run: npm test
+
+  tauri-runtime-tests:
+    name: Tauri runtime tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install Tauri runtime dependencies
+        working-directory: tauri/runtime
+        run: pnpm install --frozen-lockfile
+
+      - name: test:tauri (bundle, smoke, node:test)
+        env:
+          CI: "true"
+        run: npm run test:tauri
+
+  casepilot-web:
+    name: CasePilot web (lint, typecheck, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        shell: bash
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-casepilot-${{ hashFiles('tauri/casepilot/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-casepilot-
+
+      - name: Install CasePilot workspace
+        working-directory: tauri/casepilot
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        working-directory: tauri/casepilot
+        env:
+          TURBO_TELEMETRY_DISABLED: "1"
+        run: pnpm lint
+
+      - name: Typecheck
+        working-directory: tauri/casepilot
+        env:
+          TURBO_TELEMETRY_DISABLED: "1"
+        run: pnpm typecheck
+
+      - name: Web build
+        working-directory: tauri/casepilot
+        env:
+          TURBO_TELEMETRY_DISABLED: "1"
+        run: pnpm build

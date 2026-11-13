@@ -1,0 +1,59 @@
+# Type
+- name: type:bug
+  color: d73a4a
+  description: Something is not working as expected
+
+- name: type:feature
+  color: a2eeef
+  description: New capability or enhancement
+
+- name: type:chore
+  color: cfd3d7
+  description: Maintenance, tooling, or non-user-facing work
+
+# Priority
+- name: priority:high
+  color: b60205
+  description: Urgent or blocking issue
+
+- name: priority:medium
+  color: fbca04
+  description: Important but not blocking
+
+- name: priority:low
+  color: 0e8a16
+  description: Nice to have or minor impact
+
+# Area
+- name: "area:ui"
+  color: 1d76db
+  description: Tauri web UI (React)
+
+- name: "area:engine"
+  color: 5319e7
+  description: Shared Node engine / runtime logic
+
+- name: "area:tauri"
+  color: 0052cc
+  description: Tauri desktop shell and packaging
+
+- name: "area:electron-legacy"
+  color: 6f42c1
+  description: Legacy Electron tree
+
+- name: "area:qt-legacy"
+  color: 8250df
+  description: Legacy Qt tree
+
+# Platform & meta
+- name: "platform:macos"
+  color: 24292f
+  description: macOS-specific behaviour or builds
+
+- name: ci
+  color: ededed
+  description: CI, automation, or GitHub workflows
+
+- name: dependencies
+  color: 0366d6
+  description: Dependency updates (Dependabot or manual)

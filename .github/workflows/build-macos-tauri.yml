@@ -1,0 +1,76 @@
+name: Build macOS Tauri (manual / tags)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-macos:
+    name: macOS app artifact (ad-hoc signed)
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri runtime dependencies
+        working-directory: tauri/runtime
+        run: pnpm install --frozen-lockfile
+
+      - name: Install CasePilot workspace
+        working-directory: tauri/casepilot
+        run: pnpm install --frozen-lockfile
+
+      - name: Bundle engine worker
+        run: node tauri/scripts/bundle-engine.cjs
+
+      - name: Prepare Node sidecar for Tauri externalBin
+        working-directory: tauri/casepilot/src-tauri
+        run: |
+          mkdir -p binaries
+          NODE_BIN="$(command -v node)"
+          cp "$NODE_BIN" "binaries/casepilot-node-aarch64-apple-darwin"
+          chmod +x "binaries/casepilot-node-aarch64-apple-darwin"
+
+      - name: Build Tauri app bundle
+        working-directory: tauri/casepilot
+        env:
+          CI: "true"
+          # Ad-hoc signing for local/CI artifacts (not notarised).
+          APPLE_SIGNING_IDENTITY: "-"
+        run: pnpm exec tauri build --bundles app
+
+      - name: Ad-hoc codesign bundle
+        run: |
+          APP_PATH="$(find tauri/casepilot/src-tauri/target/release/bundle/macos -maxdepth 1 -name '*.app' -print -quit)"
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app bundle found under target/release/bundle/macos"
+            exit 1
+          fi
+          codesign --force --deep --sign - "$APP_PATH"
+          codesign --verify --deep --strict "$APP_PATH"
+
+      - name: Upload macOS .app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: casepilot-macos-app
+          path: tauri/casepilot/src-tauri/target/release/bundle/macos/*.app
+          if-no-files-found: error
