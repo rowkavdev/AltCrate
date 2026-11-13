@@ -91,7 +91,7 @@ pub async fn prepare(
     let id = format!("login-session-{}", uuid::Uuid::new_v4());
     args["id"] = json!(id);
     args["background"] = json!(true);
-    args["title"] = json!("CasePilot · sessão da conta");
+    args["title"] = json!("AltCrate · sessão da conta");
     create_login(app, state.clone(), &args)?;
     let window = app.get_webview_window(&id).ok_or("Sessão indisponível.")?;
     let (tx, rx) = oneshot::channel();

@@ -330,7 +330,7 @@ lifecycle.whenReady().then(async () => {
   })});
   operationHistory=createOperationHistory({store:localStore('operation-history.json')});await operationHistory.ready();
   commands.handle('history:query',(event,filters)=>{assertLocalSender(event);return operationHistory.query(filters);});
-  commands.handle('history:export',async event=>{assertLocalSender(event);await operationHistory.flush();const choice=await fileDialogs.showSaveDialog(mainWindow,{title:'Exportar histórico persistente',defaultPath:'casepilot-historico.json',filters:[{name:'JSON',extensions:['json']}]});if(choice.canceled||!choice.filePath)return null;await fs.writeFile(choice.filePath,JSON.stringify(operationHistory.export(),null,2),{mode:0o600});return choice.filePath;});
+  commands.handle('history:export',async event=>{assertLocalSender(event);await operationHistory.flush();const choice=await fileDialogs.showSaveDialog(mainWindow,{title:'Exportar histórico persistente',defaultPath:'altcrate-historico.json',filters:[{name:'JSON',extensions:['json']}]});if(choice.canceled||!choice.filePath)return null;await fs.writeFile(choice.filePath,JSON.stringify(operationHistory.export(),null,2),{mode:0o600});return choice.filePath;});
   commands.handle('extensions:capabilities',event=>{assertLocalSender(event);return listExtensionCapabilities();});
   commands.handle('requests:metrics',event=>{assertLocalSender(event);return requestWork.metrics();});
   const preferencesFile=path.join(lifecycle.getPath('userData'),'app-preferences.json');

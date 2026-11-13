@@ -8,7 +8,7 @@ if(testOrigin&&(testOrigin.protocol!=='http:'||testOrigin.hostname!=='127.0.0.1'
 const dataIndex=process.argv.indexOf('--casepilot-data');
 if(dataIndex<0||!process.argv[dataIndex+1])throw Error('Missing private browser directory');
 const directory=path.resolve(process.argv[dataIndex+1]);fs.mkdirSync(directory,{recursive:true,mode:0o700});
-app.setPath('userData',directory);app.setName('CasePilot Login');
+app.setPath('userData',directory);app.setName('AltCrate Login');
 const windows=new Map(),stores=new Map(),preparing=new Map(),requests=new Map(),cookieTimers=new Map(),observedStores=new WeakSet();let transportClosed=false;
 function stop(){if(transportClosed)return;transportClosed=true;for(const task of requests.values())task.abort();void Promise.allSettled([...stores.values()].map(store=>store.cookies.flushStore())).finally(()=>app.quit());}
 function send(value){if(transportClosed||process.stdout.destroyed||!process.stdout.writable)return;try{process.stdout.write(JSON.stringify(value)+'\n',error=>{if(error)stop();});}catch{stop();}}
@@ -50,7 +50,7 @@ async function create(args){
  if(typeof args.id!=='string'||!args.id.startsWith('login-')||args.id.length>100||windows.has(args.id))throw Error('Janela de login inválida.');
  const key=partition(args.partition);if(entryFor(key))throw Error('Já existe um login aberto nesta conta.');
  await prepare(args);
- const window=new BrowserWindow({width:args.width||1050,height:args.height||800,show:args.background!==true,title:args.title||'CasePilot · Entrar',webPreferences:{partition:key,sandbox:true,contextIsolation:true,nodeIntegration:false,webSecurity:true}});
+ const window=new BrowserWindow({width:args.width||1050,height:args.height||800,show:args.background!==true,title:args.title||'AltCrate · Entrar',webPreferences:{partition:key,sandbox:true,contextIsolation:true,nodeIntegration:false,webSecurity:true}});
  const entry={window,partition:key,id:args.id,retained:false};windows.set(args.id,entry);
  window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
  for(const name of ['will-navigate','will-frame-navigate','will-redirect'])window.webContents.on(name,(event,url)=>{if(!navigationURL(typeof url==='string'?url:event.url))event.preventDefault();});

@@ -27,8 +27,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.2
       undici:
-        specifier: ^7.16.0
-        version: 7.30.0
+        specifier: ^7.30.2
+        version: 7.30.2
       ws:
         specifier: ^8.18.3
         version: 8.22.0
@@ -274,8 +274,8 @@ packages:
     resolution: {integrity: sha512-exgYmnmL/sJpR3upZfXG5PoatXQii55xAiXGXzY+sROLZ/Y+SLcp9PgJNI9Vz37HpQ74WvDcLT8eqm+kV3FzrA==}
     engines: {node: '>=16'}
 
-  undici@7.30.0:
-    resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
+  undici@7.30.2:
+    resolution: {integrity: sha512-mLyPQnHwUxaM/rideoK/+KL8DaAJLRl4aBCfmX444aCSLnIaomqPLtNRe2jdCYcsk5wZzXrDIQC8ZeYNRAYyIA==}
     engines: {node: '>=20.18.1'}
 
   ws@8.21.3:
@@ -495,7 +495,7 @@ snapshots:
     dependencies:
       tldts: 7.4.18
 
-  undici@7.30.0: {}
+  undici@7.30.2: {}
 
   ws@8.21.3: {}
 

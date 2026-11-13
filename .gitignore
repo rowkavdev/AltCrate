@@ -53,3 +53,7 @@ server-settings.json
 artifacts/
 evidence/
 tauri/casepilot/src-tauri/gen/
+
+# Playwright output
+/tauri/casepilot/apps/web/playwright-report/
+/tauri/casepilot/apps/web/test-results/

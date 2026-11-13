@@ -1,1 +1,1 @@
-"""CasePilot native Qt desktop application."""
+"""AltCrate native Qt desktop application."""

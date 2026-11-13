@@ -2,7 +2,7 @@ const {app,BrowserWindow,ipcMain,session}=require('electron');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const profile=fs.mkdtempSync(path.join(os.tmpdir(),'casepilot-compact-'));
 app.setPath('userData',profile);
-const output=path.resolve('artifacts/compact-workspace-2026-10-14/usability'),calls=[],checks=[];
+const output=process.env.CASEPILOT_SCREENSHOT_DIR,calls=[],checks=[];
 ipcMain.on('fixture:call',(_,call)=>calls.push(call));
 app.whenReady().then(async()=>{
  session.defaultSession.webRequest.onBeforeRequest({urls:['http://*/*','https://*/*']},(_,callback)=>callback({cancel:true}));
@@ -13,9 +13,9 @@ app.whenReady().then(async()=>{
  async function assert(name,source){const passed=await run(source);checks.push({name,passed});if(!passed)throw Error(name);}
  const routes=[['accounts','.account-row',800],['inventory','.inventory-card',800],['opening','.opening-settings .primary-button',800],['games','.game-card',900],['rewards','.reward-card',700],['skills','.skill-preset-card',800],['activity','.event-row',850],['converter','.converter-run .primary-button',950]];
  try{
-  fs.mkdirSync(output,{recursive:true});
+  if(output)fs.mkdirSync(output,{recursive:true});
   await win.loadFile(path.resolve(process.argv[2]||'dist/index.html'));await delay(900);
-  for(const [name,selector,limit] of routes){await route(name);if(name==='activity'){await run(`window.farmFixture.emit({type:'request',kind:'case',accountId:'a1',httpStatus:200,verifiedDelta:1,snapshot:{money:100,casesTotal:1,cases:[]},at:new Date().toISOString()})`);await delay(100);}for(let i=0;i<60;i++){if(await run(`Boolean(document.querySelector(${JSON.stringify(selector)}))`))break;await delay(100);}const rect=await run(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {top:r.top,height:r.height};})()`);checks.push({name:name+'-first-view',...rect,passed:rect.top<limit&&rect.height>0});fs.writeFileSync(path.join(output,name+'-1440.png'),(await win.webContents.capturePage()).toPNG());}
+  for(const [name,selector,limit] of routes){await route(name);if(name==='activity'){await run(`window.farmFixture.emit({type:'request',kind:'case',accountId:'a1',httpStatus:200,verifiedDelta:1,snapshot:{money:100,casesTotal:1,cases:[]},at:new Date().toISOString()})`);await delay(100);}for(let i=0;i<60;i++){if(await run(`Boolean(document.querySelector(${JSON.stringify(selector)}))`))break;await delay(100);}if(!await run(`Boolean(document.querySelector(${JSON.stringify(selector)}))`))throw Error(name+' fixture did not render '+selector);const rect=await run(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {top:r.top,height:r.height};})()`);checks.push({name:name+'-first-view',...rect,passed:rect.top<limit&&rect.height>0});if(output)fs.writeFileSync(path.join(output,name+'-1440.png'),(await win.webContents.capturePage()).toPNG());}
   win.setContentSize(390,900);await route('accounts');
   await assert('mobile-first-account-visible',`document.querySelector('.account-row').getBoundingClientRect().top<700`);
   await run(`document.querySelector('.account-name-cell input').click()`);await delay(80);
@@ -31,7 +31,7 @@ app.whenReady().then(async()=>{
   await assert('active-progression-stop-visible',`(()=>{const button=[...document.querySelectorAll('.progression-batch button')].find(el=>el.textContent==='Parar novos envios e verificar o atual');return !!button&&button.getBoundingClientRect().height>0;})()`);
   const mutations=calls.filter(call=>/^(start|confirm|farmStart|gameAction|openLogin|removeAccount)/.test(call.method));
   checks.push({name:'no-live-operation-starts',passed:mutations.length===0});
-  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({checks,calls:calls.map(call=>call.method)},null,2));console.log(JSON.stringify({checks}));app.exit(checks.every(check=>check.passed)?0:1);
- }catch(error){fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({checks,error:error.message,consoleErrors,screen:await run('document.body.innerText.slice(0,3000)')},null,2));console.error(error.stack);app.exit(1);}
+  if(output)fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({checks,calls:calls.map(call=>call.method)},null,2));console.log(JSON.stringify({checks}));app.exit(checks.every(check=>check.passed)?0:1);
+ }catch(error){if(output)fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({checks,error:error.message,consoleErrors,screen:await run('document.body.innerText.slice(0,3000)')},null,2));console.error(error.stack, JSON.stringify({checks,consoleErrors}));app.exit(1);}
 });
 app.on('will-quit',()=>{try{fs.rmSync(profile,{recursive:true,force:true});}catch{}});

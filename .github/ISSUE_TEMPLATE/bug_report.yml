@@ -1,0 +1,87 @@
+name: Bug report
+description: Report a AltCrate defect
+title: "[Bug]: "
+labels:
+  - type:bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Do not paste credentials
+
+        **Never** include cookies, session tokens, passwords, account exports, or vault data in this issue. Use redacted logs and synthetic/local reproduction only.
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version
+      placeholder: e.g. macOS 15.1, Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: input
+    id: casepilot-version
+    attributes:
+      label: AltCrate version
+      description: App version from About/Settings or git commit if running from source
+      placeholder: e.g. 0.4.0 or commit SHA
+    validations:
+      required: true
+
+  - type: dropdown
+    id: client
+    attributes:
+      label: Client stack
+      description: Which tree you are running
+      options:
+        - Tauri (tauri/casepilot)
+        - Legacy Electron (electron/)
+        - Legacy Qt (qt/)
+        - Unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps using local/synthetic fixtures — no live account steps that require secrets
+      placeholder: |
+        1. …
+        2. …
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Redact tokens and PII. Attach screenshots if helpful.
+      render: shell

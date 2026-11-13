@@ -116,7 +116,13 @@ export function useWorkspaceModel(bridge) {
     bridge.readAccountWorkspace?.().then(value=>{if(live)setAccountWorkspace(value);}).catch(error=>{if(live)setNotice(error.message);});
     bridge.getTokenConverterStatus?.().then(status=>{if(live)setConverter(status);}).catch(()=>{});
     bridge.accountLoginStatus?.().then(status=>{if(live)setAccountLogin(status);}).catch(()=>{});
-    bridge.listInventoryOperations?.().then(items=>{if(live)setInventoryOperations(Object.fromEntries(items.map(item=>[item.operationId,item])));}).catch(error=>{if(live)setNotice(error.message);});
+    bridge.listInventoryOperations?.().then(items=>{if(live)setInventoryOperations(old=>{
+      const next=Object.fromEntries(items.map(item=>[item.operationId,item]));
+      for(const [id,operation] of Object.entries(old)){
+        if(!next[id]||(operation.updatedAt||operation.at||'')>=(next[id].updatedAt||''))next[id]=operation;
+      }
+      return next;
+    });}).catch(error=>{if(live)setNotice(error.message);});
     const unsubscribe = bridge.onEvent((event) => {
       if (!live) return;
       if(event.type==='token-converter'){currentConverter.current=event.status;setConverter(event.status);if(event.accountId){const matches=(event.status?.rows||[]).filter(r=>event.operationId?r.operationId===event.operationId:r.accountId===event.accountId);const row=matches.length===1?matches[0]:null;if(row&&['confirmed','cancelled','stopped','reviewed'].includes(row.state)){refreshAccount(row.accountId);if(row.destinationAccountId)refreshAccount(row.destinationAccountId);}}}
@@ -127,7 +133,11 @@ export function useWorkspaceModel(bridge) {
       }
       if(event.type==='progression'&&['completed','stopped','failed','unconfirmed'].includes(event.state)&&event.accountId){refreshAccount(event.accountId);setInventoryRevision(old=>({...old,[event.accountId]:(old[event.accountId]||0)+1}));}
       if(event.type==='storage-management'&&event.accountId){setInventoryRevision(old=>({...old,[event.accountId]:(old[event.accountId]||0)+1}));}
-      if(event.type==='inventory-action'){setInventoryOperations(old=>({...old,[event.operationId]:event}));if(event.state!=='running'||event.stage==='withdrawn'){const ids=[event.accountId,event.destinationAccountId].filter(Boolean);setInventoryRevision(old=>{const next={...old};for(const id of ids)next[id]=(next[id]||0)+1;return next;});for(const id of ids)refreshAccount(id);}}
+      if(event.type==='inventory-action'){setInventoryOperations(old=>{
+        const previous=old[event.operationId];
+        return previous&&(previous.updatedAt||previous.at||'')>(event.updatedAt||event.at||'')
+          ?old:{...old,[event.operationId]:event};
+      });if(event.state!=='running'||event.stage==='withdrawn'){const ids=[event.accountId,event.destinationAccountId].filter(Boolean);setInventoryRevision(old=>{const next={...old};for(const id of ids)next[id]=(next[id]||0)+1;return next;});for(const id of ids)refreshAccount(id);}}
       if (event.status) { if (Object.hasOwn(event.status, 'opened')) setOpening(event.status); else if (Array.isArray(event.status.accounts)) {currentFarm.current=event.status;setFarmStatus(event.status);} }
       if (event.type==='farm-started'||event.type==='cooldown'||(event.type==='token-converter'&&['preparing','revalidating','running','stopping'].includes(event.status?.phase))) refreshQueue.current?.stop();
       if(event.type==='request'&&event.snapshot&&event.accountId){

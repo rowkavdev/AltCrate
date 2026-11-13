@@ -7,7 +7,7 @@ const basicProps = { game: 'blackjack', bet: '2', setBet: () => {}, validBet: tr
 
 async function loadComponents() {
   const { createServer } = await import('vite');
-  const server = await createServer({ server: { middlewareMode: true, hmr: false }, appType: 'custom' });
+  const server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false }, appType: 'custom' });
   try {
     const { default: SocketGame } = await server.ssrLoadModule('/src/SocketGame.jsx');
     const { GameVisual } = await server.ssrLoadModule('/src/GameVisual.jsx');
@@ -83,7 +83,7 @@ test('manual Blackjack move is disabled while automation owns the account', asyn
 
 test('games mosaic has independent betting account selection and result totals', async () => {
   const { createServer } = await import('vite');
-  const server = await createServer({ server: { middlewareMode: true, hmr: false }, appType: 'custom' });
+  const server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false }, appType: 'custom' });
   try {
     const { default: GamesMosaic } = await server.ssrLoadModule('/src/GamesMosaic.jsx');
     const html = render(GamesMosaic, { accounts: [{ id: 'one', label: 'Teste A' }, { id: 'two', label: 'Teste B' }], onBack: () => {} });
@@ -101,7 +101,7 @@ test('games mosaic has independent betting account selection and result totals',
 
 test('hand analysis distinguishes correct losing plays, insufficient funds and actual deviations',async()=>{
   const {createServer}=await import('vite');
-  const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
+  const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom'});
   try {
     const {default:History,analyzeDecision}=await server.ssrLoadModule('/src/BlackjackHistory.jsx');
     const c=rank=>({rank,suit:'S'});
@@ -121,7 +121,7 @@ test('hand analysis distinguishes correct losing plays, insufficient funds and a
 
 test('research controls expose per-account progression, unknown shoe coverage and short natural payout evidence',async()=>{
   const {createServer}=await import('vite');
-  const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
+  const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom'});
   try {
     const {default:PayoutReview,ProgressionControl,ShoeReadout}=await server.ssrLoadModule('/src/BlackjackResearchPanel.jsx');
     const options=render(ProgressionControl,{value:'win-double-loss-half',running:true,onChange:()=>{}});

@@ -1,22 +1,23 @@
 # AltCrate
 
-Source code for the CasePilot desktop application. The current interface uses
-Tauri 2, React, Vite and Radix UI; the operation engine runs in Node.js.
+Source code for the AltCrate desktop application. The current interface uses
+Tauri 2, React, Vite and Radix UI. The operation engine runs in Node.js.
 The earlier Electron and Qt implementations are retained in this repository.
 
 ## Requirements
 
-- Node.js 20.19 or later and npm.
+- Node.js 24 and npm. CI reads the Node major from `.node-version`.
 - pnpm, using the version declared in `tauri/casepilot/package.json`.
 - Rust and the native build tools required by Tauri. macOS builds also require
   the Apple command line developer tools.
 
-## Install and run
+## Install and run on Apple Silicon macOS
 
 ```sh
-npm install
-pnpm --dir tauri/runtime install
-pnpm --dir tauri/casepilot install
+npm ci
+npm exec -- install-electron
+pnpm --dir tauri/runtime install --frozen-lockfile
+pnpm --dir tauri/casepilot install --frozen-lockfile
 npm run dev
 ```
 
@@ -27,20 +28,53 @@ npm run package:mac
 npm start
 ```
 
-The application still uses its existing CasePilot name. The local macOS bundle
-is ad-hoc signed; this repository does not provide a notarized release.
+The local macOS bundle is ad-hoc signed.
+
+## Linux package
+
+The Linux build targets x86-64 Ubuntu 24.04. Download the `.deb` and checksum
+from [Releases](https://github.com/rowkavdev/AltCrate/releases), then run
+`sha256sum -c SHA256SUMS-linux-amd64.txt` and `sudo apt install ./AltCrate*.deb`
+using the downloaded package filename. The desktop session needs an unlocked
+Secret Service provider, such as GNOME Keyring or KeePassXC with Secret Service
+enabled. Linux uses WebKitGTK for account sessions. Live site sign-in on Linux
+requires a manual check. The AltCrate package replaces the earlier CasePilot
+package and uses the same local data and credential-store identifiers.
+
+To build from source on Ubuntu 24.04, install the Tauri Linux development
+packages, including `libwebkit2gtk-4.1-dev`, `libayatana-appindicator3-dev`,
+`librsvg2-dev`, `libxdo-dev` and `libdbus-1-dev`. Install both pnpm workspaces
+with the frozen lockfiles, then run `npm run package:linux`. The package is
+written to `tauri/casepilot/src-tauri/target/release/bundle/deb/`.
 
 ## Offline checks
 
+After installing the dependencies:
+
 ```sh
-npm test
-node --test tauri/runtime/tests/*.test.cjs
+npm run test:tauri
+pnpm --dir tauri/casepilot lint
 pnpm --dir tauri/casepilot typecheck
 pnpm --dir tauri/casepilot build
+pnpm --dir tauri/casepilot --filter web exec playwright install chromium
+pnpm --dir tauri/casepilot --filter web test:e2e
 ```
 
-These checks use synthetic fixtures and local transports. They do not establish
-that authentication or operations against an external service will succeed.
+Run `npm test` for the legacy Electron suite. On headless Linux, run
+`xvfb-run --auto-servernum npm test`. The CI fixture sets
+`CASEPILOT_ELECTRON_TEST_NO_SANDBOX=1` for the offline Electron test processes
+because Chromium's sandbox namespaces may be unavailable on hosted runners.
+
+Playwright serves the built renderer, simulates the Tauri IPC responses and
+fails on unexpected bridge calls, uncaught renderer errors and requests outside
+the local test server. It covers navigation, settings persistence, inventory
+account switching, sale confirmation, batch expiry and mobile keyboard navigation. Failed CI
+runs publish traces and screenshots.
+
+The macOS and Linux CI jobs run Rust tests and launch the packaged app against
+an isolated local fixture to check WebKit, the Node sidecar and native session
+isolation. macOS packages are ad-hoc signed.
+Live authentication and game operations require a separate manual check.
 
 ## Source layout
 

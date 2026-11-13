@@ -15,11 +15,20 @@ const labels = {
   queued: "Por executar",
   submitting: "A enviar",
   unconfirmed: "Por confirmar",
+  unresolved: "Por confirmar",
   confirmed: "Confirmado",
   blocked: "Nova revisão necessária",
   failed: "Recusado",
   cancelled: "Cancelado",
 };
+const needsVerification = (item) =>
+  ["submitting", "unconfirmed", "unresolved"].includes(item.state);
+const needsAttention = (batch) =>
+  ["running", "paused"].includes(batch.state) || batch.items.some(needsVerification);
+const isExpired = (batch) => batch.expiresAt != null && batch.expiresAt <= Date.now();
+const refKey = ({ accountId, itemId, storageUnitId }) =>
+  JSON.stringify([accountId, itemId, storageUnitId ?? null]);
+
 export function InventoryBatchReview({
   batch,
   busy = false,
@@ -28,16 +37,73 @@ export function InventoryBatchReview({
   onVerify,
   onResume,
 }) {
+  const [, refreshDeadline] = useState(0);
+  const expiresAt = batch?.expiresAt;
+  useEffect(() => {
+    if (expiresAt == null || expiresAt <= Date.now()) return;
+    const timer = setTimeout(() => refreshDeadline((version) => version + 1), expiresAt - Date.now());
+    return () => clearTimeout(timer);
+  }, [expiresAt]);
+
   if (!batch) return null;
-  const confirmed = batch.items.filter(
-      (item) => item.state === "confirmed",
-    ).length,
-    pending = batch.items.some(
-      (item) => item.state === "unconfirmed" || item.state === "submitting",
-    );
-  const resumable =
-    batch.items.every((item) => ["queued", "confirmed"].includes(item.state)) &&
-    batch.items.some((item) => item.state === "queued");
+  const confirmed = batch.items.filter((item) => item.state === "confirmed");
+  const remaining = batch.items.filter((item) => item.state !== "confirmed");
+  const pending = remaining.some(needsVerification);
+  const resumable = remaining.length > 0 && remaining.every((item) => item.state === "queued");
+  const expired = isExpired(batch);
+  const renderRows = (rows) => (
+    <ol className="inventory-batch-rows">
+      {rows.map((row) => (
+        <li key={refKey(row.ref)}>
+          <strong>
+            {t(row.preview.item.name || row.ref.name || "Item sem nome")}
+          </strong>
+          <small>
+            {t("Item: ")}
+            {row.ref.itemId}
+          </small>
+          <small>
+            {t(row.preview.sourceLabel)} ({row.ref.accountId.slice(0, 8)}) ·{" "}
+            {t(
+              row.ref.storageUnitId
+                ? "storage de origem"
+                : "inventário de origem",
+            )}{" "}
+            → {t(row.preview.destinationLabel || row.preview.sourceLabel)}
+            {row.preview.destinationStorageName
+              ? " · " + row.preview.destinationStorageName
+              : ""}
+          </small>
+          <small>
+            {row.preview.steps.map((step) => t(step)).join(" → ")}
+          </small>
+          <span>
+            {t(labels[row.state] || row.state)}
+            {row.message ? " · " + t(row.message) : ""}
+          </span>
+          {row.state === "confirmed" && row.finalLocation && (
+            <small>
+              {t(
+                ["sell", "convert"].includes(batch.kind)
+                  ? "Resultado confirmado: "
+                  : "Chegada confirmada: ",
+              )}
+              {t(
+                row.finalLocation.location === "sold"
+                  ? "vendido"
+                  : row.finalLocation.location === "converted"
+                    ? "convertido em tokens"
+                    : row.finalLocation.location === "storage"
+                      ? row.preview.destinationStorageName || "storage"
+                      : "inventário",
+              )}
+              {" · " + row.finalLocation.accountId.slice(0, 8)}
+            </small>
+          )}
+        </li>
+      ))}
+    </ol>
+  );
   return (
     <section
       className="inventory-batch-review"
@@ -46,7 +112,7 @@ export function InventoryBatchReview({
       <div className="section-heading">
         <h3>{t("Revisão por item")}</h3>
         <span role="status">
-          {t(labels[batch.state] || batch.state)} · {confirmed}/
+          {t(labels[batch.state] || batch.state)} · {confirmed.length}/
           {batch.items.length}
         </span>
       </div>
@@ -57,63 +123,22 @@ export function InventoryBatchReview({
           {t(batch.capacity?.message || "Capacidade do storage indisponível.")}
         </p>
       )}
-      <ol className="inventory-batch-rows">
-        {batch.items.map((row) => (
-          <li key={row.ref.accountId + ":" + row.ref.itemId}>
-            <strong>
-              {t(row.preview.item.name || row.ref.name || "Item sem nome")}
-            </strong>
-            <small>
-              {t("Item: ")}
-              {row.ref.itemId}
-            </small>
-            <small>
-              {t(row.preview.sourceLabel)} ({row.ref.accountId.slice(0, 8)}) ·{" "}
-              {t(
-                row.ref.storageUnitId
-                  ? "storage de origem"
-                  : "inventário de origem",
-              )}{" "}
-              → {t(row.preview.destinationLabel || row.preview.sourceLabel)}
-              {row.preview.destinationStorageName
-                ? " · " + row.preview.destinationStorageName
-                : ""}
-            </small>
-            <small>
-              {row.preview.steps.map((step) => t(step)).join(" → ")}
-            </small>
-            <span>
-              {t(labels[row.state] || row.state)}
-              {row.message ? " · " + t(row.message) : ""}
-            </span>
-            {row.state === "confirmed" && row.finalLocation && (
-              <small>
-                {t(
-                  ["sell", "convert"].includes(batch.kind)
-                    ? "Resultado confirmado: "
-                    : "Chegada confirmada: ",
-                )}
-                {t(
-                  row.finalLocation.location === "sold"
-                    ? "vendido"
-                    : row.finalLocation.location === "converted"
-                      ? "convertido em tokens"
-                      : row.finalLocation.location === "storage"
-                        ? row.preview.destinationStorageName || "storage"
-                        : "inventário",
-                )}
-                {" · " + row.finalLocation.accountId.slice(0, 8)}
-              </small>
-            )}
-          </li>
-        ))}
-      </ol>
+      {remaining.length > 0 && renderRows(remaining)}
+      {confirmed.length > 0 && (
+        <details>
+          <summary>{t("Itens confirmados")} ({confirmed.length})</summary>
+          {renderRows(confirmed)}
+        </details>
+      )}
+      {expired && (batch.state === "review" || resumable) && (
+        <p className="muted">{t("A revisão expirou. Revê os itens restantes num novo lote.")}</p>
+      )}
       <div className="inventory-batch-buttons">
         {batch.state === "review" && (
           <button
             className="primary-button"
-            disabled={busy}
-            onClick={() => onStart?.(batch.batchId)}
+            disabled={busy || expired}
+            onClick={() => { if (!isExpired(batch)) onStart?.(batch.batchId); }}
           >
             {t("Executar lote")}
           </button>
@@ -143,8 +168,8 @@ export function InventoryBatchReview({
         {["paused", "stopped"].includes(batch.state) && resumable && (
           <button
             className="primary-button"
-            disabled={busy}
-            onClick={() => onResume?.(batch.batchId)}
+            disabled={busy || expired}
+            onClick={() => { if (!isExpired(batch)) onResume?.(batch.batchId); }}
           >
             {t("Continuar itens por executar")}
           </button>
@@ -176,6 +201,15 @@ export function InventoryBatchReview({
     </section>
   );
 }
+function batchOption(batch) {
+  return (
+    <option key={batch.batchId} value={batch.batchId}>
+      {new Date(batch.createdAt).toLocaleString("pt-PT")} · {batch.items.length}{" "}
+      {t("itens")} · {t(labels[batch.state] || batch.state)}
+    </option>
+  );
+}
+
 export default function InventoryBatchPanel({
   model,
   accountId,
@@ -194,65 +228,71 @@ export default function InventoryBatchPanel({
     [storage, setStorage] = useState(""),
     [units, setUnits] = useState([]),
     [batches, setBatches] = useState([]),
-    [selectedBatch, setSelectedBatch] = useState(""),
+    [selectionOfBatch, selectBatch] = useState({}),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const selection = externalSelection ?? localSelection,
     setSelection = onSelectionChange || setLocalSelection;
   const selectionKey = selection.map((entry) => entry.key).join("|");
-  useEffect(() => {
-    setSelectedBatch((id) =>
-      batches.find((value) => value.batchId === id)?.state === "review"
-        ? ""
-        : id,
-    );
-  }, [selectionKey, kind, destination, storage]);
   const panelRef = useRef(null);
   const alive = useRef(true),
     locked = useRef(false),
-    loadVersion = useRef(0);
-  const merge = (value) => {
-    setBatches((old) => [
-      value,
-      ...old.filter((batch) => batch.batchId !== value.batchId),
-    ]);
-    if (["running", "paused"].includes(value.state))
-      setSelectedBatch((old) => old || value.batchId);
-    if (value.state === "completed")
-      setSelection((old) =>
-        old.filter(
-          (entry) =>
-            !value.items.some(
-              (row) =>
-                row.state === "confirmed" &&
-                entry.key === row.ref.accountId + ":" + row.ref.itemId,
-            ),
-        ),
-      );
-  };
+    loadVersion = useRef(0),
+    records = useRef(new Map());
+  const scopedBatches = batches.filter((batch) =>
+    batch.destinationAccountId === accountId ||
+    batch.items.some((item) => item.ref.accountId === accountId || item.preview.destinationAccountId === accountId)
+  );
+  const active = scopedBatches.filter(needsAttention);
+  const attention = scopedBatches.filter((batch) => batch.state === "review" || needsAttention(batch));
+  const saved = scopedBatches.filter((batch) => batch.state !== "review" && !needsAttention(batch));
+  const selectedBatch = selectionOfBatch.accountId === accountId ? selectionOfBatch.id : undefined;
+  const batch = scopedBatches.find((value) => value.batchId === selectedBatch) || active[0];
+
+  useEffect(() => {
+    if (batch && selectedBatch !== batch.batchId) {
+      selectBatch({ accountId, id: batch.batchId });
+    }
+  }, [accountId, batch?.batchId, selectedBatch]);
+
+  useEffect(() => {
+    if (batch?.state === "review") selectBatch({ accountId, id: "" });
+  }, [selectionKey, kind, destination, storage]);
+
+  function merge(value) {
+    if (!value || !alive.current) return;
+    const previous = records.current.get(value.batchId);
+    if (previous && (value.updatedAt || "") < (previous.updatedAt || "")) return;
+
+    records.current.set(value.batchId, value);
+    setBatches((old) => [value, ...old.filter((entry) => entry.batchId !== value.batchId)]);
+
+    const alreadyConfirmed = new Set(
+      previous?.items.filter((row) => row.state === "confirmed").map((row) => refKey(row.ref))
+    );
+    const confirmed = new Set(
+      value.items.filter((row) => row.state === "confirmed").map((row) => refKey(row.ref))
+        .filter((key) => !alreadyConfirmed.has(key))
+    );
+    if (confirmed.size) {
+      setSelection((old) => old.filter((entry) => !confirmed.has(refKey(entry.ref))));
+    }
+  }
+
   useEffect(() => {
     alive.current = true;
     if (!available) return;
     let live = true;
-    bridge
-      .listInventoryBatches?.()
-      .then((values) => {
-        if (live) {
-          setSelectedBatch(old=>old||values.find(value=>['running','paused'].includes(value.state))?.batchId||'');
-          setBatches((old) => [
-            ...old,
-            ...values.filter(
-              (value) => !old.some((batch) => batch.batchId === value.batchId),
-            ),
-          ]);
-        }
-      })
-      .catch((failure) => {
-        if (live) setError(errorMessage(failure));
-      });
+    bridge.listInventoryBatches?.().then((values) => {
+      if (!live) return;
+      const unseen = values.filter((value) => !records.current.has(value.batchId));
+      for (const value of unseen) records.current.set(value.batchId, value);
+      setBatches((old) => [...old, ...unseen]);
+    }).catch((failure) => {
+      if (live) setError(errorMessage(failure));
+    });
     const unsubscribe = bridge.onEvent?.((event) => {
-      if (live && event.type === "inventory-batch" && event.batch)
-        merge(event.batch);
+      if (live && event.type === "inventory-batch") merge(event.batch);
     });
     return () => {
       live = false;
@@ -269,18 +309,7 @@ export default function InventoryBatchPanel({
       const value = await bridge[method](...args);
       if (alive.current) {
         merge(value);
-        setSelectedBatch(value.batchId);
-        if (value.state === "completed")
-          setSelection((old) =>
-            old.filter(
-              (entry) =>
-                !value.items.some(
-                  (row) =>
-                    row.state === "confirmed" &&
-                    entry.key === row.ref.accountId + ":" + row.ref.itemId,
-                ),
-            ),
-          );
+        selectBatch({ accountId, id: value.batchId });
       }
     } catch (failure) {
       if (alive.current) setError(errorMessage(failure));
@@ -333,8 +362,7 @@ export default function InventoryBatchPanel({
             ],
     );
   }
-  const batch = batches.find((value) => value.batchId === selectedBatch),
-    selected = (key) => selection.some((entry) => entry.key === key),
+  const selected = (key) => selection.some((entry) => entry.key === key),
     canReview =
       selection.length > 0 &&
       (kind === "withdraw"
@@ -343,7 +371,7 @@ export default function InventoryBatchPanel({
           ? true
           : !!destination && (kind !== "move-to-storage" || !!storage));
   useEffect(() => {
-    if (batch && ["review", "running", "paused"].includes(batch.state)) {
+    if (batch && (batch.state === "review" || needsAttention(batch))) {
       const disclosure = panelRef.current?.closest(".disclosure-panel");
       if (disclosure) disclosure.open = true;
     }
@@ -568,25 +596,32 @@ export default function InventoryBatchPanel({
           {t(error)}
         </p>
       )}
-      {batches.length > 0 && (
-        <label className="inventory-batch-history">
-          {t("Lotes guardados")}
+      {attention.length > 0 && (
+        <label className="inventory-batch-history" aria-label={t("Lotes a acompanhar")}>
+          {t("Lotes a acompanhar")}
           <select
-            value={selectedBatch}
-            onChange={(event) => setSelectedBatch(event.target.value)}
+            value={attention.some((value) => value.batchId === batch?.batchId) ? batch.batchId : ""}
+            onChange={(event) => selectBatch({ accountId, id: event.target.value })}
           >
-            <option value="">
-              {t("Selecionar lote para consultar ou recuperar")}
-            </option>
-            {batches.map((value) => (
-              <option key={value.batchId} value={value.batchId}>
-                {new Date(value.createdAt).toLocaleString("pt-PT")} ·{" "}
-                {value.items.length} {t("itens")} ·{" "}
-                {t(labels[value.state] || value.state)}
-              </option>
-            ))}
+            <option value="">{t("Selecionar lote para consultar ou recuperar")}</option>
+            {attention.map(batchOption)}
           </select>
         </label>
+      )}
+      {saved.length > 0 && (
+        <details>
+          <summary>{t("Lotes concluídos e parados")}</summary>
+          <label className="inventory-batch-history">
+            {t("Lotes guardados")}
+            <select
+              value={saved.some((value) => value.batchId === batch?.batchId) ? batch.batchId : ""}
+              onChange={(event) => selectBatch({ accountId, id: event.target.value })}
+            >
+              <option value="">{t("Selecionar lote para consultar ou recuperar")}</option>
+              {saved.map(batchOption)}
+            </select>
+          </label>
+        </details>
       )}
       <InventoryBatchReview
         batch={batch}

@@ -1,7 +1,7 @@
 const {app,session}=require('electron');
 const path=require('node:path'),fs=require('node:fs'),os=require('node:os'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..');
-const archive=path.join(process.env.CASEPILOT_PACKAGED_APP||path.join(root,'release-token-converter/mac-arm64/CasePilot.app'),'Contents/Resources/app.asar');
+const archive=path.join(process.env.CASEPILOT_PACKAGED_APP||path.join(root,'release-token-converter/mac-arm64/AltCrate.app'),'Contents/Resources/app.asar');
 process.env.CASE_CLICKER_TEST_DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'casepilot-converter-boot-'));
 const out=process.env.CASEPILOT_PACKAGED_OUTPUT||path.join(root,'artifacts/token-converter');fs.mkdirSync(out,{recursive:true});
 const timer=setTimeout(()=>{console.error('Packaged converter boot timed out');app.exit(1);},30000);

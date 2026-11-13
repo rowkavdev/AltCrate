@@ -40,7 +40,7 @@ test('farm panel renders global and per-account controls for a window of 100 acc
   const { createServer } = await import('vite');
   const React = await import('react');
   const { renderToStaticMarkup } = await import('react-dom/server');
-  const server = await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
+  const server = await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom'});
   try {
     const { default: Panel } = await server.ssrLoadModule('/src/FarmControlPanel.jsx');
     const accounts = Array.from({length:100},(_,i)=>({id:`a${i+1}`,label:`Conta ${i+1}`}));
@@ -57,7 +57,7 @@ test('idle accounts are not called active and unavailable vault reason stays vis
   const { createServer } = await import('vite');
   const React = await import('react');
   const { renderToStaticMarkup } = await import('react-dom/server');
-  const server = await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
+  const server = await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom'});
   try {
     const { default: Panel } = await server.ssrLoadModule('/src/FarmControlPanel.jsx');
     const account = {id:'a',label:'Conta A'};
@@ -73,7 +73,7 @@ test('account row formats observed money and names the vault wait', async () => 
   const { createServer } = await import('vite');
   const React = await import('react');
   const { renderToStaticMarkup } = await import('react-dom/server');
-  const server = await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
+  const server = await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom'});
   try {
     const { default: Panel } = await server.ssrLoadModule('/src/FarmControlPanel.jsx');
     const account = {id:'a',label:'Conta A'};

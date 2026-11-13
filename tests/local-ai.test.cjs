@@ -82,7 +82,7 @@ test('a short server deadline uses the immediate reference action without waitin
 test('local model controls expose comparison and experimental play without implying win probability',async()=>{
   const {createServer}=await import('vite');
   const React=require('react'),{renderToStaticMarkup}=require('react-dom/server');
-  const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom'});
+  const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom'});
   try {
     const {LocalAiControls}=await server.ssrLoadModule('/src/LocalAiPanel.jsx');
     const html=renderToStaticMarkup(React.createElement(LocalAiControls,{status:{phase:'ready',validation:{cases:380,agreement:110,p50Ms:32}},mode:'compare',setMode:()=>{},running:false,reload:()=>{}}));

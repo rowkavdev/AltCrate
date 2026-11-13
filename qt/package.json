@@ -2,7 +2,7 @@
   "name": "casepilot-qt-engine",
   "version": "0.4.0",
   "private": true,
-  "description": "CasePilot operation engine for the native Qt desktop application",
+  "description": "AltCrate operation engine for the native Qt desktop application",
   "scripts": {
     "start": "node engine/worker.cjs",
     "test": "node --test tests/*.test.cjs"

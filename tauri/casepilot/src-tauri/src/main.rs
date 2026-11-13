@@ -2,6 +2,7 @@
 mod acceptance;
 mod background;
 mod native_login;
+mod sidecar_protocol;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use serde_json::{json, Value};
 use std::{
@@ -16,7 +17,7 @@ use std::{
 use tauri::{Emitter, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 use tauri_plugin_dialog::DialogExt;
 use tokio::{
-    io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
+    io::{AsyncWriteExt, BufReader},
     process::{Child, ChildStdin, Command},
     sync::{oneshot, Mutex as AsyncMutex},
 };
@@ -40,6 +41,8 @@ struct Engine {
     loads: Mutex<HashMap<String, Reply>>,
     browser_requests: Mutex<HashMap<String, (String, String)>>,
     retained: Mutex<HashMap<String, u64>>,
+    #[cfg(target_os = "linux")]
+    data_directory: PathBuf,
     browser_identities: Mutex<HashMap<String, String>>,
 }
 impl Engine {
@@ -146,7 +149,7 @@ async fn engine_invoke(
             return Err(error);
         }
         if started.elapsed() > Duration::from_secs(45) {
-            return Err("O arranque aguarda acesso ao Porta-chaves. Autoriza o pedido do CasePilot no macOS e volta a abrir a app.".into());
+            return Err("O arranque aguarda acesso ao Porta-chaves. Autoriza o pedido do AltCrate no macOS e volta a abrir a app.".into());
         }
         tokio::time::sleep(Duration::from_millis(100)).await;
     };
@@ -230,7 +233,6 @@ fn create_login(app: &tauri::AppHandle, state: Arc<Engine>, args: &Value) -> Res
                 .title(args["title"].as_str().unwrap_or("Entrar"))
                 .visible(!background).focused(!background)
                 .inner_size(args["width"].as_f64().unwrap_or(1050.0),args["height"].as_f64().unwrap_or(800.0))
-                .data_store_identifier(*uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_URL,partition.as_bytes()).as_bytes())
                 .on_navigation(login_navigation)
                 .on_new_window(|_,_|tauri::webview::NewWindowResponse::Deny)
                 .on_page_load({let state=state.clone();let id=id.clone();move|window,payload|{
@@ -240,7 +242,16 @@ fn create_login(app: &tauri::AppHandle, state: Arc<Engine>, args: &Value) -> Res
                         let state=state.clone();tauri::async_runtime::spawn(async move{let _=state.send(message).await;});
                     }
                 }});
-    // Use WKWebView's real identity. A fixed Safari version does not describe
+    let store = uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_URL, partition.as_bytes());
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder.data_store_identifier(*store.as_bytes());
+    }
+    #[cfg(target_os = "linux")]
+    {
+        builder = builder.data_directory(state.data_directory.join("webkit").join(store.to_string()));
+    }
+    // Use WebKit's real identity. A fixed Safari version does not describe
     // the embedded browser and becomes stale when the system WebKit changes.
     if let Some(proxy) = args["proxy"].as_str() {
         let url = tauri::Url::parse(proxy).map_err(|_| "Proxy inválido.")?;
@@ -332,7 +343,11 @@ async fn native(
         }
         "desktop.open" => {
             let url = game_url(text(&args, "url")?)?;
-            let status = Command::new("/usr/bin/open")
+            #[cfg(target_os = "macos")]
+            let opener = "/usr/bin/open";
+            #[cfg(target_os = "linux")]
+            let opener = "/usr/bin/xdg-open";
+            let status = Command::new(opener)
                 .arg(url.as_str())
                 .status()
                 .await
@@ -340,8 +355,24 @@ async fn native(
             Ok(json!(status.success()))
         }
         "login.create" => {
-            native_login::close_retained(&app, &state, text(&args, "partition")?);
+            let partition = text(&args, "partition")?.to_string();
+            let origin = game_url("https://case-clicker.com/")?;
+            let retained_cookies = login_for(&app, &state, &partition)
+                .filter(|window| state.retained.lock().unwrap().contains_key(window.label()))
+                .map(|window| window.cookies_for_url(origin))
+                .transpose()
+                .map_err(|_| "Não foi possível preservar a sessão de login.")?;
+            native_login::close_retained(&app, &state, &partition);
             create_login(&app, state.clone(), &args)?;
+            if let Some(cookies) = retained_cookies {
+                let window = app.get_webview_window(text(&args, "id")?).ok_or("Sessão indisponível.")?;
+                for cookie in cookies {
+                    if window.set_cookie(cookie).is_err() {
+                        let _ = window.close();
+                        return Err("Não foi possível restaurar a sessão de login.".into());
+                    }
+                }
+            }
             Ok(Value::Null)
         }
         "session.prepare" => native_login::prepare(&app, state, args).await,
@@ -495,7 +526,7 @@ fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>
         app.path().resource_dir()?.join("runtime")
     };
     let node = if cfg!(debug_assertions) {
-        root.join("binaries/casepilot-node-aarch64-apple-darwin")
+        root.join(concat!("binaries/casepilot-node-", env!("TAURI_ENV_TARGET_TRIPLE")))
     } else {
         std::env::current_exe()?
             .parent()
@@ -503,6 +534,7 @@ fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>
             .join("casepilot-node")
     };
     let key = vault_key(fixture)?;
+    #[cfg(target_os = "macos")]
     let browser_executable = if fixture {
         None
     } else if cfg!(debug_assertions) {
@@ -510,6 +542,8 @@ fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>
     } else {
         Some(runtime.join("chromium/Electron.app/Contents/MacOS/Electron"))
     };
+    #[cfg(target_os = "linux")]
+    let browser_executable: Option<PathBuf> = None;
     let mut command = Command::new(node);
     command
         .arg(runtime.join("engine/desktop-worker.cjs"))
@@ -539,18 +573,22 @@ fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>
         loads: Mutex::new(HashMap::new()),
         browser_requests: Mutex::new(HashMap::new()),
         retained: Mutex::new(HashMap::new()),
+        #[cfg(target_os = "linux")]
+        data_directory: data.clone(),
         browser_identities: Mutex::new(HashMap::new()),
     });
     app.manage(state.clone());
     let handle = app.clone();
     let reader_state = state.clone();
     tauri::async_runtime::spawn(async move {
-        let mut lines = BufReader::new(output).lines();
-        while let Ok(Some(line)) = lines.next_line().await {
-            if line.len() > 32 * 1024 * 1024 {
-                break;
-            }
-            let Ok(message) = serde_json::from_str::<Value>(&line) else {
+        let mut reader = BufReader::new(output);
+        let mut frame = Vec::new();
+        while let Ok(true) = sidecar_protocol::read_frame(
+            &mut reader,
+            &mut frame,
+            sidecar_protocol::MAX_FRAME_BYTES,
+        ).await {
+            let Ok(message) = serde_json::from_slice::<Value>(&frame) else {
                 continue;
             };
             match message["type"].as_str().unwrap_or("") {
@@ -635,6 +673,7 @@ fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>
             }
         }
         reader_state.fail();
+        let _ = reader_state.child.lock().await.kill().await;
         let _=handle.emit_to("main","casepilot:event",json!({"type":"notice","message":"O serviço de operações terminou. Reinicia a app para recuperar o estado guardado."}));
     });
     tauri::async_runtime::spawn(async move {
@@ -664,7 +703,14 @@ fn main() {
     let mut context = tauri::generate_context!();
     if fixture {
         for window in &mut context.config_mut().app.windows {
-            window.data_store_identifier = Some(*uuid::Uuid::new_v4().as_bytes());
+            #[cfg(target_os = "macos")]
+            {
+                window.data_store_identifier = Some(*uuid::Uuid::new_v4().as_bytes());
+            }
+            #[cfg(target_os = "linux")]
+            {
+                window.data_directory = Some(PathBuf::from(format!("fixture-{}", uuid::Uuid::new_v4())));
+            }
         }
     }
     let builder = tauri::Builder::default().manage(Startup::default());
@@ -678,10 +724,12 @@ fn main() {
     builder
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![engine_invoke])
-        .setup(|app| {
-            background::setup(app.handle())?;
+        .setup(move |app| {
+            if !fixture {
+                background::setup(app.handle())?;
+            }
             let app = app.handle().clone();
-            // Keychain authorization must not freeze the macOS event loop or hide its prompt.
+            // Credential-store authorization runs off the desktop event loop.
             std::thread::spawn(move || match start_engine(&app) {
                 Ok(()) => acceptance::start(&app),
                 Err(error) => {
@@ -704,7 +752,7 @@ fn main() {
             }
         })
         .build(context)
-        .expect("Não foi possível iniciar o CasePilot.")
+        .expect("Não foi possível iniciar o AltCrate.")
         .run(|app, event| {
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::Reopen { .. } = &event {

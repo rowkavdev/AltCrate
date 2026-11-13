@@ -1,4 +1,4 @@
-# CasePilot Tauri
+# AltCrate Tauri
 
 The active desktop application uses Tauri 2, React, Vite and Radix UI.
 The frontend and native Rust shell are in `casepilot/`. The Node engine is

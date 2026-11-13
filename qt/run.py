@@ -1,4 +1,4 @@
-"""CasePilot native Qt entry point; run without Electron or React."""
+"""AltCrate native Qt entry point; run without Electron or React."""
 from __future__ import annotations
 import argparse
 import json
@@ -7,7 +7,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-parser = argparse.ArgumentParser(description="CasePilot Qt")
+parser = argparse.ArgumentParser(description="AltCrate Qt")
 parser.add_argument("--data-dir", type=Path)
 parser.add_argument("--fixture", action="store_true", help="Use an isolated empty account store and ephemeral credentials")
 parser.add_argument("--verify-ui", type=Path, help="Save native page screenshots and an empty-state verification report, then exit")
@@ -29,6 +29,7 @@ from casepilot.window import MainWindow
 app = QApplication(sys.argv[:1])
 app.setOrganizationName("CasePilot")
 app.setApplicationName("CasePilot Qt")
+app.setApplicationDisplayName("AltCrate Qt")
 app.setApplicationVersion("0.4.0-dev")
 temporary = tempfile.TemporaryDirectory(prefix="casepilot-qt-ui-") if args.fixture and not args.data_dir else None
 directory = args.data_dir or (Path(temporary.name) if temporary else Path(QStandardPaths.writableLocation(QStandardPaths.AppLocalDataLocation)))
@@ -40,12 +41,12 @@ apply_appearance()
 lock = QLockFile(str(directory / "casepilot-qt.lock"))
 lock.setStaleLockTime(0)
 if not lock.tryLock(0):
-    QMessageBox.information(None, "CasePilot Qt", "A aplicação já está aberta com esta pasta de dados.")
+    QMessageBox.information(None, "AltCrate Qt", "A aplicação já está aberta com esta pasta de dados.")
     sys.exit(0)
 try:
     key = vault_key(fixture=args.fixture)
 except Exception as error:
-    QMessageBox.critical(None, "CasePilot Qt", str(error))
+    QMessageBox.critical(None, "AltCrate Qt", str(error))
     sys.exit(1)
 
 root = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))

@@ -314,7 +314,7 @@ export default function SiteAutoOpenPage({ model, ui = {}, onUiChange }) {
       <section className="opening-preference-intro">
         <p>
           {t(
-            "Estas preferências ficam guardadas no jogo. Para iniciar uma abertura na CasePilot, usa ",
+            "Estas preferências ficam guardadas no jogo. Para iniciar uma abertura na AltCrate, usa ",
           )}
           <a href="#opening">{t("Abertura")}</a>
           {t(". Aqui, revês o que será guardado antes de confirmar.")}
