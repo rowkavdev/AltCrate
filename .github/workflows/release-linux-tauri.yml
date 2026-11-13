@@ -35,6 +35,7 @@ jobs:
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" "${packages[0]}" SHA256SUMS-linux-amd64.txt --clobber
           else
-            gh release create "$RELEASE_TAG" "${packages[0]}" SHA256SUMS-linux-amd64.txt \
-              --verify-tag --generate-notes
+            release_flags=(--verify-tag --generate-notes)
+            if [[ "$RELEASE_TAG" == *-* ]]; then release_flags+=(--prerelease); fi
+            gh release create "$RELEASE_TAG" "${packages[0]}" SHA256SUMS-linux-amd64.txt "${release_flags[@]}"
           fi

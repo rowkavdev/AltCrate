@@ -18,7 +18,8 @@ test("the optional route is gated and settings persist across reloads", async ({
   const optionalPage = page.getByRole("link", { name: "Preferências de abertura", exact: true })
   await expect(optionalPage).toHaveCount(0)
   const toggle = page.getByRole("checkbox", { name: /Mostrar preferências de abertura/ })
-  await toggle.check()
+  await toggle.click()
+  await expect(toggle).toBeChecked()
   await expect(optionalPage).toBeVisible()
   expect(commands).toContainEqual({
     channel: "preferences:update",
