@@ -441,7 +441,7 @@ dependencies = [
 name = "casepilot-desktop"
 version = "0.4.1"
 dependencies = [
- "base64 0.22.1",
+ "base64 0.23.1",
  "keyring",
  "serde",
  "serde_json",
