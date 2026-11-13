@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+env:
+  NODE_VERSION: "22.13"
+  PNPM_VERSION: "11.25.0"
+
 defaults:
   run:
     shell: bash
@@ -21,13 +25,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20.19"
-
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.25.0
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: tauri/casepilot/pnpm-lock.yaml
 
       - uses: dtolnay/rust-toolchain@stable
 

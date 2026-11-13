@@ -12,6 +12,11 @@ concurrency:
 permissions:
   contents: read
 
+# engines require >=20.19; pnpm@11.25 (packageManager) requires >=22.13 (node:sqlite).
+env:
+  NODE_VERSION: "22.13"
+  PNPM_VERSION: "11.25.0"
+
 defaults:
   run:
     shell: bash
@@ -25,7 +30,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.19"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: package-lock.json
 
@@ -41,15 +46,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20.19"
-          cache: npm
-          cache-dependency-path: package-lock.json
-
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.25.0
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install root dependencies
         run: npm ci
@@ -69,25 +74,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20.19"
-
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.25.0
+          version: ${{ env.PNPM_VERSION }}
 
-      - name: Get pnpm store path
-        id: pnpm-store
-        shell: bash
-        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/cache@v4
+      - uses: actions/setup-node@v4
         with:
-          path: ${{ steps.pnpm-store.outputs.path }}
-          key: ${{ runner.os }}-pnpm-casepilot-${{ hashFiles('tauri/casepilot/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-casepilot-
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: tauri/casepilot/pnpm-lock.yaml
 
       - name: Install CasePilot workspace
         working-directory: tauri/casepilot
