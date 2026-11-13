@@ -523,7 +523,7 @@ fn vault_key(fixture: bool) -> Result<String, Box<dyn std::error::Error>> {
 }
 fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let fixture = std::env::var("CASEPILOT_FIXTURE").ok().as_deref() == Some("1");
-    let data = if fixture {
+    let data = if fixture && !acceptance::uses_upgrade_profile() {
         std::env::temp_dir().join(format!("casepilot-tauri-fixture-{}", uuid::Uuid::new_v4()))
     } else {
         app.path().app_data_dir()?
