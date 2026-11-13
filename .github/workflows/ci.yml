@@ -61,8 +61,6 @@ jobs:
 
   casepilot-web:
     name: AltCrate web (lint, typecheck, build, Playwright)
-    needs: [legacy-root-tests, tauri-runtime-tests]
-    if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
@@ -100,12 +98,8 @@ jobs:
 
   macos:
     name: macOS
-    needs: [legacy-root-tests, tauri-runtime-tests]
-    if: ${{ !cancelled() }}
     uses: ./.github/workflows/build-macos-tauri.yml
 
   linux:
     name: Linux
-    needs: [casepilot-web]
-    if: ${{ !cancelled() }}
     uses: ./.github/workflows/build-linux-tauri.yml
