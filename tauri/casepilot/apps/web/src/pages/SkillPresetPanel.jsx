@@ -1,5 +1,5 @@
 import React from 'react';
-import {t} from '../language.js';
+import {getLocale,t} from '../language.js';
 import {formatNumber,formatMoney} from '../format.js';
 import './skillPresets.css';
 const amount=(value,precision=2)=>Number.isFinite(value)?formatNumber(value,precision):'—';
@@ -34,6 +34,6 @@ export default function SkillPresetPanel({presets=[],selectedId,onSelect,reset,o
    {s?.available&&<div className="skill-preset-projection"><h4>{t('Estimativa para esta conta')}</h4><p>{t('Caixas por clique após a seleção: ')}<strong>{amount(percentage)}%</strong>{clicks&&<> · {clicks} {t('cliques por caixa')}</>}</p><p>{t('Pontos a comprar: ')}{reset?s.totalPoints:s.missingPoints} · {t('Dinheiro virtual a gastar')}: {formatMoney(reset?s.totalCost:s.missingCost)}</p>{s.warnings?.map(w=><p className="progression-notice" key={w}>{t(w)}</p>)}{!reset&&!s.canAdd&&<p className="progression-notice">{t('Há requisitos, saldo ou pontos por resolver. A revisão confirma o que esta conta pode aplicar.')}</p>}{reset&&<p>{t('Devolução prevista no reset: ')}{s.ownedPoints} {t('pontos')} · {formatMoney(s.resetRefund)}{t(' de reembolso e a mesma quantia de perda virtual.')}</p>}<p className="form-note">{t('Estimativa a partir do estado observado. Custos, requisitos e efeitos voltam a ser verificados na revisão.')}</p></div>}
    <button type="button" className="primary-button" disabled={!selected||disabled||(selected.resetOnly&&!reset)} onClick={()=>onPrepare('skill-preset',{presetId:selected.id,reset})}>{t('Rever preset')}{reset?' '+t('com reset'):''}</button>
   </div>
-  {readAt&&<small className="form-note">{t('Comparação atualizada: ')}{new Date(readAt).toLocaleString()}</small>}
+  {readAt&&<small className="form-note">{t('Comparação atualizada: ')}{new Date(readAt).toLocaleString(getLocale())}</small>}
  </section>;
 }

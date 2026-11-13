@@ -426,7 +426,7 @@ export default function AccountsPage({ model, ui, onUiChange }) {
         )}
         {error && (
           <p role="alert" className="account-inline-error account-page-error">
-            {error}
+            {t(error)}
           </p>
         )}
         {model.loading ? (

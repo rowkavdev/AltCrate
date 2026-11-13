@@ -186,7 +186,7 @@ export default function PersistentHistoryPanel({ model }) {
       </div>
       {error && (
         <p role="alert" className="inline-error">
-          {error}
+          {t(error)}
         </p>
       )}
       <p role="status">

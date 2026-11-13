@@ -1,7 +1,7 @@
 import React from "react"
 import { CircleAlert, CircleCheck, LoaderCircle } from "lucide-react"
 import { formatNumber, formatTime } from "../format.js"
-import { t } from "../language.js"
+import { getLocale, t } from "../language.js"
 
 export default function ConverterVerificationFeedback({
   verification,
@@ -48,7 +48,7 @@ export default function ConverterVerificationFeedback({
           <time
             className="text-muted-foreground"
             dateTime={verification.finishedAt}
-            title={new Date(verification.finishedAt).toLocaleString()}
+            title={new Date(verification.finishedAt).toLocaleString(getLocale())}
           >
             {formatTime(verification.finishedAt)}
           </time>

@@ -214,7 +214,7 @@ export default function AccountGroupDialog({
         )}
         {error && (
           <p role="alert" className="account-inline-error">
-            {error}
+            {t(error)}
           </p>
         )}
       </DialogContent>

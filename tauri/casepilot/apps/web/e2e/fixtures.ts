@@ -94,6 +94,8 @@ export const test = base.extend<{ commands: Command[] }>({
             switch (channel) {
               case "accounts:login":
                 throw "Não foi possível abrir o login. Tenta novamente."
+              case "workspace:command":
+                throw "Nome inválido (1–60 caracteres)"
               case "preferences:read":
                 return { enableSiteOpening: localStorage.getItem("fixture:opening") === "true" }
               case "preferences:update": {

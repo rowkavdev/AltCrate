@@ -148,7 +148,7 @@ function AccountRow({
         )}
         {error && (
           <small role="alert" className="account-inline-error">
-            {error}
+            {t(error)}
           </small>
         )}
       </TableCell>

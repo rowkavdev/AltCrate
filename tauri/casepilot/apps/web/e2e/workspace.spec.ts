@@ -35,6 +35,16 @@ test("shows an English sign-in error without changing the account name", async (
   expect(commands).toContainEqual({ channel: "accounts:login", args: ["Armazém"] })
 })
 
+test("shows an English validation error when an account group cannot be saved", async ({ page, commands }) => {
+  await page.goto("/#accounts")
+  await page.getByRole("button", { name: "Manage groups" }).click()
+  const dialog = page.getByRole("dialog", { name: "Account groups" })
+  await dialog.getByRole("textbox", { name: "New group name" }).fill("Test group")
+  await dialog.getByRole("button", { name: "Create group" }).click()
+  await expect(dialog.getByRole("alert")).toHaveText("The name must be 1–60 characters")
+  expect(commands).toContainEqual({ channel: "workspace:command", args: ["createGroup", { name: "Test group" }] })
+})
+
 test("the optional route is gated and settings persist across reloads", async ({ page, commands }) => {
   await page.goto("/#autoopen")
   await expect(page).toHaveURL(/#settings$/)
