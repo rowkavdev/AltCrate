@@ -11,6 +11,10 @@
   color: "cfd3d7"
   description: Maintenance, tooling, or non-user-facing work
 
+- name: type:docs
+  color: "0075ca"
+  description: Documentation and manual verification
+
 # Priority
 - name: priority:high
   color: "b60205"
@@ -45,7 +49,15 @@
   color: "8250df"
   description: Legacy Qt tree
 
+- name: "area:repo"
+  color: "5319e7"
+  description: Repository configuration or workflow
+
 # Platform & meta
+- name: "platform:linux"
+  color: "fbca04"
+  description: Linux-specific behaviour or builds
+
 - name: "platform:macos"
   color: "24292f"
   description: macOS-specific behaviour or builds
@@ -57,3 +69,11 @@
 - name: dependencies
   color: "0366d6"
   description: Dependency updates (Dependabot or manual)
+
+- name: security
+  color: "b60205"
+  description: Security settings or hardening
+
+- name: performance
+  color: "1d76db"
+  description: Performance and scalability
