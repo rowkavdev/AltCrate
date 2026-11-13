@@ -1,0 +1,19 @@
+name: Maintenance or documentation
+description: Track upkeep, testing, or documentation work
+labels:
+  - type:chore
+body:
+  - type: textarea
+    id: work
+    attributes:
+      label: Work to do
+      description: Describe what needs to change and why.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: How to verify it
+      description: Describe what should work when this task is done. Redact any private data.
+    validations:
+      required: true

@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a AltCrate defect
+description: Report an AltCrate defect
 title: "[Bug]: "
 labels:
   - type:bug
