@@ -65,8 +65,8 @@ test('rejects an oversized frame before its newline and never replays requests',
   const mutation = bridge.request('login.fetch', { method: 'POST' });
   const read = bridge.request('session.info');
   const rejected = Promise.all([
-    assert.rejects(mutation, /resposta inválida/),
-    assert.rejects(read, /resposta inválida/),
+    assert.rejects(mutation, /invalid response/),
+    assert.rejects(read, /invalid response/),
   ]);
 
   // Each character is two bytes. The cap applies to the UTF-8 bytes on the pipe.
@@ -93,7 +93,7 @@ test('rejects an oversized frame before its newline and never replays requests',
 test('rejects a complete JSON value when stdout ends before its delimiter', async t => {
   const { bridge, children } = fixture(t);
   const pending = bridge.request('session.info');
-  const rejected = assert.rejects(pending, /resposta inválida/);
+  const rejected = assert.rejects(pending, /invalid response/);
   const [child] = children;
   const ended = once(child.stdout, 'end');
   child.stdout.end(JSON.stringify({ type: 'result', id: child.sent[0].id, result: 'partial' }));
@@ -106,7 +106,7 @@ test('rejects pending requests when the helper exits before replying', async t =
   const { bridge, children } = fixture(t);
   const controller = new AbortController();
   const pending = bridge.request('login.fetch', { method: 'POST' }, controller.signal);
-  const rejected = assert.rejects(pending, /foi fechado/);
+  const rejected = assert.rejects(pending, /sign-in browser closed/);
   const [child] = children;
   child.emit('exit', 1);
   await rejected;

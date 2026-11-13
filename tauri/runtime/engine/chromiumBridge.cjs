@@ -14,7 +14,7 @@ function createChromiumBridge({executable,dataDirectory,onEvent,spawnProcess=spa
     error?task.reject(Error(error)):task.resolve(result);
   }
   function start(){
-    if(stopped)throw Error('O navegador de login foi encerrado.');
+    if(stopped)throw Error('The sign-in browser has shut down.');
     if(child)return child;
     const env={...process.env};
     for(const name of ['NODE_OPTIONS','ELECTRON_RUN_AS_NODE','CASEPILOT_FIXTURE','CASEPILOT_VERIFY_UI','CASEPILOT_VERIFY_EXIT','VITE_DEV_SERVER_URL'])delete env[name];
@@ -35,8 +35,8 @@ function createChromiumBridge({executable,dataDirectory,onEvent,spawnProcess=spa
       for (const id of windows) onEvent({ type: 'native-event', id, event: 'closed' });
     }
 
-    const closedMessage = 'O navegador de login foi fechado. Entra novamente na conta.';
-    const invalidFrame = () => disconnect('O navegador de login enviou uma resposta inválida. Entra novamente na conta.', true);
+    const closedMessage = 'The sign-in browser closed. Sign in to your account again.';
+    const invalidFrame = () => disconnect('The sign-in browser sent an invalid response. Sign in to your account again.', true);
     const pipeFailed = () => disconnect(closedMessage, true);
     const exited = () => disconnect(closedMessage, false);
 
@@ -98,18 +98,18 @@ function createChromiumBridge({executable,dataDirectory,onEvent,spawnProcess=spa
   }
   return {
     request(method,args={},signal){
-      if(signal?.aborted)return Promise.reject(signal.reason||Error('Operação cancelada'));
+      if(signal?.aborted)return Promise.reject(signal.reason||Error('Operation cancelled.'));
       let process;try{process=start();}catch(error){return Promise.reject(error);}
       const id='browser-'+(++sequence);
       return new Promise((resolve,reject)=>{
-        const abort=()=>{process.stdin.write(JSON.stringify({type:'cancel',id})+'\n');finish(id,'Operação cancelada');};
-        const timer=setTimeout(()=>{process.stdin.write(JSON.stringify({type:'cancel',id})+'\n');finish(id,'O navegador de login não respondeu.');},60000);
+        const abort=()=>{process.stdin.write(JSON.stringify({type:'cancel',id})+'\n');finish(id,'Operation cancelled.');};
+        const timer=setTimeout(()=>{process.stdin.write(JSON.stringify({type:'cancel',id})+'\n');finish(id,'The sign-in browser did not respond.');},60000);
         const completed=result=>{if(method==='login.create')openWindows.add(args.id);if(method==='login.retain')openWindows.delete(args.id);resolve(result);};
         pending.set(id,{resolve:completed,reject,timer,signal,abort});signal?.addEventListener('abort',abort,{once:true});
         process.stdin.write(JSON.stringify({type:'request',id,method,args})+'\n');
       });
     },
-    close(){stopped=true;if(child){child.stdin.end(JSON.stringify({type:'shutdown'})+'\n');const current=child;const timer=setTimeout(()=>current.kill(),2000);timer.unref();}for(const id of [...pending.keys()])finish(id,'Aplicação encerrada.');},
+    close(){stopped=true;if(child){child.stdin.end(JSON.stringify({type:'shutdown'})+'\n');const current=child;const timer=setTimeout(()=>current.kill(),2000);timer.unref();}for(const id of [...pending.keys()])finish(id,'AltCrate shut down.');},
   };
 }
 module.exports={createChromiumBridge};
