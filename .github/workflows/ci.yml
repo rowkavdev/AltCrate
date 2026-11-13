@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -12,96 +13,93 @@ concurrency:
 permissions:
   contents: read
 
-# engines require >=20.19; pnpm@11.25 (packageManager) requires >=22.13 (node:sqlite).
 env:
-  NODE_VERSION: "22.13"
-  PNPM_VERSION: "11.25.0"
-
-defaults:
-  run:
-    shell: bash
+  TURBO_TELEMETRY_DISABLED: "1"
 
 jobs:
   legacy-root-tests:
     name: Legacy root tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
           cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: npm test
-        run: npm test
+      - run: npm ci
+      - name: Run offline Electron and Node tests
+        env:
+          CASEPILOT_ELECTRON_TEST_NO_SANDBOX: "1"
+        run: xvfb-run --auto-servernum npm test
 
   tauri-runtime-tests:
     name: Tauri runtime tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: .node-version
           cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Install Tauri runtime dependencies
-        working-directory: tauri/runtime
-        run: pnpm install --frozen-lockfile
-
-      - name: test:tauri (bundle, smoke, node:test)
-        env:
-          CI: "true"
-        run: npm run test:tauri
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: tauri/casepilot/package.json
+          cache: true
+          cache_dependency_path: |
+            tauri/casepilot/pnpm-lock.yaml
+            tauri/runtime/pnpm-lock.yaml
+      - run: npm ci
+      - run: pnpm --dir tauri/runtime install --frozen-lockfile
+      - run: pnpm --dir tauri/casepilot install --frozen-lockfile
+      - run: npm run test:tauri
 
   casepilot-web:
-    name: CasePilot web (lint, typecheck, build)
-    runs-on: ubuntu-latest
+    name: CasePilot web (lint, typecheck, build, Playwright)
+    needs: [legacy-root-tests, tauri-runtime-tests]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tauri/casepilot
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          cache-dependency-path: tauri/casepilot/pnpm-lock.yaml
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: tauri/casepilot/package.json
+          cache: true
+          cache_dependency_path: tauri/casepilot/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+      - name: Install Playwright Chromium and system dependencies
+        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Test the CasePilot renderer with Playwright
+        run: pnpm --filter web test:e2e
+      - name: Upload Playwright diagnostics
+        if: ${{ failure() && !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: casepilot-playwright
+          path: |
+            tauri/casepilot/apps/web/playwright-report/
+            tauri/casepilot/apps/web/test-results/
+          retention-days: 7
 
-      - name: Install CasePilot workspace
-        working-directory: tauri/casepilot
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        working-directory: tauri/casepilot
-        env:
-          TURBO_TELEMETRY_DISABLED: "1"
-        run: pnpm lint
-
-      - name: Typecheck
-        working-directory: tauri/casepilot
-        env:
-          TURBO_TELEMETRY_DISABLED: "1"
-        run: pnpm typecheck
-
-      - name: Web build
-        working-directory: tauri/casepilot
-        env:
-          TURBO_TELEMETRY_DISABLED: "1"
-        run: pnpm build
+  macos:
+    name: macOS
+    needs: [legacy-root-tests, tauri-runtime-tests]
+    if: ${{ !cancelled() }}
+    uses: ./.github/workflows/build-macos-tauri.yml

@@ -1,82 +1,85 @@
-name: Build macOS Tauri (manual / tags)
+name: Build macOS Tauri
 
 on:
+  workflow_call:
   workflow_dispatch:
   push:
-    tags:
-      - "v*"
+    tags: ["v*"]
 
 permissions:
   contents: read
 
-env:
-  NODE_VERSION: "22.13"
-  PNPM_VERSION: "11.25.0"
-
-defaults:
-  run:
-    shell: bash
-
 jobs:
   build-macos:
-    name: macOS app artifact (ad-hoc signed)
-    runs-on: macos-latest
-    timeout-minutes: 90
+    name: Build and smoke-test the Apple Silicon app
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      CARGO_TERM_COLOR: always
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          cache-dependency-path: tauri/casepilot/pnpm-lock.yaml
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - name: Install Tauri runtime dependencies
-        working-directory: tauri/runtime
-        run: pnpm install --frozen-lockfile
-
-      - name: Install CasePilot workspace
-        working-directory: tauri/casepilot
-        run: pnpm install --frozen-lockfile
-
-      - name: Bundle engine worker
-        run: node tauri/scripts/bundle-engine.cjs
-
-      - name: Prepare Node sidecar for Tauri externalBin
-        working-directory: tauri/casepilot/src-tauri
-        run: |
-          mkdir -p binaries
-          NODE_BIN="$(command -v node)"
-          cp "$NODE_BIN" "binaries/casepilot-node-aarch64-apple-darwin"
-          chmod +x "binaries/casepilot-node-aarch64-apple-darwin"
-
-      - name: Build Tauri app bundle
-        working-directory: tauri/casepilot
+          node-version-file: .node-version
+          cache: npm
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          package_json_file: tauri/casepilot/package.json
+          cache: true
+          cache_dependency_path: |
+            tauri/casepilot/pnpm-lock.yaml
+            tauri/runtime/pnpm-lock.yaml
+      - run: rustup update stable && rustup default stable
+      - run: npm ci
+      - run: node_modules/.bin/install-electron
+      - run: pnpm --dir tauri/runtime install --frozen-lockfile
+      - run: pnpm --dir tauri/casepilot install --frozen-lockfile
+      - name: Build the same app as the local packaging command
+        run: npm run package:mac -- --ci -- --locked
+      - name: Run Rust unit tests
+        run: cargo test --locked --release --manifest-path tauri/casepilot/src-tauri/Cargo.toml
+      - name: Check the packaged app and run its native acceptance fixture
         env:
-          CI: "true"
-          # Ad-hoc signing for local/CI artifacts (not notarised).
-          APPLE_SIGNING_IDENTITY: "-"
-        run: pnpm exec tauri build --bundles app
-
-      - name: Ad-hoc codesign bundle
+          CASEPILOT_FIXTURE: "1"
+          CASEPILOT_VERIFY_EXIT: "1"
+          CASEPILOT_VERIFY_UI: ${{ runner.temp }}/casepilot-native
         run: |
-          APP_PATH="$(find tauri/casepilot/src-tauri/target/release/bundle/macos -maxdepth 1 -name '*.app' -print -quit)"
-          if [ -z "$APP_PATH" ]; then
-            echo "No .app bundle found under target/release/bundle/macos"
+          app="$PWD/release-tauri/mac-arm64/CasePilot.app"
+          codesign --verify --deep --strict "$app"
+          test -x "$app/Contents/MacOS/casepilot-node"
+          test -x "$app/Contents/Resources/runtime/chromium/Electron.app/Contents/MacOS/Electron"
+          mkdir -p "$CASEPILOT_VERIFY_UI"
+          executable="$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$app/Contents/Info.plist")"
+          "$app/Contents/MacOS/$executable" > "$CASEPILOT_VERIFY_UI/launch.log" 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+          report="$CASEPILOT_VERIFY_UI/native-report.json"
+          for ((attempt = 0; attempt < 90; attempt++)); do
+            if [ -s "$report" ]; then break; fi
+            if ! kill -0 "$app_pid" 2>/dev/null; then break; fi
+            sleep 1
+          done
+          if [ ! -s "$report" ]; then
+            cat "$CASEPILOT_VERIFY_UI/launch.log"
             exit 1
           fi
-          codesign --force --deep --sign - "$APP_PATH"
-          codesign --verify --deep --strict "$APP_PATH"
-
-      - name: Upload macOS .app artifact
-        uses: actions/upload-artifact@v4
+          jq -e '.passed == true and (.pages | length == 13) and .nativeLoginIsolation == true' "$report"
+      - name: Upload native verification evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: casepilot-native-verification
+          path: ${{ runner.temp }}/casepilot-native/
+          retention-days: 7
+      - name: Archive the signed app
+        if: github.event_name != 'pull_request'
+        run: ditto -c -k --sequesterRsrc --keepParent release-tauri/mac-arm64/CasePilot.app CasePilot-mac-arm64.zip
+      - name: Upload the macOS app
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: casepilot-macos-app
-          path: tauri/casepilot/src-tauri/target/release/bundle/macos/*.app
+          path: CasePilot-mac-arm64.zip
           if-no-files-found: error

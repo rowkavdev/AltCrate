@@ -2,6 +2,7 @@
 mod acceptance;
 mod background;
 mod native_login;
+mod sidecar_protocol;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use serde_json::{json, Value};
 use std::{
@@ -16,7 +17,7 @@ use std::{
 use tauri::{Emitter, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 use tauri_plugin_dialog::DialogExt;
 use tokio::{
-    io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
+    io::{AsyncWriteExt, BufReader},
     process::{Child, ChildStdin, Command},
     sync::{oneshot, Mutex as AsyncMutex},
 };
@@ -545,12 +546,14 @@ fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>
     let handle = app.clone();
     let reader_state = state.clone();
     tauri::async_runtime::spawn(async move {
-        let mut lines = BufReader::new(output).lines();
-        while let Ok(Some(line)) = lines.next_line().await {
-            if line.len() > 32 * 1024 * 1024 {
-                break;
-            }
-            let Ok(message) = serde_json::from_str::<Value>(&line) else {
+        let mut reader = BufReader::new(output);
+        let mut frame = Vec::new();
+        while let Ok(true) = sidecar_protocol::read_frame(
+            &mut reader,
+            &mut frame,
+            sidecar_protocol::MAX_FRAME_BYTES,
+        ).await {
+            let Ok(message) = serde_json::from_slice::<Value>(&frame) else {
                 continue;
             };
             match message["type"].as_str().unwrap_or("") {
@@ -635,6 +638,7 @@ fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>
             }
         }
         reader_state.fail();
+        let _ = reader_state.child.lock().await.kill().await;
         let _=handle.emit_to("main","casepilot:event",json!({"type":"notice","message":"O serviço de operações terminou. Reinicia a app para recuperar o estado guardado."}));
     });
     tauri::async_runtime::spawn(async move {

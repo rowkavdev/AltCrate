@@ -501,6 +501,13 @@ export default function InventoryPage({ model, ui, onUiChange, onNavigate }) {
         )}
       </section>
 
+      <InventoryOperations
+        key={accountId}
+        model={model}
+        controller={controller}
+        accountId={accountId}
+      />
+
       <section className="panel inventory-results" aria-busy={pending}>
         <div className="section-heading inventory-collection-heading">
           <div>
@@ -745,11 +752,6 @@ export default function InventoryPage({ model, ui, onUiChange, onNavigate }) {
           items={data?.skins || []}
         />
       </DisclosurePanel>
-      <InventoryOperations
-        model={model}
-        controller={controller}
-        accountId={accountId}
-      />
       <InventoryActions controller={controller} accounts={accounts} />
       {selected && (
         <InventoryDetails

@@ -6,17 +6,18 @@ The earlier Electron and Qt implementations are retained in this repository.
 
 ## Requirements
 
-- Node.js 20.19 or later and npm.
+- Node.js 24 and npm. CI reads the Node major from `.node-version`.
 - pnpm, using the version declared in `tauri/casepilot/package.json`.
 - Rust and the native build tools required by Tauri. macOS builds also require
   the Apple command line developer tools.
 
-## Install and run
+## Install and run on Apple Silicon macOS
 
 ```sh
-npm install
-pnpm --dir tauri/runtime install
-pnpm --dir tauri/casepilot install
+npm ci
+npm exec -- install-electron
+pnpm --dir tauri/runtime install --frozen-lockfile
+pnpm --dir tauri/casepilot install --frozen-lockfile
 npm run dev
 ```
 
@@ -32,15 +33,32 @@ is ad-hoc signed; this repository does not provide a notarized release.
 
 ## Offline checks
 
+After installing the dependencies:
+
 ```sh
-npm test
-node --test tauri/runtime/tests/*.test.cjs
+npm run test:tauri
+pnpm --dir tauri/casepilot lint
 pnpm --dir tauri/casepilot typecheck
 pnpm --dir tauri/casepilot build
+pnpm --dir tauri/casepilot --filter web exec playwright install chromium
+pnpm --dir tauri/casepilot --filter web test:e2e
 ```
 
-These checks use synthetic fixtures and local transports. They do not establish
-that authentication or operations against an external service will succeed.
+Run `npm test` for the legacy Electron suite. On headless Linux, run
+`xvfb-run --auto-servernum npm test`. The CI fixture sets
+`CASEPILOT_ELECTRON_TEST_NO_SANDBOX=1` for the offline Electron test processes
+because Chromium's sandbox namespaces may be unavailable on hosted runners.
+
+Playwright serves the built renderer, simulates the Tauri IPC responses and
+fails on unexpected bridge calls, uncaught renderer errors and requests outside
+the local test server. It covers navigation, settings persistence, inventory
+account switching, sale confirmation, batch expiry and mobile keyboard navigation. Failed CI
+runs publish traces and screenshots.
+
+The macOS CI job runs Rust tests and launches the signed Apple Silicon package
+against an isolated local fixture to check WKWebView, the Node sidecar and
+native session isolation. Releases built by the workflow are ad-hoc signed.
+Live authentication and game operations require a separate manual check.
 
 ## Source layout
 

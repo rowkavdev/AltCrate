@@ -6,7 +6,19 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'playwright-report', 'test-results']),
+  {
+    files: ['src/**/*.{js,jsx}'],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+    rules: {
+      'no-undef': 'error',
+      'no-dupe-keys': 'error',
+      'no-unreachable': 'error',
+    },
+  },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

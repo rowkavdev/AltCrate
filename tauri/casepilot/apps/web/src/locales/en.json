@@ -2358,5 +2358,12 @@
   "A revalidar as contas antes de iniciar…": "Revalidating accounts before starting…",
   "Progresso da revalidação": "Revalidation progress",
   "A revisão expirou. Revê novamente antes de confirmar.": "The review expired. Review again before confirming.",
-  "Rever novamente": "Review again"
+  "Rever novamente": "Review again",
+  "A revisão expirou. Revê os itens restantes num novo lote.": "The review has expired. Review the remaining items in a new batch.",
+  "Histórico": "History",
+  "Itens confirmados": "Confirmed items",
+  "Lotes a acompanhar": "Batches requiring attention",
+  "Lotes concluídos e parados": "Completed and stopped batches",
+  "Página anterior do histórico": "Previous history page",
+  "Página seguinte do histórico": "Next history page"
 }

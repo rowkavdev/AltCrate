@@ -10,7 +10,7 @@
     "socks": "^2.8.10",
     "socks-proxy-agent": "^8.0.5",
     "tough-cookie": "^6.0.0",
-    "undici": "^7.16.0",
+    "undici": "^7.30.2",
     "ws": "^8.18.3"
   },
   "devDependencies": {
