@@ -47,6 +47,8 @@ jobs:
         with:
           node-version-file: .node-version
           cache: npm
+      - name: Check the Tauri icon format
+        run: node tauri/scripts/check-native-icon.cjs
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           package_json_file: tauri/casepilot/package.json
