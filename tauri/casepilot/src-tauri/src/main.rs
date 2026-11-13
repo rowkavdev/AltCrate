@@ -132,6 +132,20 @@ fn login_navigation(url: &tauri::Url) -> bool {
             && url.username().is_empty()
             && url.password().is_none())
 }
+#[cfg(target_os = "linux")]
+const CREDENTIAL_STORE_GUIDANCE: &str = "Verifica se o Secret Service (por exemplo, GNOME Keyring ou KeePassXC) está ativo e desbloqueado. Volta a abrir o AltCrate na mesma sessão gráfica.";
+
+#[cfg(target_os = "macos")]
+const CREDENTIAL_STORE_GUIDANCE: &str = "Autoriza o acesso do AltCrate ao Porta-chaves do macOS e volta a abrir a aplicação.";
+
+fn credential_store_error() -> String {
+    format!("Não foi possível aceder ao armazenamento seguro de sessões. {CREDENTIAL_STORE_GUIDANCE}")
+}
+
+fn credential_store_timeout() -> String {
+    format!("O arranque ainda aguarda acesso ao armazenamento seguro de sessões. {CREDENTIAL_STORE_GUIDANCE}")
+}
+
 #[tauri::command]
 async fn engine_invoke(
     window: WebviewWindow,
@@ -149,7 +163,7 @@ async fn engine_invoke(
             return Err(error);
         }
         if started.elapsed() > Duration::from_secs(45) {
-            return Err("O arranque aguarda acesso ao Porta-chaves. Autoriza o pedido do AltCrate no macOS e volta a abrir a app.".into());
+            return Err(credential_store_timeout());
         }
         tokio::time::sleep(Duration::from_millis(100)).await;
     };
@@ -490,7 +504,8 @@ fn vault_key(fixture: bool) -> Result<String, Box<dyn std::error::Error>> {
     if fixture {
         return Ok(generate());
     }
-    let entry = keyring::Entry::new("pt.casepilot.desktop", "session-vault")?;
+    let entry = keyring::Entry::new("pt.casepilot.desktop", "session-vault")
+        .map_err(|_| credential_store_error())?;
     match entry.get_password() {
         Ok(key) => {
             if STANDARD.decode(&key)?.len() != 32 {
@@ -500,10 +515,10 @@ fn vault_key(fixture: bool) -> Result<String, Box<dyn std::error::Error>> {
         }
         Err(keyring::Error::NoEntry) => {
             let key = generate();
-            entry.set_password(&key)?;
+            entry.set_password(&key).map_err(|_| credential_store_error())?;
             Ok(key)
         }
-        Err(_) => Err("Não foi possível desbloquear a proteção de sessões do sistema.".into()),
+        Err(_) => Err(credential_store_error().into()),
     }
 }
 fn start_engine(app: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
@@ -770,6 +785,24 @@ fn main() {
 #[cfg(test)]
 mod origin_tests {
     use super::*;
+    #[test]
+    fn credential_store_messages_match_the_native_platform() {
+        for message in [credential_store_error(), credential_store_timeout()] {
+            #[cfg(target_os = "linux")]
+            {
+                assert!(message.contains("Secret Service"));
+                assert!(message.contains("desbloqueado"));
+                assert!(message.contains("sessão gráfica"));
+                assert!(!message.contains("macOS"));
+            }
+            #[cfg(target_os = "macos")]
+            {
+                assert!(message.contains("Porta-chaves do macOS"));
+                assert!(!message.contains("Secret Service"));
+            }
+        }
+    }
+
     #[test]
     fn login_allows_site_verification_and_rejects_unrelated_origins() {
         for url in [
