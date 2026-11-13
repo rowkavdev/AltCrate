@@ -1,0 +1,43 @@
+{
+  "name": "Main branch CI",
+  "target": "branch",
+  "enforcement": "active",
+  "bypass_actors": [
+    {
+      "actor_id": 5,
+      "actor_type": "RepositoryRole",
+      "bypass_mode": "pull_request"
+    }
+  ],
+  "conditions": {
+    "ref_name": {
+      "include": ["~DEFAULT_BRANCH"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "pull_request",
+      "parameters": {
+        "dismiss_stale_reviews_on_push": false,
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_approving_review_count": 0,
+        "required_review_thread_resolution": false
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "required_status_checks": [
+          {"context": "Legacy root tests", "integration_id": 15368},
+          {"context": "Tauri runtime tests", "integration_id": 15368},
+          {"context": "AltCrate web (lint, typecheck, build, Playwright)", "integration_id": 15368},
+          {"context": "macOS / Build and smoke-test the Apple Silicon app", "integration_id": 15368},
+          {"context": "Linux / Build and smoke-test the Linux x64 package", "integration_id": 15368}
+        ]
+      }
+    }
+  ]
+}
