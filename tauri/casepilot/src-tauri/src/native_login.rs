@@ -24,11 +24,11 @@ pub async fn identity(window: &WebviewWindow, state: &Engine) -> Result<Value, S
         }
     })
     .await
-    .map_err(|_| "Não foi possível identificar o navegador do sistema.")?;
+    .map_err(|_| "Could not identify the system browser.")?;
     let user_agent = value
         .as_str()
         .filter(|ua| !ua.is_empty() && ua.len() <= 1024 && !ua.contains(['\r', '\n']))
-        .ok_or("Não foi possível identificar o navegador do sistema.")?;
+        .ok_or("Could not identify the system browser.")?;
     state
         .browser_identities
         .lock()
@@ -91,9 +91,9 @@ pub async fn prepare(
     let id = format!("login-session-{}", uuid::Uuid::new_v4());
     args["id"] = json!(id);
     args["background"] = json!(true);
-    args["title"] = json!("AltCrate · sessão da conta");
+    args["title"] = json!("AltCrate · Account session");
     create_login(app, state.clone(), &args)?;
-    let window = app.get_webview_window(&id).ok_or("Sessão indisponível.")?;
+    let window = app.get_webview_window(&id).ok_or("Session unavailable.")?;
     let (tx, rx) = oneshot::channel();
     state.loads.lock().unwrap().insert(id.clone(), tx);
     if window
@@ -102,13 +102,13 @@ pub async fn prepare(
     {
         state.loads.lock().unwrap().remove(&id);
         let _ = window.close();
-        return Err("Não foi possível recuperar a sessão.".into());
+        return Err("Could not recover the session.".into());
     }
     let result = tokio::time::timeout(Duration::from_secs(45), rx).await;
     state.loads.lock().unwrap().remove(&id);
     if !matches!(result, Ok(Ok(Ok(_)))) {
         let _ = window.close();
-        return Err("A sessão não terminou de carregar. Entra novamente na conta.".into());
+        return Err("The session did not finish loading. Sign in to the account again.".into());
     }
     state
         .retained
@@ -128,11 +128,11 @@ pub async fn evaluate(window: &WebviewWindow, script: String) -> Result<Value, S
                 let _ = tx.send(serde_json::from_str::<Value>(&value).unwrap_or(Value::Null));
             }
         })
-        .map_err(|_| "Não foi possível verificar a janela de login.")?;
+        .map_err(|_| "Could not verify the sign-in window.")?;
     tokio::time::timeout(Duration::from_secs(10), rx)
         .await
-        .map_err(|_| "A janela de login não respondeu.")?
-        .map_err(|_| "A página de login ainda está a carregar.".into())
+        .map_err(|_| "The sign-in window did not respond.")?
+        .map_err(|_| "The sign-in page is still loading.".into())
 }
 
 pub fn cancel(app: &tauri::AppHandle, state: &Engine, transport_id: &str) {
@@ -155,12 +155,12 @@ pub async fn fetch(
     let target = game_url(text(&args, "url")?)?;
     let method = args["method"].as_str().unwrap_or("GET");
     if !["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"].contains(&method) {
-        return Err("Método de pedido inválido.".into());
+        return Err("Invalid request method.".into());
     }
     if game_url(
         window
             .url()
-            .map_err(|_| "O login ainda está a carregar.")?
+            .map_err(|_| "The sign-in page is still loading.")?
             .as_str(),
     )
     .is_err()
@@ -179,10 +179,10 @@ pub async fn fetch(
         const body=request.body==null?undefined:Uint8Array.from(atob(request.body),c=>c.charCodeAt(0));
         const response=await fetch(request.url,{{method:request.method,body,headers:request.headers,credentials:request.credentials,cache:'no-store',redirect:'error',signal:controller.signal}});
         const bytes=new Uint8Array(await response.arrayBuffer());
-        if(bytes.length>16*1024*1024)throw Error('Resposta demasiado grande.');
+        if(bytes.length>16*1024*1024)throw Error('Response is too large.');
         let binary='';for(let i=0;i<bytes.length;i+=16384)binary+=String.fromCharCode(...bytes.subarray(i,i+16384));
         task.result={{status:response.status,statusText:response.statusText,headers:Object.fromEntries(response.headers),body:btoa(binary)}};
-      }}catch(error){{task.error=error.name==='AbortError'?'Pedido cancelado. Verifica o estado antes de repetir.':'Não foi possível concluir o pedido. Verifica o estado antes de repetir.';}}finally{{task.done=true;}}}})();return true;
+      }}catch(error){{task.error=error.name==='AbortError'?'The request was cancelled. Check its state before trying again.':'Could not complete the request. Check its state before trying again.';}}finally{{task.done=true;}}}})();return true;
     }})()"#,
         key = json!(nonce),
         request = request
@@ -194,7 +194,7 @@ pub async fn fetch(
     let outcome:Result<Value,String>=async{
         evaluate(&window,script).await?;
         for _ in 0..300{
-            if !state.browser_requests.lock().unwrap().contains_key(&transport){return Err("Pedido cancelado. Verifica o estado antes de repetir.".into());}
+            if !state.browser_requests.lock().unwrap().contains_key(&transport){return Err("The request was cancelled. Check its state before trying again.".into());}
             let value=evaluate(&window,format!("(()=>{{const task=window.__casepilotReads?.[{}];return task?.done?{{done:true,result:task.result,error:task.error}}:{{done:false}};}})()",json!(nonce))).await?;
             if value["done"]==true{
                 if let Some(error)=value["error"].as_str(){return Err(error.to_string());}
@@ -202,7 +202,7 @@ pub async fn fetch(
             }
             tokio::time::sleep(Duration::from_millis(100)).await;
         }
-        Err("A validação do login excedeu o tempo disponível.".into())
+        Err("Sign-in verification timed out.".into())
     }.await;
     cancel(app, &state, &transport);
     outcome

@@ -451,11 +451,6 @@
   font-size: 12px;
   margin-bottom: 12px;
 }
-.cp-shell .language-setting {
-  margin-top: 0;
-  font-size: 12px;
-  max-width: none;
-}
 .cp-shell .optional-feature-choice {
   padding: 0;
   min-height: 44px;

@@ -15,6 +15,3 @@
 
 @media(max-width:479px){.topbar .execution-pill{max-width:110px;white-space:normal;line-height:1.4;font-size:11px}}
 @media(max-width:799px){.sidebar{visibility:hidden}.sidebar.is-open{visibility:visible}}
-
-.language-setting{display:grid;gap:8px;max-width:360px;margin-top:20px;font-size:14px;color:var(--cp-text)}
-.language-setting select{width:100%}

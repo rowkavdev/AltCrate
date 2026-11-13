@@ -289,7 +289,7 @@ export default function ProgressionBatchPanel({
                 <option value="">{t("Escolher preset…")}</option>
                 {presets.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {t(p.name)}
+                    {p.name}
                   </option>
                 ))}
               </select>

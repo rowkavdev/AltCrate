@@ -6,7 +6,7 @@ export async function installDesktopBridge() {
     if (import.meta.env.DEV && new URLSearchParams(location.search).get('preview') === '1') {
       await import('./previewFixture.js'); return;
     }
-    throw new Error('Abre o AltCrate pela aplicação de desktop.');
+    throw new Error('Open AltCrate from the desktop app.');
   }
   await listen('casepilot:event', event => { for (const listener of listeners) listener(event.payload); });
 const invoke = (channel, ...args) => tauriInvoke('engine_invoke', {channel,args});

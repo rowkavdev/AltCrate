@@ -1,6 +1,6 @@
 import { accountIndex } from "../workspaceViewModel.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { t } from "../language.js";
+import { getLocale, t } from "../language.js";
 const outcomes = {
   confirmed: "Confirmado",
   failed: "Falhado",
@@ -208,7 +208,7 @@ export default function PersistentHistoryPanel({ model }) {
               {data.rows.map((row) => (
                 <tr key={row.id}>
                   <td>
-                    {new Date(row.at).toLocaleString("pt-PT")}
+                    {new Date(row.at).toLocaleString(getLocale())}
                     {row.durationMs != null && (
                       <small>{row.durationMs} ms</small>
                     )}

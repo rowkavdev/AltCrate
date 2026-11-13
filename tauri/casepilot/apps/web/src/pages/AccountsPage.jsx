@@ -260,7 +260,7 @@ export default function AccountsPage({ model, ui, onUiChange }) {
               ? ` · ${t("A entrar em")} ${login.label}`
               : ""}
             {login.phase === "paused"
-              ? ` · ${t("Em pausa")}: ${login.message || ""}`
+              ? ` · ${t("Em pausa")}: ${t(login.message || "")}`
               : ""}
           </span>
         </div>

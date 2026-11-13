@@ -10,7 +10,7 @@
 | **Games** | Open up to 20 account cards in the workspace. The game picker includes Blackjack, Coinflip, Jackpot, Case Battle, Crash, Upgrade, Dice, Plinko, and Guess the Rank. Individual game controls and observations vary by game and session. |
 | **Rewards and skills** | Check reward, mission, and monthly-pass eligibility. Review eligible progression changes, inspect skill maps, and manage presets. |
 | **Opening preferences** | Enable the optional page from Settings to review eligible game-side favorite and autosell preferences. Local opening rules are configured in Open cases. |
-| **Diagnostics, Activity, and Settings** | Compare account observations, inspect request timing and outcomes, export persistent history, and configure appearance, language, and available integrations. |
+| **Diagnostics, Activity, and Settings** | Compare account observations, inspect request timing and outcomes, export persistent history, and configure appearance and available integrations. |
 
 ## Review and confirmation
 

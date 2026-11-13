@@ -10,7 +10,7 @@ export const PAGE_DEFINITIONS = [
   {id:'skills',title:'Mapas de skills',description:'Planeia as skills, revê os custos e acompanha cada alteração.'},
   {id:'autoopen',title:'Preferências de abertura',description:'Escolhe os favoritos e a venda automática nas aberturas do jogo.'},
   {id:'diagnostics',title:'Diagnóstico',description:'Compara os valores observados em duas leituras da conta.'},
-  {id:'settings',title:'Definições',description:'Idioma e funcionalidades opcionais da aplicação.'},
+  {id:'settings',title:'Definições',description:'Appearance and optional app features.'},
   {id:'activity',title:'Atividade',description:'Pedidos, resultados e confirmações desta sessão.'},
 ];
 export function parsePageHash(hash='') {

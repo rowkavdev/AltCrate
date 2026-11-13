@@ -36,6 +36,6 @@ The build produces an ad-hoc-signed `release-tauri/mac-arm64/AltCrate.app`. macO
 3. Return to **Overview** and refresh. Check that the account and its observed balances appear before configuring any operations.
 4. Open **Inventory** or **Rewards** to inspect account data. Keep the first operation scoped to one account while you check its review and result screens.
 
-Use **Settings** to change the interface language. See [Troubleshooting](Troubleshooting.md) if the engine, sign-in window, or account refresh fails.
+See [Troubleshooting](Troubleshooting.md) if the engine, sign-in window, or account refresh fails.
 
 [Back to the handbook](Home.md)

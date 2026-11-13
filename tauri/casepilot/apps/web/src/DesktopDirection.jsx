@@ -10,5 +10,5 @@ export function DesktopDirection({children}){
 }
 export function DirectionSetting(){
   const [direction,set]=useState(()=>localStorage.getItem(KEY)||'ltr');
-  return <label className="direction-setting">Direção da interface<select aria-label="Direção da interface" value={direction} onChange={event=>{set(event.target.value);setDirection(event.target.value);}}><option value="ltr">Esquerda para a direita</option><option value="rtl">Direita para a esquerda (RTL)</option></select></label>;
+  return <label className="direction-setting">Interface direction<select aria-label="Interface direction" value={direction} onChange={event=>{set(event.target.value);setDirection(event.target.value);}}><option value="ltr">Left to right</option><option value="rtl">Right to left (RTL)</option></select></label>;
 }

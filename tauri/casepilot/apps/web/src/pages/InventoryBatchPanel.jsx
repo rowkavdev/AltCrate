@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { t } from "../language.js";
+import { getLocale, t } from "../language.js";
 import "./inventoryBatch.css";
 const errorMessage = (error) =>
   String(error?.message || error).replace(
@@ -56,20 +56,20 @@ export function InventoryBatchReview({
       {rows.map((row) => (
         <li key={refKey(row.ref)}>
           <strong>
-            {t(row.preview.item.name || row.ref.name || "Item sem nome")}
+            {row.preview.item.name || row.ref.name || t("Item sem nome")}
           </strong>
           <small>
             {t("Item: ")}
             {row.ref.itemId}
           </small>
           <small>
-            {t(row.preview.sourceLabel)} ({row.ref.accountId.slice(0, 8)}) ·{" "}
+            {row.preview.sourceLabel} ({row.ref.accountId.slice(0, 8)}) ·{" "}
             {t(
               row.ref.storageUnitId
                 ? "storage de origem"
                 : "inventário de origem",
             )}{" "}
-            → {t(row.preview.destinationLabel || row.preview.sourceLabel)}
+            → {row.preview.destinationLabel || row.preview.sourceLabel}
             {row.preview.destinationStorageName
               ? " · " + row.preview.destinationStorageName
               : ""}
@@ -204,7 +204,7 @@ export function InventoryBatchReview({
 function batchOption(batch) {
   return (
     <option key={batch.batchId} value={batch.batchId}>
-      {new Date(batch.createdAt).toLocaleString("pt-PT")} · {batch.items.length}{" "}
+      {new Date(batch.createdAt).toLocaleString(getLocale())} · {batch.items.length}{" "}
       {t("itens")} · {t(labels[batch.state] || batch.state)}
     </option>
   );
@@ -455,7 +455,7 @@ export default function InventoryBatchPanel({
                     onChange={() => toggle(item)}
                   />
                   <span>
-                    {t(item.name)}
+                    {item.name}
                     <small>{item.isFavorite ? t("Favorito") : ""}</small>
                   </span>
                 </label>

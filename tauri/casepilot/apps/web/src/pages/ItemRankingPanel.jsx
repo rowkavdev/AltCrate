@@ -1,8 +1,8 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {ListOrdered,RefreshCw,Square} from 'lucide-react';
-import {t} from '../language.js';
+import {getLocale,t} from '../language.js';
 import './itemRanking.css';
-const date=value=>Number.isFinite(value)?new Date(value).toLocaleString('pt-PT'):'Sem data';
+const date=value=>Number.isFinite(value)?new Date(value).toLocaleString(getLocale()):'No date';
 const stateLabel={fresh:'Atual',stale:'Obsoleto','identity-changed':'Item alterado',unavailable:'Sem posição disponível'};
 export default function ItemRankingPanel({bridge,accountId,items=[]}){
  const [selected,setSelected]=useState([]),[records,setRecords]=useState({}),[pending,setPending]=useState(false),[error,setError]=useState(''),[progress,setProgress]=useState(''),[clock,setClock]=useState(Date.now),[maxAgeMs,setMaxAgeMs]=useState(300000);

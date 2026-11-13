@@ -7,7 +7,7 @@ const bonus=(value,unit='',precision=2)=>Number.isFinite(value)?'+'+amount(value
 export function SkillPresetCard({preset,selected,onSelect,disabled}){
  const s=preset.summary,b=s?.bonuses||{};
  return <article className={'skill-preset-card'+(selected?' selected':'')}>
-  <div className="section-heading"><h4>{t(preset.name)}</h4>{selected&&<span className="status-tag good">{t('Selecionado')}</span>}</div>
+  <div className="section-heading"><h4>{preset.name}</h4>{selected&&<span className="status-tag good">{t('Selecionado')}</span>}</div>
   <p className="skill-preset-goal">{t(preset.goal||'Seleção de habilidades')}</p><p className="form-note">{t(preset.description)}</p>
   {s?.available?<><dl className="skill-preset-values"><div><dt>{t('Chance de caixas')}</dt><dd>{bonus(b[15]||0,' p.p.')}</dd></div><div><dt>{t('Dinheiro por clique')}</dt><dd>{bonus(b[11]||0,' $',3)}</dd></div><div><dt>{t('Geração do cofre por minuto')}</dt><dd>{bonus(b[14]||0,' $',1)}</dd></div><div><dt>{t('Máximo de aberturas')}</dt><dd>{bonus(b[17]||0,'',0)}</dd></div><div><dt>{t('Multiplicador de abertura')}</dt><dd>{bonus(b[20]||0,'×',0)}</dd></div><div><dt>{t('Preço máximo da caixa')}</dt><dd>{bonus(b[19]||0,' $')}</dd></div></dl>
    <p className="skill-preset-cost">{t('Custo completo: ')}<strong>{formatMoney(s.totalCost)}</strong> · {s.totalPoints} {t('pontos')}</p>
@@ -27,7 +27,7 @@ export default function SkillPresetPanel({presets=[],selectedId,onSelect,reset,o
   {loading&&<p role="status">{t('A comparar custos e efeitos nos mapas atuais…')}</p>}{error&&<p className="inline-error" role="alert">{t(error)}</p>}
   <div className="skill-preset-grid">{presets.filter(p=>!p.resetOnly).map(p=><SkillPresetCard key={p.id} preset={p} selected={p.id===selectedId} onSelect={onSelect} disabled={disabled}/>)}</div>
   <div className="skill-preset-selection">
-   <label>{t('Preset')}<select value={selectedId} disabled={disabled} onChange={e=>onSelect(e.target.value)}><option value="">{t('Escolher preset…')}</option>{presets.map(p=><option key={p.id} value={p.id}>{t(p.name)}</option>)}</select></label>
+   <label>{t('Preset')}<select value={selectedId} disabled={disabled} onChange={e=>onSelect(e.target.value)}><option value="">{t('Escolher preset…')}</option>{presets.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
    <label className="progression-checkbox"><input type="checkbox" checked={reset} disabled={disabled} onChange={e=>onReset(e.target.checked)}/><span>{t('Incluir venda das habilidades atuais antes de aplicar o preset')}</span></label>
    {reset&&<p className="progression-notice">{t('Reset explícito: cada venda devolve apenas metade do custo. A revisão apresenta a perda, o reembolso e a sequência de dependências.')}</p>}
    {selected?.resetOnly&&<p className="progression-notice">{t('Este preset apenas vende as habilidades. Seleciona o reset explícito para continuar.')}</p>}
