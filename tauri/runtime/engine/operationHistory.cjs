@@ -35,6 +35,12 @@ function createOperationHistory({store,now=Date.now,maxEntries=20000,retentionDa
  }
  async function flush(){while(pending||running)await drain();}
  function query({accountId,kind,result,from,to,offset=0,limit=200}={}){if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>1000)throw Error('Página de histórico inválida');const start=from?Date.parse(from):-Infinity,end=to?Date.parse(to):Infinity;if(Number.isNaN(start)||Number.isNaN(end))throw Error('Período inválido');const filtered=prune(rows).filter(r=>(!accountId||accountId==='all'||r.accountId===accountId||r.destinationAccountId===accountId)&&(!kind||kind==='all'||r.kind===kind||r.type===kind)&&(!result||result==='all'||r.result===result)&&Date.parse(r.at)>=start&&Date.parse(r.at)<=end).reverse();return structuredClone({rows:filtered.slice(offset,offset+limit),total:filtered.length,offset,limit,retentionDays,maxEntries});}
- return {ready,append,query,flush,export:()=>({version:1,exportedAt:new Date(now()).toISOString(),retentionDays,rows:structuredClone(prune(rows))})};
+ async function queryLatest(filters) {
+  // Wait for writes known when the read begins. Continued activity should
+  // not keep a refresh waiting for the history queue to become idle.
+  await Promise.all([running, pending?.promise]);
+  return query(filters);
+ }
+ return {ready,append,query,queryLatest,flush,export:()=>({version:1,exportedAt:new Date(now()).toISOString(),retentionDays,rows:structuredClone(prune(rows))})};
 }
 module.exports={createOperationHistory,normalize};

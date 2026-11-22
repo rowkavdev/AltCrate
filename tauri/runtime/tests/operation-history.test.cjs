@@ -8,3 +8,50 @@ test('history recovers interrupted attempts without inventing a confirmed result
 test('history coalesces a burst into one durable write with bounded pending work',async()=>{let writes=0;const h=mod.createOperationHistory({store:{load:async()=>null,save:async()=>{writes++;}},maxPending:100});await h.ready();const tasks=Array.from({length:100},(_,i)=>h.append({type:'open',accountId:'a',openedCount:i}));await assert.rejects(h.append({type:'open',accountId:'a'}),/cheia/);await h.flush();await Promise.all(tasks);assert.equal(writes,1);assert.equal(h.query({}).total,100);});
 test('a running preset step is never labeled confirmed because a previous step was verified',async()=>{const f=fixture(),h=mod.createOperationHistory({store:f.store,now:f.clock});await h.ready();await h.append({type:'progression',state:'running',verified:true,completed:1,total:2});assert.equal(h.query({}).rows[0].result,'running');});
 test('restart does not turn an already finished operation earlier running event into a pending attempt',async()=>{const f=fixture(),h=mod.createOperationHistory({store:f.store,now:f.clock});await h.ready();await h.append({type:'progression',accountId:'a',operationId:'op',state:'running'});await h.append({type:'progression',accountId:'a',operationId:'op',state:'completed',verified:true});const restored=mod.createOperationHistory({store:f.store,now:f.clock});await restored.ready();assert.equal(restored.query({result:'unconfirmed'}).total,0);});
+
+test('refresh waits for running and queued history writes before filtering', async () => {
+  let releaseFirstWrite;
+  let markWriteStarted;
+  const firstWrite = new Promise(resolve => { releaseFirstWrite = resolve; });
+  const writeStarted = new Promise(resolve => { markWriteStarted = resolve; });
+  let saveCount = 0;
+  const history = mod.createOperationHistory({
+    store: {
+      load: async () => null,
+      async save() {
+        if (++saveCount !== 1) return;
+        markWriteStarted();
+        await firstWrite;
+      },
+    },
+  });
+  await history.ready();
+  const first = history.append({ type: 'inventory-action', accountId: 'first', state: 'confirmed', verified: true });
+  await writeStarted;
+  const second = history.append({ type: 'inventory-action', accountId: 'second', state: 'confirmed', verified: true });
+  try {
+    const refreshed = history.queryLatest({ accountId: 'second', result: 'confirmed', limit: 1 });
+    releaseFirstWrite();
+    const { rows, total } = await refreshed;
+    assert.equal(total, 1);
+    assert.deepEqual(rows.map(row => row.accountId), ['second']);
+  } finally {
+    releaseFirstWrite();
+    await Promise.all([first, second]);
+  }
+});
+
+test('refresh reports a queued history write failure', async () => {
+  const history = mod.createOperationHistory({
+    store: { load: async () => null, save: async () => { throw new Error('fixture write failure'); } },
+  });
+  await history.ready();
+  const saved = history.append({ type: 'vault' });
+  const saveRejected = assert.rejects(saved, /fixture write failure/);
+  try {
+    assert.equal(typeof history.queryLatest, 'function');
+    await assert.rejects(history.queryLatest({}), /fixture write failure/);
+  } finally {
+    await saveRejected;
+  }
+});
