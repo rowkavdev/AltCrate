@@ -7,11 +7,11 @@
     "engine.io-client": "6.6.8",
     "https-proxy-agent": "^9.1.0",
     "socket.io-client": "4.8.4",
-    "socks": "^2.8.10",
+    "socks": "^2.8.11",
     "socks-proxy-agent": "^10.1.0",
     "tough-cookie": "^6.1.0",
-    "undici": "^8.12.4",
-    "ws": "^8.22.2"
+    "undici": "^8.13.1",
+    "ws": "^8.23.0"
   },
   "devDependencies": {
     "esbuild": "^0.28.2"
